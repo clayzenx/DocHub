@@ -17,7 +17,7 @@ export default (app) => {
                 error: 'Access denied'
             });
         } else {
-            request(uri, baseURL, res)
+            request(uri, baseURL, res, { parentDirLevel: req.query.parentDirLevel })
                 .catch((e) => res.status(500).json({
                     message: e.message,
                     error: e

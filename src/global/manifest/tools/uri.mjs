@@ -33,7 +33,9 @@ export default function(config) {
 				const targetURL = new URL(uri, basePathURL);
 				result = `${segments[0]}@${targetURL.pathname.slice(1)}${targetURL.search}${targetURL.hash}`;
 			} else {
+        const parentDirLevel = [...uri.matchAll(/\.\.\//g)].length;
 				result = new URL(uri, baseURI);
+        if(parentDirLevel) result.searchParams.set('parentDirLevel', parentDirLevel);
 			}
 		}
 		return result.toString();

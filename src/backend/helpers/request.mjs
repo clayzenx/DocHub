@@ -47,9 +47,10 @@ function getContentType(url) {
 
 // Выполняет запрос по URL
 //  url         - ссылка на ресурс
-//  baseUIR     - базовый URI 
+//  baseUIR     - базовый URI
 //  response    - Express response. Если установлен, то запрос будет работать как прокси.
-async function request(url, baseURI, response) {
+//  options     - Дополнительные параметры запроса
+async function request(url, baseURI, response, options) {
     // Разбираем URL
     let uri = null;
     if (baseURI) {
@@ -60,7 +61,18 @@ async function request(url, baseURI, response) {
     // Если локальное файловое хранилище
     if (uri.protocol === 'file:') {
         // eslint-disable-next-line no-undef
-        const fileName = path.join($paths.file_storage, uri.pathname);
+        let pathToFile = uri.pathname;
+        if(options?.parentDirLevel) {
+          let goBackCounter = 0;
+          const pathChain = pathToFile.split('/');
+          while(goBackCounter < options.parentDirLevel && pathChain.length > 2) {
+            pathChain.splice(pathChain.length-2, 1);
+            goBackCounter++;
+          }
+          pathToFile = pathChain.join('/');
+        }
+        // eslint-disable-next-line no-undef
+        const fileName = path.join($paths.file_storage, pathToFile);
         if (!isAvailablePath(fileName)) {
             throw `File [${fileName}] is not available.`;
         }
