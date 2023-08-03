@@ -121,7 +121,10 @@ export default {
                             start: (new Date()).getTime(),
                             end: null
                         };
-                        const result = Object.freeze(this.core.evaluate(context));
+                        let result = Object.freeze(this.core.evaluate(context));
+
+						self_?.isMultipleResult && !Array.isArray(result) && (result = [result]);
+
                         obj.trace.end = (new Date()).getTime();
                         obj.trace.exposition = this.trace.end - this.trace.start;
                         // eslint-disable-next-line no-console
@@ -135,7 +138,12 @@ export default {
                         // eslint-disable-next-line no-console
                         console.groupEnd();
                         return result;
-                    } else return Object.freeze(this.core.evaluate(context));
+                    } else { 
+						let result = self_?.isMultipleResult && (result = [result]); 
+
+						self_?.isMultipleResult && !Array.isArray(result) &&(result = [result]);
+						return result;
+					}
 
 				} catch (e) {
 					// eslint-disable-next-line no-console

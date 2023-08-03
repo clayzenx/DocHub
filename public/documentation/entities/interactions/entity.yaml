@@ -82,7 +82,8 @@ entities: # Сущности расширенной матемодели
                     type: string
                 required:
                   - id
-              source: >                   # Источник данных для рендера шаблона. Возвращает объект "interactions" по идентификатору переданному в параметрах.
+              isMultipleResult: true
+              source: >       # Источник данных для рендера шаблона. Возвращает объект "interactions" по идентификатору переданному в параметрах.
                   (
                       $lookup(interactions, $params.id)
                   )
