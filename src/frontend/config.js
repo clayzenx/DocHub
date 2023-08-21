@@ -1,5 +1,4 @@
 import env from '@front/helpers/env';
-import {Plugins} from '@front/helpers/env';
 
 // eslint-disable-next-line no-console
 console.info('ENVIRONMENTS:');
@@ -11,7 +10,7 @@ for(const key in env.dochub) {
 	console.info(`  ${key}=`, hiddenEnvs.indexOf(key) < 0 ? JSON.stringify(env.dochub[key]) : '**HIDDEN**');
 }
 
-const config: any = {};
+const config = {};
 
 if(!env.gitlabUrl) {
 	// eslint-disable-next-line no-console
