@@ -113,7 +113,7 @@ let config = {
 			rules: [
 				{
 					test: /\.svg$/,
-					loader: 'vue-svg-loader',
+					loader: 'vue-svg-loader'
 				},
 				{
 					test: /\.mjs$/,
@@ -121,7 +121,7 @@ let config = {
 					type: 'javascript/auto'
 				},
 				{
-					test: /\.tsx?$/,
+					test: /\.([cm]?ts|tsx)$/,
 					use: [
 						{
 							loader: 'ts-loader',
