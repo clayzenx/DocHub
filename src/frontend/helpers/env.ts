@@ -118,6 +118,9 @@ export default {
       return settings?.isEnterprise ? envValue : (
         settings?.render?.external ? settings?.render?.server : null
       );
+    } else if (this.isPlugin(Plugins.vscode)) {
+      const { render } = window.DochubVsCodeExt?.settings;
+      return render.server;
     } else return envValue;
   },
   // Определяет тип запроса к серверу рендеринга
@@ -139,7 +142,7 @@ export default {
       result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_IDEA;
     } else if (this.isPlugin(Plugins.vscode)) {
       result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_VSCODE;
-    } 
+    }
     result = (new URL(result, window.location.toString())).toString();
     // eslint-disable-next-line no-console
     console.info('Source of metamodel is ', result);
