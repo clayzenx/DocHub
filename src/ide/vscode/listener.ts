@@ -2,6 +2,7 @@ import { Store } from 'vuex';
 import YAML from 'yaml';
 import { listeners } from './pipe';
 import config from '@front/config';
+import { Buffer } from 'buffer';
 
 enum Files {
   'jpg',
