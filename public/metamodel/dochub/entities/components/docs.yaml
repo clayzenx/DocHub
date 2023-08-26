@@ -1,0 +1,30 @@
+# Сводка по архитектурному компоненту
+entities:
+  components:
+    presentations:
+      docs:
+        title: Документы
+        params:
+          type: object
+          properties:
+            dh-component-id:
+              title: Идентификатор компонента
+              type: string
+          required:
+            - dh-component-id
+        type: mkr-tree
+        source: >
+          (
+              $COMPONENT_ID := $params."dh-component-id";
+              $MANIFEST := $;
+              [docs.$spread().(
+                  $LINK := "/docs/" & $keys()[0];
+                  $COMPONENT_ID in *.subjects ?
+                  [$[$COMPONENT_ID in *.subjects]
+                      {
+                          "location": *.location,
+                          "title": *.description,
+                          "link": $LINK
+                      }] : undefined;
+              )[location]^(location)];
+          )
