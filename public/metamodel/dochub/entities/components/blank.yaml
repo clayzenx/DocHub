@@ -1,0 +1,51 @@
+# Бланк архитектурного компонента
+entities:
+  components:
+    presentations:
+      blank:
+        title: Карточка компонента
+        params:
+          type: object
+          properties:
+            dh-component-id:
+              title: Идентификатор компонента
+              type: string
+          required:
+            - dh-component-id
+        type: mkr-grid
+        source: >
+          (
+            $component_id := $params."dh-component-id";
+            {
+              "type": "columns",
+              "items": [
+                {
+                  "type": "rows",
+                  "width": "40%",
+                  "items": [
+                    { 
+                      "title": "Сводка",
+                      "icon": "settings",
+                      "src": "@entity/components/summary?dh-component-id=" & $component_id
+                    },
+                    { 
+                      "title": "Документы",
+                      "icon": "description",
+                      "src": "@entity/components/docs?dh-component-id=" & $component_id
+                    },
+                    { 
+                      "title": "Иерархия",
+                      "icon": "description",
+                      "src": "@entity/components/hierarchy?dh-component-id=" & $component_id
+                    }
+                  ]
+                },
+                {
+                  "width": "60%",
+                  "title": "Контексты",
+                  "icon": "mdi-link",
+                  "src": "@entity/components/contexts?dh-component-id=" & $component_id
+                }
+              ]
+            }
+          )

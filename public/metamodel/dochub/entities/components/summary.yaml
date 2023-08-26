@@ -1,0 +1,39 @@
+# Сводка по архитектурному компоненту
+entities:
+  components:
+    presentations:
+      summary:
+        title: Сводка по компоненту
+        params:
+          type: object
+          properties:
+            dh-component-id:
+              title: Идентификатор компонента
+              type: string
+          required:
+            - dh-component-id
+        type: markdown
+        template: templates/summary.md
+        source: >
+          (
+            $COMPONENT_ID := $params."dh-component-id";
+            $MANIFEST := $;
+            $lookup(components, $COMPONENT_ID).(
+                $COMPONENT := $;
+                $ENTITY := $.entity ? $.entity : "component";
+                $FORM := $MANIFEST.forms[entity.$contains($ENTITY)].fields;
+                $append([
+                    {
+                        "title": "Идентификатор",
+                        "content": $COMPONENT_ID
+                    },
+                    {
+                        "title": "Название",
+                        "content": title
+                    }
+                ], $merge($FORM).$spread().{
+                    "title": $.*.title,
+                    "content": $lookup($COMPONENT, $.$keys())
+                });
+            )
+          )

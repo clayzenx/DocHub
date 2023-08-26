@@ -1,0 +1,44 @@
+# Сводка по архитектурному компоненту
+entities:
+  components:
+    presentations:
+      hierarchy:
+        title: Иерархия компонента
+        params:
+          type: object
+          properties:
+            dh-component-id:
+              title: Идентификатор компонента
+              type: string
+          required:
+            - dh-component-id
+        type: plantuml
+        template: templates/hierarchy.puml
+        source: >
+          (
+            $join((
+              $FILTER := $params."dh-component-id";
+              $FILTER_LN := $length($FILTER);
+              $CONTEXTS := contexts;
+              $COMPONENTS := components;
+              $PARENTS := $FILTER.$split(".")~>$map(function($v, $i, $a){(
+                  $LIMIT := $i;
+                  $a~>$map(function($v, $i) { $i <= $LIMIT ? $v})~>$join(".");
+              )});
+              [[components.$spread().(
+                  $ID := $keys()[0];
+                  $PREFIX := $substring($ID, 0, $FILTER_LN + 1);
+                  $IS_CONTEXT := $lookup($CONTEXTS, $ID);
+                  $FILTER_LN = 0
+                  or ($PREFIX = $FILTER) or ($PREFIX = ($FILTER & "."))
+                  or ($ID in $PARENTS) ? (
+                  {
+                      "id": $ID,
+                      "title": $.*.title ? $.*.title : $reverse($split($ID, "."))[0],
+                      "link": $IS_CONTEXT ? "/architect/contexts/" & $ID : "/architect/components/" & $ID
+                  }) : undefined
+              )]^(id)]
+            ).(
+              "*" & $join($split(id, ".").("*")) & " [[" & link & " " & title & "]]"
+            ), "\n");
+          )

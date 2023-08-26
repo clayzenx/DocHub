@@ -1,0 +1,35 @@
+# Сводка по архитектурному компоненту
+entities:
+  components:
+    presentations:
+      contexts:
+        title: Контексты где встречается компонент
+        params:
+          type: object
+          properties:
+            dh-component-id:
+              title: Идентификатор компонента
+              type: string
+          required:
+            - dh-component-id
+        type: mkr-select
+        source: >
+          (
+            $component_id := $params."dh-component-id";
+            $append(
+              [
+                {
+                  "title": "SELF",
+                  "src": "@entity/contexts/plantuml?dh-context-id=SELF&componentId=" & $component_id
+                }
+              ],
+              [$distinct([contexts.$spread().(
+                  $CONTEXT := $;
+                  $ID := $keys()[0];
+                  *.components[$wcard($component_id, $)].{
+                      "src": "@entity/contexts/plantuml?dh-context-id=" & $ID,
+                      "title": $CONTEXT.*.title ? $CONTEXT.*.title : $ID
+                  }
+              )])]^(title)
+            )
+          )

@@ -88,33 +88,3 @@ entities:
       (
         []
       )
-
-docs:
-  select:
-    location: select
-    type: mkr-select
-    source:
-      - title: Диаграмма 1
-        src: '@entity/interactions/blank'
-        params:
-          id: dochub.user
-      - title: Диаграмма 2
-        selected: true
-        src: '@entity/interactions/blank'
-        params:
-          id: dochub.customer.promotion.article
-      - title: Диаграмма 3
-        src: '@entity/interactions/blank?id=dochub.user'
-        
-  markaper:
-    location: Markaper
-    type: mkr-grid
-    source:
-      type: columns
-      items:
-        - type: rows
-          items:
-            - src: '@entity/docs/blank?dh-doc-id=select'
-            - src: '@entity/interactions/blank?id=dochub.customer.promotion.article'
-            - src: '@entity/docs/blank?dh-doc-id=select'
-        - src: 'https://htmlbook.ru/files/images/blog/telegram.png'
