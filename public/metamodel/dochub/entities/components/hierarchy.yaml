@@ -78,6 +78,7 @@ entities:
               }            
             )^(id).(
               /* Готовим PlantUML код для MindMap */
-              "*" & $join($split(id, ".").("*")) & " [[" & link & " " & title & "]]"
+              $color := id = $FILTER ? "[#FFBBCC]" : "";
+              "*" & $join($split(id, ".").("*")) & $color & " [[" & link & " " & title & "]]"
             )~>$join("\n");
           )
