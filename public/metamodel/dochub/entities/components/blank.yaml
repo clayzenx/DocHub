@@ -20,9 +20,9 @@ entities:
             
             /* Получаем виджеты, которые нужно отобразить */
             $widgets := entities.components.presentations.blank.widgets;
-            $wleft := $widgets.*[align="<"];
-            $wright := $widgets.*[align=">"];
-            $wcenter := $widgets.*[$not(align=">" or align="<")];
+            $wleft := $widgets.*[align="<"]^(order);
+            $wright := $widgets.*[align=">"]^(order);
+            $wcenter := $widgets.*[$not(align=">" or align="<")]^(order);
 
             /* Функция генерации  профиля виджета для секции разметки */
             $makeWidget := function($widgets) {(
