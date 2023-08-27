@@ -3,6 +3,6 @@
 {{ title }}
 ```
 ```markuper-form-field
-{{ content }}
+{{ &content }}
 ```
 {{/.}}

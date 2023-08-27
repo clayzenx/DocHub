@@ -2,20 +2,40 @@
 entities:
   components:
     presentations:
+      # Встраиваемся в презентацию бланка
+      blank:
+        # Добавляем собственный виджет
+        widgets:
+          contexts: # Идентификатор виджета
+            # Иконка виджета
+            icon: description
+            # Название виджета
+            title: Контексты
+            # Идентификатор презентации, которая будет использоваться в виджете
+            presentation: contexts
+            # Расположение слева
+            align: ">"
+            # Порядок расположения
+            order: 0
+            # Определяем стиль виджета
+            style:
+              border: true
+              min-height: 300px
+              margin: 4px
       contexts:
         title: Контексты где встречается компонент
         params:
           type: object
           properties:
-            dh-component-id:
+            component:
               title: Идентификатор компонента
               type: string
           required:
-            - dh-component-id
+            - component
         type: mkr-select
         source: >
           (
-            $component_id := $params."dh-component-id";
+            $component_id := $params.component;
             $append(
               [
                 {

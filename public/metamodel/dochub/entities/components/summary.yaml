@@ -2,21 +2,40 @@
 entities:
   components:
     presentations:
+      # Встраиваемся в презентацию бланка
+      blank:
+        # Добавляем собственный виджет
+        widgets:
+          summary: # Идентификатор виджета
+            # Иконка виджета
+            icon: settings
+            # Название виджета
+            title: Сводка по компоненту
+            # Идентификатор презентации, которая будет использоваться в виджете
+            presentation: summary
+            # Расположение слева
+            align: "<"
+            # Порядок расположения
+            order: 0
+            # Определяем стиль виджета
+            style:
+              margin: 4px
+              border: true
       summary:
         title: Сводка по компоненту
         params:
           type: object
           properties:
-            dh-component-id:
+            component:
               title: Идентификатор компонента
               type: string
           required:
-            - dh-component-id
+            - component
         type: markdown
         template: templates/summary.md
         source: >
           (
-            $COMPONENT_ID := $params."dh-component-id";
+            $COMPONENT_ID := $params.component;
             $MANIFEST := $;
             $lookup(components, $COMPONENT_ID).(
                 $COMPONENT := $;
