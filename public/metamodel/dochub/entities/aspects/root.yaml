@@ -3,3 +3,4 @@ imports:
   - blank.yaml
   - contexts.yaml
   - summary.yaml
+  - hierarchy.yaml
