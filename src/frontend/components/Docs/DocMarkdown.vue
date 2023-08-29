@@ -12,7 +12,7 @@
       v-on:toc-rendered="tocRendered">
       {{ markdown }}
     </markdown>
-    <final-markdown 
+    <final-markdown
       v-if="showDocument"
       v-bind:template="outHTML"
       v-bind:base-u-r-i="url" />
@@ -26,7 +26,7 @@
 
   import requests from '@front/helpers/requests';
   import href from '@front/helpers/href';
-  
+
   import DocMarkdownObject from './DocHubObject';
   import DocMixin from './DocMixin';
   import ContextMenu from './DocContextMenu.vue';
@@ -89,7 +89,7 @@
       tocRendered(tocHTML) {
         // Не выводим оглавление, если в нем всего три раздела или меньше
         // eslint-disable-next-line no-useless-escape
-        if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3)) 
+        if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3))
           this.toc = tocHTML;
       },
       refresh() {
@@ -123,7 +123,7 @@
 }
 
 .dochub-object {
-  margin-top: 24px;
+  margin-top: 12px 24px;
   margin-bottom: 24px;
 }
 .space {
