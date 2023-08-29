@@ -85,6 +85,10 @@ entities:
             title: Люди
             presentation: people
             align: "<"
+
+            style:
+              border: true
+              margin: 4px
       people:
         params:
           type: object
