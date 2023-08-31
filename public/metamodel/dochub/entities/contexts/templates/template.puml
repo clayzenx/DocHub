@@ -157,13 +157,13 @@ skinparam component<<Person>> {
         !if ($val != 0)
         ---
         !endif
-        * $prop
+        $prop
     !elseif ($entity == system)
-        * $prop
+        $prop
     !elseif ($entity == actor || $entity == person)
 'nothing
     !else
-        * $prop
+        $prop
     !endif
 !endprocedure
 

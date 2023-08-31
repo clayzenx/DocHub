@@ -66,9 +66,16 @@ entities:
                       $result := $result & $join($component.aspects.(
                           $aspect := $lookup($manifest.aspects, $);
                           $title := $aspect ? $aspect.title : $;
+                          $ = $focusId ?
                           "$EntityAspect(\""
                           & $entity
-                          & "\",\"[[/architect/aspects/"
+                          & "\",\" <color:#FFBBCC>"
+                          & $title
+                          & "\")\n"
+                          :
+                          "$EntityAspect(\""
+                          & $entity
+                          & "\",\"* [[/architect/aspects/"
                           & $encodeUrlComponent($)
                           & " " 
                           & $title
