@@ -48,7 +48,7 @@ entities:
                         *.components[$wcard($COMPONENT_ID, $)].{
                             "id": $CONTEXT_ID,
                             "title": $TITLE,
-                            "src": "@entity/contexts/plantuml?dh-context-id=" & $CONTEXT_ID & "&dh-focus-id=" & $COMPONENT_ID
+                            "src": "@entity/contexts/plantuml?dh-context-id=" & $CONTEXT_ID & "&dh-focus-id=" & $aspect_id
                         }
                     )];
                 ) : undefined
