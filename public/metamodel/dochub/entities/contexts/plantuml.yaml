@@ -69,7 +69,7 @@ entities:
                           $ = $focusId ?
                           "$EntityAspect(\""
                           & $entity
-                          & "\",\" <color:#FFBBCC>"
+                          & "\",\" <back:#FFBBCC>"
                           & $title
                           & "\")\n"
                           :
