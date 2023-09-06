@@ -1,5 +1,6 @@
 imports:
   - base.yaml
+  - tree.yaml
   - blank.yaml
   - summary.yaml
   - docs.yaml
