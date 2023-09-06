@@ -35,7 +35,6 @@ entities:
         template: templates/hierarchy.puml
         source: >
           (
-            $CONTEXTS := contexts;
             $ASPECTS := aspects;
             /* Определяем фильтр для выделяемой иерархической структуры */
             $FILTER := $params.aspect;
@@ -46,7 +45,7 @@ entities:
             )});
             $merge((
                 /* Выбираем их компонентов нужные для построения диаграммы */
-                [aspects.$spread().(
+                [$ASPECTS.$spread().(
                       $ID := $keys()[0];
                       $PREFIX := $substring($ID, 0, $FILTER_LN + 1);
                       $FILTER_LN = 0
@@ -66,13 +65,10 @@ entities:
             ).$spread().(
               /* Готовим массив для вывода */
               $ID := $keys()[0];
-              $CONTEXT := $lookup($CONTEXTS, $ID);
               $ASPECT := $lookup($ASPECTS, $ID);
               {
                 "id": $ID,
-                "title": $ASPECT.title ? $ASPECT.title : (
-                  $CONTEXT.title ? $CONTEXT.title : $ID 
-                ),
+                "title": $ASPECT.title ? $ASPECT.title : $ID,
                 "link": $CONTEXT ? "/architect/aspects/" & $ID : "/architect/aspects/" & $ID
               }            
             )^(id).(
