@@ -40,25 +40,6 @@ const queries = {
             $MANIFEST := $;
             $append([
                     {
-                        "title": 'Архитектура',
-                        "location": 'Архитектура',
-                        "route": 'architect/',
-                        "expand": true,
-                        "icon": 'home'
-                    },
-                    {
-                        "title": "Аспекты",
-                        "location": 'Архитектура/Аспекты',
-                        "icon": 'visibility',
-                        "route": 'aspects/'
-                    },
-                    aspects.$spread().{
-                        "title": $GET_TITLE($.*.location),
-                        "route": 'architect/aspects/' & $keys()[0],
-                        "location": 'Архитектура/Аспекты/' & $.*.location,
-                        "icon": $.*.icon ? $.*.icon : ''
-                    },
-                    {
                         "title": 'Техрадар',
                         "location": 'Техрадар',
                         "route": 'techradar',
