@@ -8,9 +8,11 @@ nodes:
   outside.user:                # Пользователь
     title: Пользователь
     symbol: user
+    tag: user
   outside.application:         # FrontEnd приложение
     title: AndroidApp
     symbol: system
+    tag: app
 
   # Внутренняя среда
   inside:                      
@@ -30,6 +32,8 @@ nodes:
   inside.postgres:            # База данных для хранения бизнес-данных
     title: Основная БД
     symbol: database
+    tag: db
   inside.redis:               # База данных для хранения сессий
     title: Основная БД
     symbol: database
+    tag: db
