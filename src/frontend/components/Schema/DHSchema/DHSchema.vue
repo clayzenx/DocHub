@@ -1,5 +1,5 @@
 <template>
-  <svg 
+  <svg
     ref="zoomAndPan"
     class="dochub-schema"
     xmlns="http://www.w3.org/2000/svg"
@@ -15,7 +15,7 @@
     v-on:mousedown.prevent="(e) => zoomAndPanMouseDown(e) && onClickSpace(e)"
     v-on:mousemove.prevent="zoomAndPanMouseMove"
     v-on:mouseup.prevent="zoomAndPanMouseUp"
-    v-on:mouseleave.prevent="zoomAndPanMouseUp"> 
+    v-on:mouseleave.prevent="zoomAndPanMouseUp">
     <template v-if="isFirefox">
       <g class="symbols">
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
@@ -26,7 +26,7 @@
         <g v-for="symbol in symbols" v-bind:id="symbol.id" v-bind:key="symbol.id" v-html="symbol.content" />
       </defs>
     </template>
-    <text 
+    <text
       v-if="data.header"
       id="title"
       v-bind:x="landscape.viewBox.titleX"
@@ -34,15 +34,15 @@
       alignment-baseline="hanging"
       v-bind:style="titleStyle">{{ data.header.title }}
     </text>
-    <schema-node 
+    <schema-node
       v-bind:offset-x="0"
       v-bind:offset-y="0"
-      v-bind:layer="presentation.layers" 
+      v-bind:layer="presentation.layers"
       v-on:node-click="onNodeClick" />
-    <schema-track 
+    <schema-track
       v-for="track in presentation.tracks"
       v-bind:key="track.id"
-      v-bind:track="track" 
+      v-bind:track="track"
       v-bind:line-width-limit="lineWidthLimit"
       v-on:track-over="onTrackOver(track)"
       v-on:track-click="onTrackClick(track)"
@@ -50,20 +50,20 @@
 
     <schema-info
       v-show="animation.information"
-      v-bind:x="landscape.viewBox.left + 12" 
-      v-bind:width="landscape.viewBox.width - 24" 
+      v-bind:x="landscape.viewBox.left + 12"
+      v-bind:width="landscape.viewBox.width - 24"
       v-bind:text="animation.information" />
 
-    <schema-debug-node 
+    <schema-debug-node
       v-if="debug"
       v-bind:offset-x="0"
       v-bind:offset-y="0"
-      v-bind:layer="presentation.layers" 
+      v-bind:layer="presentation.layers"
       v-on:node-click="onNodeClick" />
 
 
     <template v-if="isBuilding">
-      <rect 
+      <rect
         fill="#fff"
         opacity="0.8"
         v-bind:x="landscape.viewBox.left"
@@ -72,7 +72,7 @@
         v-bind:height="landscape.viewBox.height" />
       <circle
         v-if="isBuilding"
-        class="spinner" 
+        class="spinner"
         v-bind:cx="landscape.viewBox.left + landscape.viewBox.width * 0.5 - 25"
         v-bind:cy="landscape.viewBox.top + landscape.viewBox.height * 0.5 - 25"
         r="20"
@@ -81,7 +81,7 @@
     </template>
 
     <template v-if="error">
-      <text 
+      <text
         v-bind:x="landscape.viewBox.left"
         v-bind:y="landscape.viewBox.top + 10"
         alignment-baseline="hanging"
@@ -102,7 +102,7 @@
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
 
   import ZoomAndPan from '../zoomAndPan';
-  
+
   const Graph = new function() {
     const codeWorker = require(`!!raw-loader!${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`).default;
     const scriptBase64 = btoa(unescape(encodeURIComponent(codeWorker)));
@@ -143,11 +143,11 @@
   import SchemaInfo from './DHSchemaInfo.vue';
 
   // SVG примитивы
-  import SVGSymbolCloud from '!!raw-loader!./symbols/cloud.xml';  
-  import SVGSymbolUser from '!!raw-loader!./symbols/user.xml';  
-  import SVGSymbolSystem from '!!raw-loader!./symbols/system.xml';  
-  import SVGSymbolDatabase from '!!raw-loader!./symbols/database.xml';  
-  import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';  
+  import SVGSymbolCloud from '!!raw-loader!./symbols/cloud.xml';
+  import SVGSymbolUser from '!!raw-loader!./symbols/user.xml';
+  import SVGSymbolSystem from '!!raw-loader!./symbols/system.xml';
+  import SVGSymbolDatabase from '!!raw-loader!./symbols/database.xml';
+  import SVGSymbolComponent from '!!raw-loader!./symbols/component.xml';
 
   const OPACITY = 0.3;
   const IS_DEBUG = false;
@@ -177,16 +177,16 @@
         type: Number,
         default: 1
       },
-      // 
+      //
       voice: {
         type: Boolean,
         default: true
-      },  
+      },
       data: {
         type: Object,
         default() {
           return {
-            symbols: {}, 
+            symbols: {},
             nodes: {},
             links: [],
             animation: {
@@ -202,7 +202,7 @@
         isBuilding: 0,
         resizer: null,
         debug: IS_DEBUG ? {
-          
+
         } : null,
         selected: {
           links: {},
@@ -234,8 +234,8 @@
         return +this.data.config?.lineWidthLimit || 20;
       },
       titleStyle() {
-        return ({ 
-          'fill': this.data?.header.style['color'], 
+        return ({
+          'fill': this.data?.header.style['color'],
           'font-weight': this.data?.header.style['font-weight'],
           'font-size': this.data?.header.style['font-size']
         });
@@ -346,7 +346,7 @@
       // Обработка клика по объекту
       onNodeClick(box) {
         if (!window?.event?.shiftKey) {
-          this.cleanSelectedTracks();
+          // this.cleanSelectedTracks();
           this.cleanSelectedNodes();
         }
         this.selectNodeAndNeighbors(box);
@@ -371,13 +371,13 @@
           return 1;
         });
       },
-      // Фиксируем выбор линка  
+      // Фиксируем выбор линка
       onTrackClick(track) {
         if(track.link.link) {
           this.$emit('on-click-link', track.link);
         } else {
           if (!window?.event?.shiftKey) {
-            this.cleanSelectedTracks();
+            // this.cleanSelectedTracks();
             this.cleanSelectedNodes();
           }
           this.selected.links[track.id] = track;
@@ -415,7 +415,7 @@
         if(event.shiftKey) return;
         event = event || window.event;
         if (event.which === 1) {
-          this.cleanSelectedTracks();
+          // this.cleanSelectedTracks();
           this.cleanSelectedNodes();
           this.updateNodeView();
         } else event.preventDefault();
@@ -458,7 +458,7 @@
         const hideTitles = this.data.config?.hideTitles;
         nodes = nodes || this.data.nodes || {};
         for(let node in nodes) {
-          if(hideTitles || !nodes[node] || !nodes[node]?.title) 
+          if(hideTitles || !nodes[node] || !nodes[node]?.title)
             nodes[node] = ({...nodes[node], title: ' ' });
         }
         let availableWidth = this.$el?.clientWidth || 0;
@@ -476,7 +476,7 @@
           .then((presentation) => {
             this.presentation = presentation;
             this.rebuildViewBox();
-            this.cleanSelectedTracks();
+            // this.cleanSelectedTracks();
             this.cleanSelectedNodes();
             this.$nextTick(() => this.$el && href.elProcessing(this.$el));
           })

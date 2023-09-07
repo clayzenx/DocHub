@@ -33,31 +33,3 @@ nodes:
   inside.redis:               # База данных для хранения сессий
     title: Основная БД
     symbol: database
-links:           
-  # Внешняя среда         
-  - from: outside.user         # Модифицируем идентификаторы в связях      
-    to: outside.application            
-    style: "<->"    
-
-  # Внутренняя среда
-  - from: outside.application
-    to: inside.apigateway
-    style: "<->"
-  - from: inside.apigateway
-    to: inside.backend
-    style: "<->"    
-  - from: inside.apigateway
-    to: inside.sso
-    style: "<->"
-  - from: inside.backend
-    to: inside.postgres
-    style: "<->"
-  - from: inside.sso
-    to: inside.redis
-    style: "<->"
-  - from: inside.backend
-    to: inside.logger
-    style: "->"
-  - from: inside.apigateway
-    to: inside.logger
-    style: "->"
