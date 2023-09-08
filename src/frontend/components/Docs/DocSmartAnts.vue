@@ -38,7 +38,7 @@
             <v-icon>{{ isPaying ? 'mdi-stop' : 'mdi-play' }}</v-icon>
           </v-btn>
           <!--
-            Имеются проблемы с перемоткой назад. 
+            Имеются проблемы с перемоткой назад.
             Плохо отрабатывают шаги очистки, т.е. отмотать состояние не удается без артефактов
           <v-btn
             v-if="isPaying"
@@ -56,8 +56,8 @@
             <v-icon>mdi-skip-next</v-icon>
           </v-btn>
         </template>
-      </v-system-bar>       
-      <schema 
+      </v-system-bar>
+      <schema
         ref="schema"
         v-model="status"
         class="schema"
@@ -88,7 +88,7 @@
             <v-divider v-else v-bind:key="index" />
           </template>
         </v-list>
-      </v-menu>        
+      </v-menu>
     </v-card>
   </box>
 </template>
@@ -103,8 +103,8 @@
 
   export default {
     name: 'DocHubViewpoint',
-    components: { 
-      Schema 
+    components: {
+      Schema
     },
     mixins: [DocMixin],
     props: {
@@ -207,8 +207,8 @@
             }
           }
         };
-        
-        
+
+
         /*
         const createStyleElementFromCSS = () => {
           // assume index.html loads only one CSS file in <header></header>
@@ -223,7 +223,7 @@
           style.appendChild(document.createTextNode(styleRules.join(' ')));
 
           return style;
-        };        
+        };
         const style = createStyleElementFromCSS();
         svgElement.insertBefore(style, svgElement.firstChild);
         */
@@ -255,7 +255,7 @@
         });
         event.preventDefault();
         event.stopPropagation();
-      },      
+      },
       //Очистка состояния
       clean() {
         this.status = {};
@@ -337,7 +337,7 @@
         this.$refs.schema.$emit(this.isPaying ? 'stop' : 'play', this.scenario);
       },
       // Команда перейти на предыдущий шаг немедленно
-      // todo нужно доработать возврат 
+      // todo нужно доработать возврат
       playPrev() {
         this.$refs.schema.$emit('prev');
       },
