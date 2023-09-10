@@ -10,7 +10,7 @@ entities:
           (
             $COMPONENTS := components;
             $merge((
-                /* Выбираем их компонентов нужные для построения диаграммы */
+                /* Выбираем из компонентов нужные для построения диаграммы */
                 [$COMPONENTS.$spread().(
                     $keys()[0]~>$split(".")~>$map(function($v, $limit, $struct) {
                         {
