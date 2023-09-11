@@ -465,6 +465,7 @@
         if (availableWidth < 600) availableWidth = 600;
         this.isBuilding++;
         Graph.make(
+          this.data.config?.grid || {},
           nodes,
           links || this.data.links || [],
           trackWidth,
