@@ -1,6 +1,15 @@
 config:                 
   distance: 80         
   trackWidth: 18        
+  grid:
+  - row:
+    - col: db
+    - col: user
+  - row:
+    - col:
+      - row:
+        - col: app
+        - col: default
 nodes:
   # Внешняя среда
   outside:
@@ -39,7 +48,7 @@ nodes:
     tag: db
 links:           
   # Внешняя среда         
-  - from: outside.user         # Модифицируем идентификаторы в связях      
+  - from: outside.user         # Модифицируем идентификаторы в связях  
     to: outside.application            
     style: "<->"    
 
