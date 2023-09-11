@@ -1,8 +1,8 @@
 <template>
   <g>
-    <g 
-      v-for="box in layer.boxes"
-      v-bind:key="box.node.id">
+    <g
+      v-for="(box, idx) in layer.boxes"
+      v-bind:key="box.node + idx">
       <g v-if="isArea(box)">
         <rect
           v-if="isArea(box)"

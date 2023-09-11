@@ -346,7 +346,7 @@
       // Обработка клика по объекту
       onNodeClick(box) {
         if (!window?.event?.shiftKey) {
-          // this.cleanSelectedTracks();
+          this.cleanSelectedTracks();
           this.cleanSelectedNodes();
         }
         this.selectNodeAndNeighbors(box);
@@ -377,7 +377,7 @@
           this.$emit('on-click-link', track.link);
         } else {
           if (!window?.event?.shiftKey) {
-            // this.cleanSelectedTracks();
+            this.cleanSelectedTracks();
             this.cleanSelectedNodes();
           }
           this.selected.links[track.id] = track;
@@ -415,7 +415,7 @@
         if(event.shiftKey) return;
         event = event || window.event;
         if (event.which === 1) {
-          // this.cleanSelectedTracks();
+          this.cleanSelectedTracks();
           this.cleanSelectedNodes();
           this.updateNodeView();
         } else event.preventDefault();
@@ -477,7 +477,7 @@
           .then((presentation) => {
             this.presentation = presentation;
             this.rebuildViewBox();
-            // this.cleanSelectedTracks();
+            this.cleanSelectedTracks();
             this.cleanSelectedNodes();
             this.$nextTick(() => this.$el && href.elProcessing(this.$el));
           })
