@@ -422,12 +422,12 @@
       },
       // Перестроить viewbox
       rebuildViewBox() {
-        const width = this.presentation.valueBox.dx - this.presentation.valueBox.x;
+        const width = this.presentation.valueBox?.dx - this.presentation.valueBox.x;
         let height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
         const titleWidth = this.$el?.querySelector('#title')?.clientWidth;
 
-        this.landscape.viewBox.titleX = this.presentation.valueBox.x + (this.presentation.valueBox.dx - this.presentation.valueBox.x)/2 - titleWidth/2;
+        this.landscape.viewBox.titleX = this.presentation.valueBox.x + (this.presentation.valueBox?.dx - this.presentation.valueBox.x)/2 - titleWidth/2;
 
         this.landscape.viewBox.top = this.presentation.valueBox.y - 48;
 
