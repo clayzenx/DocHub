@@ -162,7 +162,16 @@
           });
 
           const nodes = {};
-          this.focusNodes.map((id) => nodes[id] = result.nodes[id]);
+          this.focusNodes.map((id) => {
+            nodes[id] = result.nodes[id];
+            let nodeName = '';
+            id.split('.').forEach(domain => {
+              if(!nodeName.length) nodeName += domain;
+              else nodeName = [nodeName, domain].join('.');
+              if(!nodes[nodeName])
+                nodes[nodeName] = result.nodes[nodeName];
+            });
+          });
 
           result = JSON.parse(JSON.stringify({
             config: result.config,
