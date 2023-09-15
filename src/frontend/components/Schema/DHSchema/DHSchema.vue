@@ -12,7 +12,7 @@
     stroke="transparent"
     v-bind:style="style"
     v-on:wheel="zoomAndPanWheelHandler"
-    v-on:mousedown.prevent="(e) => zoomAndPanMouseDown(e) && onClickSpace(e)"
+    v-on:mousedown.prevent="(e) => { zoomAndPanMouseDown(e); onClickSpace(e) }"
     v-on:mousemove.prevent="zoomAndPanMouseMove"
     v-on:mouseup.prevent="zoomAndPanMouseUp"
     v-on:mouseleave.prevent="zoomAndPanMouseUp">
@@ -330,7 +330,10 @@
       },
       // Выделяет ноду
       selectNode(box) {
-        this.selected.nodes[box.node.id] = box;
+        this.selected.nodes = {
+          ...this.selected.nodes,
+          [box.node.id]: box
+        };
       },
       // Выделяет ноду и ее соседей со связями
       selectNodeAndNeighbors(box) {
@@ -383,6 +386,7 @@
           this.selected.links[track.id] = track;
           this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
           this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
+          this.selected.nodes = {...this.selected.nodes};
           this.updateNodeView();
           this.updateTracksView();
         }
