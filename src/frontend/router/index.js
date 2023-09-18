@@ -3,7 +3,7 @@ import Router from 'vue-router';
 import cookie from 'vue-cookie';
 
 import gateway from '@idea/gateway';
-import env, {Plugins} from '@front/helpers/env';
+import env from '@front/helpers/env';
 
 import appRoutes from './routes';
 
@@ -20,7 +20,7 @@ const rConfig = {
 	]
 };
 
-if (!env.isPlugin(Plugins.idea)) {
+if (!env.isPlugin()) {
 	rConfig.mode = 'history';
 	rConfig.routes.push(
 		{
