@@ -187,7 +187,7 @@ export default {
 							location: url
 						});
 					}
-				} else if (data.uri === consts.plugin.ROOT_MANIFEST) {
+				} else if (data.uri === consts.plugin.ROOT_MANIFEST || action === 'file-system') {
 					context.commit('setNoInited', true);
 				} else {
           const item = {
