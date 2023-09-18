@@ -93,11 +93,14 @@ const parser = {
 		// eslint-disable-next-line no-console
 		console.error(e, `Ошибка запроса [${errorPath}:${uri}]`, e);
 		this.pushToMergeMap(errorPath, null, uri);
+    if(typeof e === 'string') e = JSON.parse(e);
 		let errorType = (() => {
 			switch (e.name) {
 				case 'YAMLSyntaxError':
 				case 'YAMLSemanticError':
 					return 'syntax';
+        case 'EntryIsADirectory (FileSystemError)':
+          return 'file-system'
 				default:
 					return 'net';
 			}
