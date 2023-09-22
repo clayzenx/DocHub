@@ -138,12 +138,14 @@ export default {
   get uriMetamodel(): string {
     const settings = (window.DocHubIDEACodeExt || window.DochubVsCodeExt)?.settings;
     let result = this.dochub.VUE_APP_DOCHUB_METAMODEL || DEF_METAMODEL_URI_PORTAL;
+    let host = window.location.toString();
     if (this.isPlugin(Plugins.idea)) {
       result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_IDEA;
     } else if (this.isPlugin(Plugins.vscode)) {
       result = settings?.isEnterprise ? result : DEF_METAMODEL_URI_VSCODE;
+      host = settings?.enterpriseServer;
     }
-    result = (new URL(result, window.location.toString())).toString();
+    result = (new URL(result, host)).toString();
     // eslint-disable-next-line no-console
     console.info('Source of metamodel is ', result);
     return result;

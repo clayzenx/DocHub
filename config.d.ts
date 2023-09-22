@@ -3,6 +3,7 @@ declare var DochubVsCodeExt: {
   rootManifest: string,
   settings: {
     isEnterprise: boolean,    // Признак использования фронта в плагине как Enterprise портала
+    enterpriseServer?: string,
     render: {
       external: boolean,
       mode: string,
@@ -17,6 +18,7 @@ declare var DocHubIDEACodeExt: {
   rootManifest: string,       // Корневой манифест (с чего начинается загрузка)
   settings: {
     isEnterprise: boolean,    // Признак использования фронта в плагине как Enterprise портала
+    enterpriseServer?: string,
     render: {
       external: boolean,      // Признак рендера на внешнем сервере
       mode: string,           // Режим рендера ELK / Smetana / GraphVis
