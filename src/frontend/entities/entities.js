@@ -1,7 +1,7 @@
 // Обрабатывает кастомные сущности
 import query from '@front/manifest/query';
 import crc16 from '@global/helpers/crc16';
-import env, {Plugins} from '@front/helpers/env';
+import env from '@front/helpers/env';
 import yaml from 'yaml';
 import masterSchema from '!!raw-loader!@assets/master-schema.yaml';
 import { DocTypes } from '@front/components/Docs/enums/doc-types.enum';
@@ -68,8 +68,8 @@ function makeDefsEnum($defs, $rels) {
 		// eslint-disable-next-line no-console
 		console.error('Error of building of definitions enumeration!');
 		// eslint-disable-next-line no-console
-		console.error(e);		
-		
+		console.error(e);
+
 	}
 	return {
 		'$defs': {
@@ -103,7 +103,7 @@ function makeDocTypesEnum() {
 
 // Регистрирует кастомные сущности
 export default function(manifest) {
-	if (env.isPlugin(Plugins.idea)) {
+	if (env.isPlugin()) {
 		//todo Здесь нужно рефачить, чтобы запросы в бэк ходили
 		query.expression(query.entitiesJSONSchema()).evaluate(manifest || {})
 			.then((result) => {
@@ -132,9 +132,11 @@ export default function(manifest) {
 				const schemaString = JSON.stringify(schema);
 				// Считаем контрольную сумму
 				const crc = crc16(schemaString);
+        appliedSchemaCRC = localStorage.getItem('appliedSchemaCRC');
 				// Отправляем в плагин только если схема изменилась
 				if (crc != appliedSchemaCRC) {
 					window.$PAPI.applyEntitiesSchema(schemaString);
+          localStorage.setItem('appliedSchemaCRC', crc);
 					appliedSchemaCRC = crc;
 				}
 			// eslint-disable-next-line no-console
