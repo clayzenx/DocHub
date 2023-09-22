@@ -17,6 +17,9 @@ export default (): void => {
     initProject(mode): void {
       emit('create', mode);
     },
+    applyEntitiesSchema(schema) {
+      emit('applyschema', JSON.stringify({ schema }));
+    },
     download(content, title, description): void {
       const stringifedUri = JSON.stringify({
         content, title, description
