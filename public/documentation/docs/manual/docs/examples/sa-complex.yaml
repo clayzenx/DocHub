@@ -1,15 +1,6 @@
 config:                 
   distance: 80         
   trackWidth: 18        
-  grid:
-  - row:
-    - col: db
-    - col: user
-  - row:
-    - col:
-      - row:
-        - col: app
-        - col: default
 nodes:
   # Внешняя среда
   outside:
@@ -17,11 +8,9 @@ nodes:
   outside.user:                # Пользователь
     title: Пользователь
     symbol: user
-    tag: user
   outside.application:         # FrontEnd приложение
     title: AndroidApp
     symbol: system
-    tag: app
 
   # Внутренняя среда
   inside:                      
@@ -41,11 +30,9 @@ nodes:
   inside.postgres:            # База данных для хранения бизнес-данных
     title: Основная БД
     symbol: database
-    tag: db
   inside.redis:               # База данных для хранения сессий
     title: Основная БД
     symbol: database
-    tag: db
 links:           
   # Внешняя среда         
   - from: outside.user         # Модифицируем идентификаторы в связях  
