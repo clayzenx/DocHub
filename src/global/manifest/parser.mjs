@@ -46,6 +46,12 @@ const parser = {
 	manifest: {},
 	// Лог загруженных файлов
 	loaded: {},
+  // Загруженные пакеты
+  packages: [
+    { $package: { name: 'dep1', ver: '^0.5.6' } }
+  ],
+  // Ожидающие пакеты
+  awaitedPackages: [],
 	// Возвращает тип значения
 	fieldValueType(value) {
 		const type = typeof value;
@@ -222,6 +228,28 @@ const parser = {
 		}
 	},
 
+  isDepsResolved(pkg) {
+    // если у пакета нет зависимостей то и нечего решать
+    if(!pkg.deps) return true;
+
+    // если нет установленых пакетов то зависимости не решены
+    if(!parser?.packages?.length) return false
+
+    if(Array.isArray(pkg.deps) && pkg.deps.length) {
+      // проверяем все ли зависимости установлены
+      return pkg.deps.every(dep => {
+        const [name, ver] = Object.entries(dep)[0];
+
+        // Зависимость установлена (есть в packages)?
+        return parser.packages.find(({ $package }) => {
+          // TODO: парсинг версии
+          return ($package?.name === name && $package.ver === ver)
+        });
+
+      })
+    }
+  },
+
 	// Подключение манифеста
 	async import(uri) {
 		try {
@@ -229,6 +257,28 @@ const parser = {
 			const manifest = response && (typeof response.data === 'object'
 				? response.data
 				: JSON.parse(response.data));
+
+      // пройтись по ожидающим и проверить зарезолвелнены ли их зависимости.
+      // Если да - то распарсить их и убрать из ждунов
+
+      // если манифест - пакет
+      if(manifest?.$package) {
+        // проверить зависимости
+        // если ок - то положить в пакеты и распарсить
+        // если не ок - то положить в ожидания и скипнуть
+        const $package = manifest.$package;
+        
+        // у пакета решены его зависимости
+        if(parser.isDepsResolved($package)) {
+          console.log('dependencies resolved!!!');
+          // TODO: парсинг пакета как манифеста
+        } else {
+          // добавляем пакет в ждуны
+          this.awaitedPackages.push(manifest);
+          console.log('this.awaitedPackages', this.awaitedPackages);
+        }
+
+      }
 
 			if (manifest) {
 				// Определяем режим манифеста
