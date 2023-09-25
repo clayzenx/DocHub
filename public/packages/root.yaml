@@ -1,0 +1,9 @@
+$package:
+  name: testPackage
+  ver: 1.0.0
+  deps:
+    - dep1: ^0.5.6
+    - dep2: 2.0.0
+
+imports:
+  - ./res.yaml
