@@ -47,9 +47,7 @@ const parser = {
 	// Лог загруженных файлов
 	loaded: {},
   // Загруженные пакеты
-  packages: [
-    { $package: { name: 'dep1', ver: '^0.5.6' } }
-  ],
+  packages: [],
   // Ожидающие пакеты
   awaitedPackages: [],
 	// Возвращает тип значения
@@ -228,6 +226,57 @@ const parser = {
 		}
 	},
 
+  async parseManifest(manifest, uri) {
+    this.manifest = this.merge(this.manifest, manifest, uri);
+
+    for (const section in manifest) {
+      const node = manifest[section];
+      switch (section) {
+        case 'forms':
+        case 'namespaces':
+        case 'aspects':
+        case 'docs':
+        case 'contexts':
+        case 'components':
+        case 'rules':
+        case 'datasets':
+          await this.parseEntity(node, `/${section}`, uri);
+          break;
+        case 'imports':
+          for (const key in node) {
+            const url = parser.cache.makeURIByBaseURI(node[key], uri);
+            if(url === 'http://localhost:8080/packages/res.yaml') {
+              console.log('url', url);
+            }
+            if (this.loaded[url]) {
+              // eslint-disable-next-line no-console
+              console.warn(`Manifest [${url}] already loaded.`);
+            } else {
+              this.loaded[url] = true;
+              await this.import(url, true);
+            }
+          }
+          break;
+      }
+    }
+  },
+
+  async checkAwaitedPackages() {
+    // пройтись по ожидающим пакетам и проверить зарезолвелнены ли их зависимости.
+    // Если да - то распарсить их и убрать из ждунов
+    if(parser.awaitedPackages?.length) {
+      parser.awaitedPackages = parser.awaitedPackages.filter(pkg => {
+        if(parser.isDepsResolved(pkg.$package)) {
+          const uri = pkg.uri
+          delete pkg.uri
+          console.log('deps resolved', pkg, uri, parser.packages);
+          this.parseManifest(pkg, uri);
+          return false;
+        } else return true;
+      })
+    }
+  },
+
   isDepsResolved(pkg) {
     // если у пакета нет зависимостей то и нечего решать
     if(!pkg.deps) return true;
@@ -258,69 +307,24 @@ const parser = {
 				? response.data
 				: JSON.parse(response.data));
 
-      // пройтись по ожидающим и проверить зарезолвелнены ли их зависимости.
-      // Если да - то распарсить их и убрать из ждунов
-      if(parser.awaitedPackages?.length) {
-        parser.awaitedPackages = parser.awaitedPackages.filter(pkg => {
-          if(parser.isDepsResolved(pkg.$package)) {
-            // TODO parse manifest
-            console.log('deps resolverd');
-            return false;
-          } else return true;
-        })
-      }
-
       // если манифест - пакет
       if(manifest?.$package) {
-        // проверить зависимости
-        // если ок - то положить в пакеты и распарсить
-        // если не ок - то положить в ожидания и скипнуть
         const $package = manifest.$package;
         
-        // у пакета решены его зависимости
+        // если у пакета решены его зависимости
         if(parser.isDepsResolved($package)) {
-          console.log('dependencies resolved!!!');
-          // TODO: парсинг пакета как манифеста
-        } else {
-          // добавляем пакет в ждуны
-          this.awaitedPackages.push(manifest);
+          parser.packages.push(manifest);
+          console.log('add package', manifest);
+          await this.checkAwaitedPackages();
+          await this.parseManifest(manifest, uri);
         }
+        else {
+          this.awaitedPackages.push({...manifest, uri});
+          console.log('add awaitedPackage', manifest);
+          return;
+        }
+      } else await this.parseManifest(manifest, uri); //!
 
-      }
-
-			if (manifest) {
-				// Определяем режим манифеста
-				// eslint-disable-next-line no-unused-vars
-                this.manifest = this.merge(this.manifest, manifest, uri);
-
-				for (const section in manifest) {
-					const node = manifest[section];
-					switch (section) {
-						case 'forms':
-						case 'namespaces':
-						case 'aspects':
-						case 'docs':
-						case 'contexts':
-						case 'components':
-						case 'rules':
-						case 'datasets':
-							await this.parseEntity(node, `/${section}`, uri);
-							break;
-						case 'imports':
-							for (const key in node) {
-								const url = parser.cache.makeURIByBaseURI(node[key], uri);
-								if (this.loaded[url]) {
-									// eslint-disable-next-line no-console
-									console.warn(`Manifest [${url}] already loaded.`);
-								} else {
-									this.loaded[url] = true;
-									await this.import(url, true);
-								}
-							}
-							break;
-					}
-				}
-			}
 		} catch (e) {
 			this.registerError(e, uri);
 		}
