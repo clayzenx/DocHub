@@ -5,3 +5,5 @@ imports:
   - arch/root.yaml
   - entities/root.yaml
   - ../packages/root.yaml
+  - ../packages/dep1.yaml
+  - ../packages/dep2.yaml
