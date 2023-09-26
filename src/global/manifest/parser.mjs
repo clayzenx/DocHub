@@ -260,6 +260,15 @@ const parser = {
 
       // пройтись по ожидающим и проверить зарезолвелнены ли их зависимости.
       // Если да - то распарсить их и убрать из ждунов
+      if(parser.awaitedPackages?.length) {
+        parser.awaitedPackages = parser.awaitedPackages.filter(pkg => {
+          if(parser.isDepsResolved(pkg.$package)) {
+            // TODO parse manifest
+            console.log('deps resolverd');
+            return false;
+          } else return true;
+        })
+      }
 
       // если манифест - пакет
       if(manifest?.$package) {
@@ -275,7 +284,6 @@ const parser = {
         } else {
           // добавляем пакет в ждуны
           this.awaitedPackages.push(manifest);
-          console.log('this.awaitedPackages', this.awaitedPackages);
         }
 
       }
