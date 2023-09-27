@@ -288,19 +288,19 @@ const parser = {
 
   isDepsResolved(pkg) {
     // если у пакета нет зависимостей то и нечего решать
-    if(!pkg?.deps) return true;
+    if(!pkg?.dependencies) return true;
 
     // если нет установленых пакетов то зависимости не решены
     const packageTuples = Object.entries(this.packages);
     if(!packageTuples?.length) return false
 
     // проверяем все ли зависимости установлены
-    return pkg.deps.every(dep => {
-      const [name, ver] = Object.entries(dep)[0];
+    return pkg.dependencies.every(dep => {
+      const [id, version] = Object.entries(dep)[0];
 
       // Зависимость установлена (есть в packages)?
-      return packageTuples.find(( [n, v] ) =>
-        (name === n && semver.satisfies(v, ver))
+      return packageTuples.find(( [i, v] ) =>
+        (id === i && semver.satisfies(v, version))
       );
 
     })
@@ -324,7 +324,7 @@ const parser = {
           await this.parseManifest(manifest, uri);
           console.log('add package', $package);
           // TODO если пакет уже установлен с другой версией то что?
-          this.packages[$package.name] = $package.ver
+          this.packages[$package.id] = $package.version
           await this.checkAwaitedPackages();
         }
         // иначе складываем пакет в ждуны
@@ -336,6 +336,7 @@ const parser = {
       } else await this.parseManifest(manifest, uri);
 
 		} catch (e) {
+      // TODO register package error
 			this.registerError(e, uri);
 		}
 	}
