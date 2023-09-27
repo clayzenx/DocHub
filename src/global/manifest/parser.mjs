@@ -2,6 +2,14 @@ import * as semver from 'semver';
 import cache from './services/cache.mjs';
 import prototype from './prototype.mjs';
 
+class PackageError extends Error {
+  constructor(uri, message) {
+    super(message)
+    this.name = 'Package'
+    this.uri = uri
+  }
+}
+
 // Определяет глубину лога источника для секции
 const sectionDeepLog = {
 	'forms': 0,
@@ -105,7 +113,9 @@ const parser = {
 				case 'YAMLSemanticError':
 					return 'syntax';
         case 'EntryIsADirectory (FileSystemError)':
-          return 'file-system'
+          return 'file-system';
+        case 'Package':
+          return 'package';
 				default:
 					return 'net';
 			}
@@ -271,7 +281,7 @@ const parser = {
 
     this.awaitedPackages = Object.fromEntries(
       awaitedTuples.filter(([url, pkg]) => {
-        if(this.isDepsResolved(pkg.$package)) {
+        if(this.isDepsResolved(url, pkg.$package)) {
           resolved[url] = pkg;
           return false;
         } else return true;
@@ -286,7 +296,7 @@ const parser = {
     return await Promise.all(parsingPackages);
   },
 
-  isDepsResolved(pkg) {
+  isDepsResolved(uri, pkg) {
     // если у пакета нет зависимостей то и нечего решать
     if(!pkg?.dependencies) return true;
 
@@ -299,9 +309,17 @@ const parser = {
       const [id, version] = Object.entries(dep)[0];
 
       // Зависимость установлена (есть в packages)?
-      return packageTuples.find(( [i, v] ) =>
-        (id === i && semver.satisfies(v, version))
-      );
+      return packageTuples.find(( [i, v] ) => {
+        if(id !== i) return false
+
+        if(!semver.satisfies(v, version)) {
+          throw new PackageError(
+            uri,
+            `Не подходящая версия пакета "${id}". Требуется "${version}" но найдена "${v}"`
+          );
+        }
+        return (id === i && semver.satisfies(v, version))
+      });
 
     })
   },
@@ -320,7 +338,7 @@ const parser = {
         
         // если у пакета решены его зависимости
         // - парсим и складываем версию в установленные пакеты
-        if(parser.isDepsResolved($package)) {
+        if(parser.isDepsResolved(uri, $package)) {
           await this.parseManifest(manifest, uri);
           console.log('add package', $package);
           // TODO если пакет уже установлен с другой версией то что?
@@ -336,8 +354,7 @@ const parser = {
       } else await this.parseManifest(manifest, uri);
 
 		} catch (e) {
-      // TODO register package error
-			this.registerError(e, uri);
+			this.registerError(e, e.uri || uri);
 		}
 	}
 };
