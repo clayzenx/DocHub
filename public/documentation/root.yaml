@@ -7,3 +7,4 @@ imports:
   - ../packages/root.yaml
   - ../packages/dep1.yaml
   - ../packages/dep2.yaml
+  - ../packages/dep3.yaml

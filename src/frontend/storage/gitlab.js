@@ -118,7 +118,7 @@ export default {
 			const errors = {
 				syntax: null,
 				net: null,
-        package: null,
+        package: null
 			};
 
 			context.commit('setRenderCore',
