@@ -47,9 +47,9 @@ const parser = {
 	// Лог загруженных файлов
 	loaded: {},
   // Загруженные пакеты
-  packages: [],
+  packages: {},
   // Ожидающие пакеты
-  awaitedPackages: [],
+  awaitedPackages: {},
 	// Возвращает тип значения
 	fieldValueType(value) {
 		const type = typeof value;
@@ -264,39 +264,46 @@ const parser = {
   async checkAwaitedPackages() {
     // пройтись по ожидающим пакетам и проверить зарезолвелнены ли их зависимости.
     // Если да - то распарсить их и убрать из ждунов
-    if(parser.awaitedPackages?.length) {
-      parser.awaitedPackages = parser.awaitedPackages.filter(pkg => {
-        if(parser.isDepsResolved(pkg.$package)) {
-          const uri = pkg.uri
-          delete pkg.uri
-          console.log('deps resolved', pkg, uri, parser.packages);
-          this.parseManifest(pkg, uri);
+    const resolved = {};
+    const awaitedTuples = Object.entries(this.awaitedPackages);
+    if(!awaitedTuples?.length) return;
+
+    this.awaitedPackages = Object.fromEntries(
+      awaitedTuples.filter(([url, pkg]) => {
+        if(this.isDepsResolved(pkg.$package)) {
+          resolved[url] = pkg;
           return false;
         } else return true;
       })
-    }
+    )
+    console.log('resolved deps', resolved);
+    
+    const parsingPackages = Object.entries(resolved)
+      .map(([uri, pkg]) => this.parseManifest(pkg, uri));
+
+    // maybe register reject here
+    return await Promise.all(parsingPackages);
   },
 
   isDepsResolved(pkg) {
     // если у пакета нет зависимостей то и нечего решать
-    if(!pkg.deps) return true;
+    if(!pkg?.deps) return true;
 
     // если нет установленых пакетов то зависимости не решены
-    if(!parser?.packages?.length) return false
+    const packageTuples = Object.entries(this.packages);
+    if(!packageTuples?.length) return false
 
-    if(Array.isArray(pkg.deps) && pkg.deps.length) {
-      // проверяем все ли зависимости установлены
-      return pkg.deps.every(dep => {
-        const [name, ver] = Object.entries(dep)[0];
+    // проверяем все ли зависимости установлены
+    return pkg.deps.every(dep => {
+      const [name, ver] = Object.entries(dep)[0];
 
-        // Зависимость установлена (есть в packages)?
-        return parser.packages.find(({ $package }) => {
-          // TODO: парсинг версии
-          return ($package?.name === name && $package.ver === ver)
-        });
+      // Зависимость установлена (есть в packages)?
+      return packageTuples.find(( [n, v] ) => {
+        // TODO: парсинг версии
+        return (name === n && ver === v)
+      });
 
-      })
-    }
+    })
   },
 
 	// Подключение манифеста
@@ -312,18 +319,21 @@ const parser = {
         const $package = manifest.$package;
         
         // если у пакета решены его зависимости
+        // - парсим и складываем версию в установленные пакеты
         if(parser.isDepsResolved($package)) {
-          parser.packages.push(manifest);
-          console.log('add package', manifest);
-          await this.checkAwaitedPackages();
           await this.parseManifest(manifest, uri);
+          console.log('add package', $package);
+          // TODO если пакет уже установлен с другой версией то что?
+          this.packages[$package.name] = $package.ver
+          await this.checkAwaitedPackages();
         }
+        // иначе складываем пакет в ждуны
         else {
-          this.awaitedPackages.push({...manifest, uri});
+          this.awaitedPackages[uri] = manifest;
           console.log('add awaitedPackage', manifest);
           return;
         }
-      } else await this.parseManifest(manifest, uri); //!
+      } else await this.parseManifest(manifest, uri);
 
 		} catch (e) {
 			this.registerError(e, uri);
