@@ -1,3 +1,4 @@
+import * as semver from 'semver';
 import cache from './services/cache.mjs';
 import prototype from './prototype.mjs';
 
@@ -298,10 +299,9 @@ const parser = {
       const [name, ver] = Object.entries(dep)[0];
 
       // Зависимость установлена (есть в packages)?
-      return packageTuples.find(( [n, v] ) => {
-        // TODO: парсинг версии
-        return (name === n && ver === v)
-      });
+      return packageTuples.find(( [n, v] ) =>
+        (name === n && semver.satisfies(v, ver))
+      );
 
     })
   },
