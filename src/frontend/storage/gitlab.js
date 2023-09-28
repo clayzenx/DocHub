@@ -367,6 +367,9 @@ export default {
 			// Если работаем в режиме backend, берем все оттуда
 			if (env.isBackendMode()) {
 				storageManager.onStartReload();
+        await fetch('/core/storage/reload?' +new URLSearchParams({
+          secret: process.env.VUE_APP_DOCHUB_RELOAD_SECRET
+        }), { method: 'PUT' });
 				storageManager.onReloaded({
 					manifest: Object.freeze({}),
 					mergeMap: Object.freeze({})
