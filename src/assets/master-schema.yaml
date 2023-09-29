@@ -32,6 +32,7 @@ $defs:
         default: []
     type:
     - object
+    - boolean
     properties:
       "$id":
         type: string
@@ -40,7 +41,7 @@ $defs:
         type: string
         format: uri
       "$ref":
-        oneOf:
+        anyOf:
           - type: string
             format: uri-reference
           - $ref: "#/$defs/$defs"
@@ -188,15 +189,19 @@ $defs:
     items:
       $ref: "#/$defs/$menu-item"
     minLength: 1
-  $res-url:
-    title: URL ресурса
+  $res-uri:
+    title: URI ресурса
     type: string
-    format: URL
+    format: uri
+  $res-uri-reference:
+    title: URI-REFERENCE ресурса
+    type: string
+    format: uri-reference
   $data-source:
     title: Источник данных
     anyOf:
       - $ref: "#/$defs/$jsonata"
-      - $ref: "#/$defs/res-url"
+      - $ref: "#/$defs/$res-uri-reference"
       - title: Структура данных
         type:
           - object
@@ -213,7 +218,7 @@ $defs:
         $ref: "#/$defs/$data-source"
       origin:
         title: Базовый источник данных
-        allOf:
+        anyOf:
           - $ref: "#/$defs/$data-source"
             default: true
           - type: object
@@ -229,7 +234,7 @@ $defs:
         $ref: "#/$defs/$doc-types"
       template:
         title: Шаблон документа
-        $ref: "#/$defs/$res-url"
+        $ref: "#/$defs/$res-uri-reference"
 # Схема базовых сущностей
 $entities:
   entities:
