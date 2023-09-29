@@ -189,10 +189,10 @@ entities: # Сущности расширенной матемодели
                                 properties:
                                     from:
                                         title: От кого
-                                        type: components.component # Указываем, что данное поле должно содержать идентификатор объекта сущности components
+                                        $ref: "#/$rels/components.component" # Указываем, что данное поле должно содержать идентификатор объекта сущности components
                                     to:
                                         title: Кому
-                                        type: components.component
+                                        $ref: "#/$rels/components.component"
                                     value:
                                         title: Что
                                         type: string
