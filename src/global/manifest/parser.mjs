@@ -320,6 +320,18 @@ const parser = {
     })
   },
 
+  checkCycleDeps($package) {
+    Object.entries(this.awaitedPackages).find(([uri, pkg]) => {
+      const deps = pkg.$package.dependencies.map((pkg) => Object.keys(pkg)[0]);
+      if(deps.includes($package.id)) {
+        throw new PackageError(
+          uri,
+          `Циклическая зависимость у пакета ${$package.id}`
+        );
+      }
+    });
+  },
+
 	// Подключение манифеста
 	async import(uri) {
 		try {
@@ -342,6 +354,7 @@ const parser = {
         }
         // иначе складываем пакет в ждуны
         else {
+          this.checkCycleDeps(manifest.$package);
           this.awaitedPackages[uri] = manifest;
           return;
         }
