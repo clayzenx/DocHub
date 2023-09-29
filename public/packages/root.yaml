@@ -1,9 +1,0 @@
-$package:
-  id: testPackage
-  version: 1.0.0
-  dependencies:
-    - dep1: ">=0.5.6"
-    - dep2: 2.x
-
-imports:
-  - ./res.yaml

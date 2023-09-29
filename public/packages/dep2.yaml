@@ -1,7 +1,0 @@
-$package:
-  id: dep2
-  version: 2.0.0
-
-imports:
-- ./dep3.yaml
-

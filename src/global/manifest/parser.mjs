@@ -256,9 +256,6 @@ const parser = {
         case 'imports':
           for (const key in node) {
             const url = parser.cache.makeURIByBaseURI(node[key], uri);
-            if(url === 'http://localhost:8080/packages/res.yaml') {
-              console.log('url', url);
-            }
             if (this.loaded[url]) {
               // eslint-disable-next-line no-console
               console.warn(`Manifest [${url}] already loaded.`);
@@ -287,7 +284,6 @@ const parser = {
         } else return true;
       })
     )
-    console.log('resolved deps', resolved);
     
     const parsingPackages = Object.entries(resolved)
       .map(([uri, pkg]) => this.parseManifest(pkg, uri));
@@ -340,7 +336,6 @@ const parser = {
         // - парсим и складываем версию в установленные пакеты
         if(parser.isDepsResolved(uri, $package)) {
           await this.parseManifest(manifest, uri);
-          console.log('add package', $package);
           // TODO если пакет уже установлен с другой версией то что?
           this.packages[$package.id] = $package.version
           await this.checkAwaitedPackages();
@@ -348,7 +343,6 @@ const parser = {
         // иначе складываем пакет в ждуны
         else {
           this.awaitedPackages[uri] = manifest;
-          console.log('add awaitedPackage', manifest);
           return;
         }
       } else await this.parseManifest(manifest, uri);

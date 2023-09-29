@@ -1,5 +1,0 @@
-$package:
-  id: testPackage2
-  version: 1.0.0
-  dependencies:
-    - dep3: "1.5.3 - 2.1.4" 
