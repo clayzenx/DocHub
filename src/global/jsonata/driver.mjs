@@ -1,6 +1,9 @@
 import jsonata from 'jsonata';
 import ajv from 'ajv';
+import addFormats from "ajv-formats"
 import source from '../datasets/source.mjs';
+import {getSchema} from '@front/entities/entities.js';
+
 // import ajv_localize from 'ajv-i18n/localize/ru';
 // const ajv_localize = require('ajv-i18n/localize/ru');
 
@@ -49,7 +52,9 @@ function mergeDeep(sources) {
 }
 
 function jsonSchema(schema) {
-	const rules = new ajv({ allErrors: true });
+	const rules = new ajv({ allErrors: true, unicodeRegExp: false, allowUnionTypes: true });
+	addFormats(rules);
+	rules.addKeyword("$rels");
 	const validator = rules.compile(schema);
 	return (data) => {
 		const isOk = validator(data);
@@ -57,6 +62,10 @@ function jsonSchema(schema) {
 		// ajv_localize(validator.errors);
 		return validator.errors;
 	};
+}
+
+async function manifestSchema() {
+	return getSchema();
 }
 
 function sourceType(content) {
@@ -100,6 +109,7 @@ export default {
 						this.core.registerFunction('wcard', wcard);
 						this.core.registerFunction('mergedeep', mergeDeep);
 						this.core.registerFunction('jsonschema', jsonSchema);
+						this.core.registerFunction('manifestschema', manifestSchema);
 						this.core.registerFunction('sourcetype', sourceType);
 						this.core.registerFunction('test', test);
 						if (!funcs?.log) {
