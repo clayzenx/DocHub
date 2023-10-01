@@ -15,7 +15,8 @@
     <final-markdown
       v-if="showDocument"
       v-bind:template="outHTML"
-      v-bind:base-u-r-i="url" />
+      v-bind:base-u-r-i="currentURL"
+      v-on:go-markdown="onGoMarkdown" />
     <spinner v-else />
   </box>
 </template>
@@ -26,6 +27,7 @@
 
   import requests from '@front/helpers/requests';
   import href from '@front/helpers/href';
+  import uri from '@front/helpers/uri';
 
   import DocMarkdownObject from './DocHubObject';
   import DocMixin from './DocMixin';
@@ -49,8 +51,24 @@
         created() {
           this.$options.template = `<div class="markdown-document">${this.template}</div>`;
         },
+        methods: {
+          // Ищем ссылки на markdown документы для переходов по ним
+          sniffMarkdownLinks(el) {
+            const refs = el?.querySelectorAll && el.querySelectorAll('[href]') || [];
+            for (let i = 0; i < refs.length; i++) {
+              const refItem = refs[i];
+              if (refItem.href.slice(-3) === '.md') {
+                refItem.onclick = (event) => {
+                  this.$emit('go-markdown', event);
+                  return false;
+                };
+              }
+            }
+          }
+        },
         mounted() {
           href.elProcessing(this.$el);
+          this.sniffMarkdownLinks(this.$el);
         }
       }
     },
@@ -66,10 +84,30 @@
         showDocument: false,
         toc: '',
         markdown: null,
-        outHTML: null
+        outHTML: null,
+        redirectURL: null
       };
     },
+    computed: {
+      // Возвращает URL документа с учетом истории переходов
+      currentURL() {
+        return this.redirectURL ? this.redirectURL : this.url;
+      }
+    },
     methods: {
+      onGoMarkdown(event) {
+        const ref = event.target.attributes.href.nodeValue;
+        const route = Object.assign({}, this.$router.currentRoute);
+        const query = Object.assign({}, this.$router.currentRoute.query);
+        query.redirect =  uri.makeURIByBaseURI(ref, this.currentURL);
+        // eslint-disable-next-line no-console
+        console.info(route.query);
+        this.$router.push({
+          params: route.query,
+          query 
+        });
+        return false;
+      },
       rendered(outHtml) {
         const result = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
           .replace(/\{\{/g, '<span v-pre>{{</span>')
@@ -93,13 +131,17 @@
           this.toc = tocHTML;
       },
       refresh() {
+        // Если есть параметр перенаправления, используем его
+        this.redirectURL = this.$router.currentRoute?.query?.redirect;
+
+        // Обновляем документ
         this.markdown = null;
-        if (!this.url) return;
+        if (!this.currentURL) return;
         this.outHTML = null;
         this.showDocument = false;
         this.toc = '';
         this.sourceRefresh().then(() => {
-          requests.request(this.url).then(({ data }) => {
+          requests.request(this.currentURL).then(({ data }) => {
             this.error = null;
             if (!data)
               this.markdown = 'Здесь пусто :(';
