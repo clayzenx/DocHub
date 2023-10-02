@@ -301,9 +301,7 @@ const parser = {
     if(!packageTuples?.length) return false;
 
     // проверяем все ли зависимости установлены
-    return pkg.dependencies.every(dep => {
-      const [id, version] = Object.entries(dep)[0];
-
+    return Object.entries(pkg.dependencies).every(([id, version]) => {
       // Зависимость установлена (есть в packages)?
       return packageTuples.find(( [i, v] ) => {
         if(id !== i) return false;
@@ -321,12 +319,15 @@ const parser = {
   },
 
   checkCycleDeps($package) {
-    Object.entries(this.awaitedPackages).find(([uri, pkg]) => {
-      const deps = pkg.$package.dependencies.map((pkg) => Object.keys(pkg)[0]);
-      if(deps.includes($package.id)) {
+    Object.entries(this.awaitedPackages).forEach(([uri, pkg]) => {
+      const aDeps = Object.keys(pkg.$package.dependencies);
+      const bDeps = Object.keys($package.dependencies);
+      const aDepID = aDeps.find(id => $package.id === id);
+      const bDepID = bDeps.find(id => pkg.$package.id === id);
+      if(aDepID && bDepID) {
         throw new PackageError(
           uri,
-          `Циклическая зависимость у пакета ${$package.id}`
+          `Циклическая зависимость между пакетами ${aDepID} и ${bDepID}`
         );
       }
     });
