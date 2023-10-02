@@ -29,6 +29,7 @@
   import href from '@front/helpers/href';
   import uri from '@front/helpers/uri';
 
+  import { DocTypes } from '@front/components/Docs/enums/doc-types.enum';
   import DocMarkdownObject from './DocHubObject';
   import DocMixin from './DocMixin';
   import ContextMenu from './DocContextMenu.vue';
@@ -92,6 +93,14 @@
       // Возвращает URL документа с учетом истории переходов
       currentURL() {
         return this.redirectURL ? this.redirectURL : this.url;
+      },
+      // Доступные типы документов
+      availableDocTypes() {
+        const result = [];
+        for (const key in DocTypes) result.push(DocTypes[key].toLowerCase());
+        const extended = this.$store.state.plugins.documents;
+        for (const key in extended) result.push(key.toLowerCase());
+        return result;
       }
     },
     methods: {
@@ -134,6 +143,7 @@
       prepareMarkdown(content) {
         // Преобразуем встроенный код в объекты документов 
         return content.replace(/```(\w\w*)(\n|\r)((.|\n|\r)*)```/g, (segment, language, br, content) => {
+          if (this.availableDocTypes.indexOf(language.toLowerCase()) < 0 ) return segment;
           // eslint-disable-next-line no-debugger
           const urlObject = URL.createObjectURL(new Blob([content], { type: `text/${language};charset=UTF-8` }));
           return `![](@document/${urlObject})`;
