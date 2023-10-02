@@ -28,6 +28,9 @@
           <v-checkbox v-model="isPrintVersion" />
           <v-list-item-title>Версия для печати</v-list-item-title>
         </v-list-item>
+        <v-list-item>
+          <v-list-item-title style="cursor: pointer;" v-on:click="doPrint">Печать</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-menu>
   </v-app-bar>
@@ -61,6 +64,9 @@
       }
     },
     methods: {
+      doPrint() {
+        window.print();
+      },
       handleDrawer(value) {
         this.$emit('handleDrawer', value);
       },
