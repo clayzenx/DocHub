@@ -15,7 +15,6 @@ function isLocalRoute(url) {
 export default {
 	// Переход по URL 
 	gotoURL(ref) {
-		debugger;
 		try {
 			if (uri.isExternalURI(ref)) {
 				window.open(ref, 'blank_');
