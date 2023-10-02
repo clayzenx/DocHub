@@ -136,25 +136,42 @@
       this.refresh();
     },
     methods: {
+      pullProfileFromResource(uri) {
+        requests.request(uri).then((response) => {
+          const contentType = (response?.headers['content-type'] || '').split(';')[0].split('/')[1];
+          this.profile = {
+            type: contentType,
+            source: `source:${encodeURIComponent(JSON.stringify(response.data))}`
+          };
+        });
+      },
+      // Достаем данные профиля документа из DataLake
+      pullProfileFromDataLake(dateLakeId) {
+        query.expression( query.getObject(dateLakeId), null, this.resolveParams())
+          .evaluate()
+          .then((profile) => {
+            this.profile = Object.assign({ $base: this.path }, profile);
+          })
+          .catch((e) => {
+            this.error = e.message;
+          })
+          .finally(() => {
+            this.currentPath = this.resolvePath();
+            this.currentParams = this.resolveParams();
+            this.refresher = null;
+          });
+      },
       // Обновляем контент документа
       refresh() {
         if (this.refresher) clearTimeout(this.refresher);
         this.refresher = setTimeout(() => {
           this.profile = null;
-          const dateLakeId = `("${this.resolvePath().slice(1).split('/').join('"."')}")`;
-          query.expression( query.getObject(dateLakeId), null, this.resolveParams())
-            .evaluate()
-            .then((profile) => {
-              this.profile = Object.assign({ $base: this.path }, profile);
-            })
-            .catch((e) => {
-              this.error = e.message;
-            })
-            .finally(() => {
-              this.currentPath = this.resolvePath();
-              this.currentParams = this.resolveParams();
-              this.refresher = null;
-            });
+          const path = this.resolvePath().slice(1).split('/');
+          if (path[1].slice(-1) === ':') {
+            this.pullProfileFromResource(path.slice(1).join('/'));
+          } else {
+            this.pullProfileFromDataLake(`"${path.join('"."')}"`);
+          }
 
         }, 50);
       },
@@ -185,7 +202,6 @@
           return this.dataProvider.releaseData(this.resolvePath(), params || this.params);
         } else
           return this.dataProvider.getData(context, { source: expression }, params);
-          // return query.expression(expression || this.profile?.source, self_, params).evaluate(context);
       }
     }
   };

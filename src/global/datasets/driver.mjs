@@ -69,6 +69,9 @@ export default {
 				case 'resource': {
 					reject(`Тип данных 'resource' не реализован  [${data}]`);
 				} break;
+				case 'resource-inline':
+					resolve(JSON.parse(decodeURIComponent(data.slice(7))));
+					break;
 				case 'id': {
 					const dataSet = this.pathResolver(`/datasets/${data}`);
 					if (dataSet && dataSet.subject) {

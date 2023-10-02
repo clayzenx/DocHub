@@ -109,6 +109,7 @@
         return false;
       },
       rendered(outHtml) {
+        // Парсим ссылки на объекты DocHub
         const result = outHtml.replace(/<img /g, '<dochub-object :baseURI="baseURI" :inline="true" ')
           .replace(/\{\{/g, '<span v-pre>{{</span>')
           .replace(/\}\}/g, '<span v-pre>}}</span>');
@@ -130,6 +131,14 @@
         if (this.tocShow && ((tocHTML.match(/\<li\>.*\<\/li\>/g) || []).length > 3))
           this.toc = tocHTML;
       },
+      prepareMarkdown(content) {
+        // Преобразуем встроенный код в объекты документов 
+        return content.replace(/```(\w\w*)(\n|\r)((.|\n|\r)*)```/g, (segment, language, br, content) => {
+          // eslint-disable-next-line no-debugger
+          const urlObject = URL.createObjectURL(new Blob([content], { type: `text/${language};charset=UTF-8` }));
+          return `![](@document/${urlObject})`;
+        });
+      },
       refresh() {
         // Если есть параметр перенаправления, используем его
         this.redirectURL = this.$router.currentRoute?.query?.redirect;
@@ -142,13 +151,15 @@
         this.toc = '';
         this.sourceRefresh().then(() => {
           requests.request(this.currentURL).then(({ data }) => {
+            let content = null;
             this.error = null;
             if (!data)
-              this.markdown = 'Здесь пусто :(';
+              content = 'Здесь пусто :(';
             else if (this.isTemplate) {
-              this.markdown = mustache.render(data, this.source.dataset);
+              content = mustache.render(data, this.source.dataset);
             } else
-              this.markdown = data;
+              content = data;
+            this.markdown = this.prepareMarkdown(content);
           }).catch((e) => {
             this.error = e;
           });

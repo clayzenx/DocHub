@@ -144,6 +144,13 @@ export default {
 	// 		responseHook - содержит функцию обработки ответа перед работой interceptors
 	//		raw - если true возвращает ответ без обработки
 	request(uri, baseURI, axios_params) {
+		if (uri.startsWith('source:')) {
+			return new Promise((success) => {
+				success({
+					data: JSON.parse(decodeURIComponent((new URL(uri)).pathname))
+				});
+			});
+		}
 		let params = Object.assign({}, axios_params);
 		params.url = uri;
 		// Если ссылка ведет на backend конвертируем ее
