@@ -1,7 +1,9 @@
 export default {
     type(source) {
         if (typeof source === 'string') {
-            if (/^(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(source)) {
+            if (source.startsWith('source:')) {
+                return 'resource-inline';
+            } else if (/^(\s+|)\(((.*|\d|\D)+?)(\)(\s+|))$/.test(source)) {
                 return 'jsonata-query';
             } else if (source.endsWith('.jsonata')) {
                 return 'jsonata-file';

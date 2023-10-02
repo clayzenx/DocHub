@@ -1,5 +1,5 @@
 <template>
-  <div class="dochub-object" v-bind:style="{float:srcStruct.float}">
+  <div class="dochub-object" v-bind:style="{float:srcStruct?.float}">
     <dochub-doc v-if="isDocument" v-bind:path="documentPath" v-bind:document="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" v-bind:params="srcStruct.params" />
     <dochub-context v-else-if="isContext" v-bind:context="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
     <dochub-aspect v-else-if="isAspect" v-bind:aspect="srcStruct.subject" v-bind:alt="srcStruct.alt" v-bind:inline="inline" />
@@ -36,37 +36,6 @@
       return {};
     },
     computed: {
-      isDocument() {
-        return this.srcStruct.type.toLowerCase() === 'document';
-      },
-      isContext() {
-        return this.srcStruct.type.toLowerCase() === 'context';
-      },
-      isAspect() {
-        return this.srcStruct.type.toLowerCase() === 'aspect';
-      },
-      isComponent() {
-        return this.srcStruct.type.toLowerCase() === 'component';
-      },
-      isTechnology() {
-        return this.srcStruct.type.toLowerCase() === 'technology';
-      },
-      isRadar() {
-        return this.srcStruct.type.toLowerCase() === 'radar';
-      },
-      isAnchor() {
-        return this.srcStruct.type.toLowerCase() === 'anchor';
-      },
-      isImage() {
-        return this.srcStruct.type.toLowerCase() === 'image';
-      },
-      isEntity() {
-        return this.srcStruct.type.toLowerCase() === 'entity';
-      },
-      documentPath() {
-        const path = this.src.split('?')[0].replaceAll('@document/', '');
-        return `/docs/${path}`;
-      },
       // Параметры отображения встраиваемого объекта
       srcStruct() {
         const result = {
@@ -76,13 +45,20 @@
           float: 'none'
         };
         try {
+          // eslint-disable-next-line no-debugger
           if (this.src.substr(0, 1) === '@') {
             const url = new URL(this.src.replace('@', '/'), requests.getSourceRoot());
             const path = url.pathname.split('/');
             result.type = path[1];
             result.subject = path[2];
-            result.presentation = path[3];
             result.params = Object.fromEntries(url.searchParams);
+            if ((result.type === 'document') && (result.subject.slice(-1) === ':')) {
+              // Если в субъекте http ссылка на объект, то разбираем ее отдельно
+              result.subject = path.slice(2).join('/');
+            } else {
+              // Иначе воспринимаем как презентацию
+              result.presentation = path[3];
+            }
           }
         } catch (e) {
           // eslint-disable-next-line no-console
@@ -101,9 +77,40 @@
             result.alt = alt.substr(1);
             break;
         }
-
         return result;
+      },      
+      isDocument() {
+        return this.srcStruct?.type.toLowerCase() === 'document';
+      },
+      isContext() {
+        return this.srcStruct?.type.toLowerCase() === 'context';
+      },
+      isAspect() {
+        return this.srcStruct?.type.toLowerCase() === 'aspect';
+      },
+      isComponent() {
+        return this.srcStruct?.type.toLowerCase() === 'component';
+      },
+      isTechnology() {
+        return this.srcStruct?.type.toLowerCase() === 'technology';
+      },
+      isRadar() {
+        return this.srcStruct?.type.toLowerCase() === 'radar';
+      },
+      isAnchor() {
+        return this.srcStruct?.type.toLowerCase() === 'anchor';
+      },
+      isImage() {
+        return this.srcStruct?.type.toLowerCase() === 'image';
+      },
+      isEntity() {
+        return this.srcStruct?.type.toLowerCase() === 'entity';
+      },
+      documentPath() {
+        const path = this.src.split('?')[0].replaceAll('@document/', '');
+        return `/docs/${path}`;
       }
+      
     }
   };
 </script>
