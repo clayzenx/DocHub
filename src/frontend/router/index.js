@@ -7,8 +7,6 @@ import env from '@front/helpers/env';
 
 import appRoutes from './routes';
 
-import ComponentsMindmap from '../components/Mindmap/ComponentsMindmap';
-
 Vue.use(Router);
 
 const rConfig = {
@@ -58,7 +56,9 @@ if (!env.isPlugin()) {
 	rConfig.routes.push(
 		{
 			path: '/url=about:blank',
-			component: ComponentsMindmap
+			redirect() {
+				window.location = new URL('/main', window.origin);
+			}
 		}
 	);
 }

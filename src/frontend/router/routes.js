@@ -10,8 +10,6 @@ import Context from '@front/components/Architecture/Context';
 import Radar from '@front/components/Techradar/Main';
 import Technology from '@front/components/Techradar/Technology';
 import Problems from '@front/components/Problems/Problems';
-import ComponentsMindmap from '@front/components/Mindmap/ComponentsMindmap';
-import AspectsMindmap from '@front/components/Mindmap/AspectsMindmap';
 import Empty from '@front/components/Controls/Empty';
 import DevTool from '@front/components/JSONata/DevTool';
 import Entity from '@front/components/Entities/Entity';
@@ -44,27 +42,19 @@ const routes = [
     props: middleware
   },
   {
-    name: 'doc',
-    path: '/docs/:document',
-    component: Doc,
-    props: middleware
-  },
-  {
-    name: 'architect',
-    path: '/architect',
-    component: ComponentsMindmap,
-    props: middleware
+    name: 'home',
+    path: '/',
+    redirect: { name: 'main' }
   },
   {
     name: 'root',
     path: '/root',
-    component: ComponentsMindmap,
-    props: middleware
+    redirect: { name: 'main' }
   },
   {
-    name: 'aspects',
-    path: '/aspects',
-    component: AspectsMindmap,
+    name: 'doc',
+    path: '/docs/:document',
+    component: Doc,
     props: middleware
   },
   {
@@ -132,11 +122,6 @@ const routes = [
     path: '/entities/:entity/:presentation',
     component: Entity,
     props: middleware
-  },
-  {
-    name: 'home',
-    path: '/',
-    redirect: { name: 'main' }
   },
   {
     name: 'ssoerror',
