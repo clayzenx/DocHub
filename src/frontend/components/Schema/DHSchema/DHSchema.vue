@@ -34,11 +34,6 @@
       alignment-baseline="hanging"
       v-bind:style="titleStyle">{{ data.header.title }}
     </text>
-    <schema-node
-      v-bind:offset-x="0"
-      v-bind:offset-y="0"
-      v-bind:layer="presentation.layers"
-      v-on:node-click="onNodeClick" />
     <schema-track
       v-for="track in presentation.tracks"
       v-bind:key="track.id"
@@ -47,6 +42,12 @@
       v-on:track-over="onTrackOver(track)"
       v-on:track-click="onTrackClick(track)"
       v-on:track-leave="onTrackLeave(track)" />
+      
+    <schema-node
+      v-bind:offset-x="0"
+      v-bind:offset-y="0"
+      v-bind:layer="presentation.layers"
+      v-on:node-click="onNodeClick" />
 
     <schema-info
       v-show="animation.information"

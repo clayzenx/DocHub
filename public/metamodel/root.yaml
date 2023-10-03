@@ -1,2 +1,14 @@
+$package:
+  # Идентификатор пакета
+  id: dochub
+  # Краткое название пакета
+  name: DocHub метамодель
+  # Поставщик
+  vendor: R.Piontik
+  # Описание
+  description: Облегченная метамодель для описания прикладного слоя
+  # Версия
+  version: 3.6.0
+
 imports:
   - dochub/root.yaml

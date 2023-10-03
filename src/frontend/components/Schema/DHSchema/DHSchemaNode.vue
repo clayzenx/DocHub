@@ -28,13 +28,18 @@
           v-bind:xlink:href="`#${box.node.symbol}`"
           v-on:mousedown.stop.prevent="onNodeClick(box)" />
         <text
-          v-bind:style="{ opacity: box.opacity }"
+          v-bind:transform="`translate(${box.absoluteX},${box.absoluteY + box.height + 12})`" 
           class="node-text"
-          text-anchor="middle"
-          v-bind:x="box.absoluteX + box.width * 0.5"
-          v-bind:y="box.absoluteY + box.height + 12">
-          {{ box.node.title || box.node.id }}
-        </text>
+          v-bind:style="{ opacity: box.opacity }">
+          <tspan 
+            v-for="(line, index) in textLines(box)"
+            v-bind:key="index"
+            v-bind:x="box.width * 0.5"
+            v-bind:y="index * 12"
+            text-anchor="middle">
+            {{ line }}
+          </tspan>
+        </text>          
       </g>
       <schema-node
         v-bind:offset-x="box.x"
@@ -46,6 +51,8 @@
 </template>
 
 <script>
+
+  const CHAR_WIDTH = 5;
 
   const SchemaNode = {
     name: 'DHSchemaNode',
@@ -68,6 +75,30 @@
       };
     },
     methods: {
+      textLines(box) {
+        const title = box.node.title || box.node.id;
+        const result = [];
+        let offset = 0;
+        let length = 0;
+        let line = null;
+        // eslint-disable-next-line no-useless-escape
+        title.split(/\s|\.|\,\;/).map((pice) => {
+          const width = pice.length * CHAR_WIDTH + CHAR_WIDTH;
+          const segment = title.slice(offset, offset + pice.length + 1);
+          if ((length + width > box.width) && line) {
+            result.push(line);
+            length = 0;
+            line = null;
+          }
+          offset += pice.length + 1;
+          length += width;
+          line = `${line || ''}${segment}`;
+        });
+
+        line && result.push(line);
+
+        return result;
+      },
       onNodeClick(box) {
         this.$emit('node-click', box);
       },
