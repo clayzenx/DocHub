@@ -30,7 +30,7 @@
       v-if="data.header"
       id="title"
       v-bind:x="landscape.viewBox.titleX"
-      v-bind:y="landscape.viewBox.top"
+      v-bind:y="landscape.viewBox.top + 6"
       alignment-baseline="hanging"
       v-bind:style="titleStyle">{{ data.header.title }}
     </text>
@@ -235,11 +235,12 @@
         return +this.data.config?.lineWidthLimit || 20;
       },
       titleStyle() {
-        return ({
-          'fill': this.data?.header.style['color'],
-          'font-weight': this.data?.header.style['font-weight'],
-          'font-size': this.data?.header.style['font-size']
-        });
+        const style = this.data?.header?.style || {};
+        const result = {};
+        style.color && (result.fill = style.color);
+        style['font-weight'] && (result['font-weight'] = style['font-weight']);
+        style['font-size'] && (result['font-size'] = style['font-size']);
+        return result;
       },
       // Возвращает определения (defs) примитивов диаграммы
       symbols() {
