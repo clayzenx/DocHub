@@ -34,18 +34,28 @@
       alignment-baseline="hanging"
       v-bind:style="titleStyle">{{ data.header.title }}
     </text>
-    <schema-track
-      v-for="track in presentation.tracks"
-      v-bind:key="track.id"
-      v-bind:track="track"
-      v-bind:line-width-limit="lineWidthLimit"
-      v-on:track-over="onTrackOver(track)"
-      v-on:track-click="onTrackClick(track)"
-      v-on:track-leave="onTrackLeave(track)" />
+    <schema-node
+      v-bind:offset-x="0"
+      v-bind:offset-y="0"
+      mode="area"
+      v-bind:layer="presentation.layers"
+      v-on:node-dblclick="onNodeClick" />
+
+    <template v-for="track in presentation.tracks">
+      <schema-track
+        v-if="isShowTrack(track)"
+        v-bind:key="track.id"
+        v-bind:track="track"
+        v-bind:line-width-limit="lineWidthLimit"
+        v-on:track-over="onTrackOver(track)"
+        v-on:track-click="onTrackClick(track)"
+        v-on:track-leave="onTrackLeave(track)" />
+    </template>
       
     <schema-node
       v-bind:offset-x="0"
       v-bind:offset-y="0"
+      mode="node"
       v-bind:layer="presentation.layers"
       v-on:node-click="onNodeClick" />
 
@@ -172,6 +182,11 @@
       trackWidth: {
         type: Number,
         default: 28
+      },
+      // Показывать связи
+      showLinks: {
+        type: Boolean,
+        default: true
       },
       // Толщина линии дорожки
       trackStrong: {
@@ -321,6 +336,18 @@
           tracks: []
         };
       },
+      // Отчистка выбора
+      clearSelect() {
+        this.cleanSelectedTracks();
+        this.cleanSelectedNodes();
+      },
+      // Проверяет нужно ли выводить трек
+      isShowTrack(track) {
+        return this.showLinks || this.selected?.links[track.id];
+      },
+      isIgnoreClick() {
+        return window?.event?.shiftKey || window?.event?.ctrlKey;
+      },
       // Обновление состояние визуализации нод
       updateNodeView() {
         const map = this.presentation.map;
@@ -330,30 +357,42 @@
           this.$set(node, 'opacity', unselected || this.selected.nodes[id] ? 1 : OPACITY);
         }
       },
-      // Выделяет ноду
-      selectNode(box) {
-        this.selected.nodes = {
+      // Выделяет структуру или ноду
+      getSelectNode(box) {
+        const selected = {
           ...this.selected.nodes,
           [box.node.id]: box
         };
+
+        const deepSelection = (parent) => {
+          (parent.node.boxes || []).map((child) => {
+            selected[child.node.id] = child;
+            deepSelection(child);
+          });
+        };
+
+        deepSelection(box);
+
+        return selected;
       },
       // Выделяет ноду и ее соседей со связями
       selectNodeAndNeighbors(box) {
-        this.selectNode(box);
+        const selectedNodes = this.getSelectNode(box);
         this.presentation.tracks.map((track) => {
-          if ((track.link.from === box.node.id) || (track.link.to === box.node.id)) {
+          if ((selectedNodes[track.link.from]) || (selectedNodes[track.link.to])) {
             this.selected.links[track.id] = track;
             this.selected.nodes[track.link.from] = this.presentation.map[track.link.from];
             this.selected.nodes[track.link.to] = this.presentation.map[track.link.to];
           }
         });
+        this.selected.nodes = {
+          ...selectedNodes,
+          ...this.selected.nodes
+        };
       },
       // Обработка клика по объекту
       onNodeClick(box) {
-        if (!window?.event?.shiftKey) {
-          this.cleanSelectedTracks();
-          this.cleanSelectedNodes();
-        }
+        !this.isIgnoreClick() && this.clearSelect();
         this.selectNodeAndNeighbors(box);
         this.updateNodeView();
         this.updateTracksView();
@@ -381,7 +420,7 @@
         if(track.link.link) {
           this.$emit('on-click-link', track.link);
         } else {
-          if (!window?.event?.shiftKey) {
+          if (!this.isIgnoreClick()) {
             this.cleanSelectedTracks();
             this.cleanSelectedNodes();
           }
@@ -418,7 +457,7 @@
       },
       // Обработка клика на свободной области
       onClickSpace(event) {
-        if(event.shiftKey) return;
+        if(this.isIgnoreClick()) return;
         event = event || window.event;
         if (event.which === 1) {
           this.cleanSelectedTracks();

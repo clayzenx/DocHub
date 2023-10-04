@@ -23,6 +23,12 @@
         <v-btn v-if="!isUnwisp" icon title="Свернуть связи в жгуты" v-on:click="setUnwisp(true)">
           <v-icon>mdi-arrow-decision-auto</v-icon>
         </v-btn>
+        <v-btn v-if="isShowLinks" icon title="Показать только структуру" v-on:click="setShowLinks(false)">
+          <v-icon>mdi-monitor-dashboard</v-icon>
+        </v-btn>
+        <v-btn v-if="!isShowLinks" icon title="Показать связи" v-on:click="setShowLinks(true)">
+          <v-icon>mdi-sitemap</v-icon>
+        </v-btn>
 
         <template v-if="scenario">
           <v-select
@@ -62,6 +68,7 @@
         v-model="status"
         class="schema"
         v-bind:data="data"
+        v-bind:show-links="isShowLinks"
         v-on:playstop="onPlayStop"
         v-on:playstart="onPlayStart"
         v-on:selected-nodes="onSelectedNodes"
@@ -129,7 +136,8 @@
         isPaying: false,        // Признак проигрывания
         selectedNodes: null,    // Выбранные ноды
         focusNodes: null,       // Кадрированные ноды
-        isUnwisp: false         // Признак группировки связей
+        isUnwisp: false,        // Признак группировки связей
+        isShowLinks: true       // Нужно ли показывать связи?
       };
     },
     computed: {
@@ -306,6 +314,10 @@
           }
         });
         return result;
+      },
+      // Устанавливает режим отображения структуры
+      setShowLinks(value) {
+        this.isShowLinks = value;
       },
       // Устанавливает режим сворачивания связей в жгуты
       setUnwisp(value) {
