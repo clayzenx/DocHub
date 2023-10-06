@@ -251,6 +251,7 @@ const parser = {
         case 'components':
         case 'rules':
         case 'datasets':
+        case '$package':
           await this.parseEntity(node, `/${section}`, uri);
           break;
         case 'imports':
@@ -349,8 +350,13 @@ const parser = {
     const awaited = Object.entries(this?.awaitedPackages);
     if(awaited.length) {
       awaited.forEach(([uri, pkg]) => {
-        const $pkg = Object.keys(pkg.$package)[0];
-        this.registerError(new PackageError(uri, `У пакета ${$pkg} не разрешены зависимости`), uri)
+        const [id, $pkg] = Object.entries(pkg.$package)[0];
+        const unresolved = Object.entries($pkg.dependencies).filter(([id, _]) => 
+          !this.packages[id]
+        )
+        .map(([id, ver]) => `${id} (${ver})`)
+        .join(', ');
+        this.registerError(new PackageError(uri, `У пакета ${id} не разрешены зависимости ${unresolved}`), uri)
       })
     }
   },
