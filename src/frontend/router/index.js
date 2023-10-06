@@ -57,7 +57,7 @@ if (!env.isPlugin()) {
 		{
 			path: '/url=about:blank',
 			redirect() {
-				window.location = new URL('/main', window.origin);
+				window.location = new URL('/url=main', window.location);
 			}
 		}
 	);
