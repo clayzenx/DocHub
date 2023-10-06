@@ -4,6 +4,7 @@ import cache from './cache.mjs';
 import md5 from 'md5';
 import events from '../helpers/events.mjs';
 import validators from '../helpers/validators.mjs';
+import entities from '../entities/entities.mjs';
 
 const LOG_TAG = 'storage-manager';
 
@@ -31,10 +32,12 @@ export default {
 		await manifestParser.clean();
 		await manifestParser.startLoad();
 		await manifestParser.import('file:///$root$');
-    await manifestParser.checkAwaitedPackages();
-    await manifestParser.checkLoaded();
+    	await manifestParser.checkAwaitedPackages();
+    	await manifestParser.checkLoaded();
 		await manifestParser.stopLoad();
-		
+
+		entities(manifestParser.manifest);
+
 		logger.log('Full reload is done', LOG_TAG);
 		const result = {
 			manifest: manifestParser.manifest,	// Сформированный манифест

@@ -13,13 +13,19 @@ const LOG_TAG = 'manifest-cache';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Подключает базовую метамодель
-function loadBaseMatamodel() {
-    const source = path.resolve(__dirname, '../../assets/base.yaml');
+
+export function loadFromAssets(filename) {
+    const source = path.resolve(__dirname, '../../assets/' + filename);
 
     logger.log(`Import base metamodel from  [${source}].`, LOG_TAG);
-    const content = fs.readFileSync(source, { encoding: 'utf8', flag: 'r' });
-    return yaml.parse(content);
+    return fs.readFileSync(source, { encoding: 'utf8', flag: 'r' });
+
+
+}
+
+// Подключает базовую метамодель
+function loadBaseMatamodel() {
+    return yaml.parse(loadFromAssets('base.yaml'));
 }
 
 // Кэш в памяти

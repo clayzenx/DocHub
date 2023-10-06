@@ -2,7 +2,7 @@ import jsonata from 'jsonata';
 import ajv from 'ajv';
 import addFormats from "ajv-formats"
 import source from '../datasets/source.mjs';
-import {getSchema} from '@front/entities/entities.js';
+import {BaseEntities} from '../../global/entities/entities.mjs';
 
 // import ajv_localize from 'ajv-i18n/localize/ru';
 // const ajv_localize = require('ajv-i18n/localize/ru');
@@ -65,7 +65,7 @@ function jsonSchema(schema) {
 }
 
 async function manifestSchema() {
-	return getSchema();
+	return BaseEntities.getSchema();
 }
 
 function sourceType(content) {
