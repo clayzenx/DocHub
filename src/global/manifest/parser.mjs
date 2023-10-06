@@ -286,10 +286,18 @@ const parser = {
     );
     
     const parsingPackages = Object.entries(resolved)
-      .map(([uri, pkg]) => this.parseManifest(pkg, uri));
+      .map(([uri, pkg]) => 
+        this.parseManifest(pkg, uri)
+      )
+ 
+    await Promise.all(parsingPackages);
 
-    // maybe register reject here
-    return await Promise.all(parsingPackages);
+    Object.values(resolved).forEach(({$package}) => {
+      const [id, pkg] = Object.entries($package)[0];
+      this.packages[id] = pkg;
+    });
+
+    return resolved;
   },
 
   isDepsResolved(uri, $pkg) {
@@ -311,7 +319,7 @@ const parser = {
         if(!semver.satisfies(v.version, version)) {
           throw new PackageError(
             uri,
-            `Не подходящая версия пакета "${id}". Требуется "${version}" но найдена "${v}"`
+            `Не подходящая версия пакета "${id}". Требуется "${version}" но найдена "${v.version}"`
           );
         }
         return (id === i && semver.satisfies(v.version, version));
@@ -335,6 +343,16 @@ const parser = {
         );
       }
     });
+  },
+
+  checkLoaded() {
+    const awaited = Object.entries(this?.awaitedPackages);
+    if(awaited.length) {
+      awaited.forEach(([uri, pkg]) => {
+        const $pkg = Object.keys(pkg.$package)[0];
+        this.registerError(new PackageError(uri, `У пакета ${$pkg} не разрешены зависимости`), uri)
+      })
+    }
   },
 
 	// Подключение манифеста
