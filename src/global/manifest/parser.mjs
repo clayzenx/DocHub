@@ -292,7 +292,9 @@ const parser = {
     return await Promise.all(parsingPackages);
   },
 
-  isDepsResolved(uri, pkg) {
+  isDepsResolved(uri, $pkg) {
+    const [_, pkg] = Object.entries($pkg)[0];
+
     // если у пакета нет зависимостей то и нечего решать
     if(!pkg?.dependencies) return true;
 
@@ -306,13 +308,13 @@ const parser = {
       return packageTuples.find(( [i, v] ) => {
         if(id !== i) return false;
 
-        if(!semver.satisfies(v, version)) {
+        if(!semver.satisfies(v.version, version)) {
           throw new PackageError(
             uri,
             `Не подходящая версия пакета "${id}". Требуется "${version}" но найдена "${v}"`
           );
         }
-        return (id === i && semver.satisfies(v, version));
+        return (id === i && semver.satisfies(v.version, version));
       });
 
     });
@@ -320,10 +322,12 @@ const parser = {
 
   checkCycleDeps($package) {
     Object.entries(this.awaitedPackages).forEach(([uri, pkg]) => {
-      const aDeps = Object.keys(pkg.$package.dependencies);
-      const bDeps = Object.keys($package.dependencies);
-      const aDepID = aDeps.find(id => $package.id === id);
-      const bDepID = bDeps.find(id => pkg.$package.id === id);
+      const [aID, aPkg] = Object.entries(pkg.$package)[0];
+      const [bID, bPkg] = Object.entries($package)[0];
+      const aDeps = Object.keys(aPkg.dependencies);
+      const bDeps = Object.keys(bPkg.dependencies);
+      const aDepID = aDeps.find(id => bID === id);
+      const bDepID = bDeps.find(id => aID === id);
       if(aDepID && bDepID) {
         throw new PackageError(
           uri,
@@ -350,7 +354,8 @@ const parser = {
         if(parser.isDepsResolved(uri, $package)) {
           await this.parseManifest(manifest, uri);
           // TODO если пакет уже установлен с другой версией то что?
-          this.packages[$package.id] = $package.version;
+          const [id, pkg] = Object.entries($package)[0];
+          this.packages[id] = pkg;
           await this.checkAwaitedPackages();
         }
         // иначе складываем пакет в ждуны
