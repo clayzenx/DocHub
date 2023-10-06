@@ -53,6 +53,8 @@ export default function(manifest) {
   if (env.isPlugin()) {
     entities.loadSchema().then((schema) => {
 
+      entities.updateSchema(schema);
+
       const schemaString = JSON.stringify(schema);
       // Считаем контрольную сумму
       const crc = crc16(schemaString);
