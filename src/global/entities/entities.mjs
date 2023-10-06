@@ -145,6 +145,10 @@ export class BaseEntities {
 		}
 	}
 
+	updateSchema(schema) {
+		BaseEntities.appliedSchema = schema;
+	}
+
 	// Возвращает схему (создаёт, если ещё не создавалась и известен манифест, по которому создавать)
 	static async getSchema() {
 		if (BaseEntities.appliedSchema === null
