@@ -31,6 +31,8 @@ export default {
 		await manifestParser.clean();
 		await manifestParser.startLoad();
 		await manifestParser.import('file:///$root$');
+    await manifestParser.checkAwaitedPackages();
+    await manifestParser.checkLoaded();
 		await manifestParser.stopLoad();
 		
 		logger.log('Full reload is done', LOG_TAG);

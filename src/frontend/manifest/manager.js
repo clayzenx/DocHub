@@ -44,6 +44,8 @@ manifestParser.reloadManifest = async function(payload){
       manifestParser.loaded = {};
     }
   }
+  await manifestParser.checkAwaitedPackages();
+  manifestParser.checkLoaded();
 
   manifestParser.stopLoad();
 };

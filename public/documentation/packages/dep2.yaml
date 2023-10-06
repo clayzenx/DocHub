@@ -1,5 +1,0 @@
-$package:
-  id: 'dep2'
-  version: 1.5.0
-  dependencies:
-    dep1: 1.4.2
