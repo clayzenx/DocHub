@@ -233,7 +233,7 @@ end
 Теперь есть возможность увидеть представление в работе. Для этого в markdown документ необходимо встроить представление
 нашего объекта. 
 
-```markdown
+```
 ![](@entity/interactions/blank?id=dochub.user)
 ```
 
@@ -246,7 +246,7 @@ end
 
 Встраиваем ее в markdown документ:
 
-```markdown
+```
 ![](@entity/interactions/tree)
 ```
 
