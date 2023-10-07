@@ -13,7 +13,7 @@
         v-bind:headers="headers"
         v-bind:items="source.dataset || []"
         v-bind:search="search"
-        v-bind:items-per-page="15"
+        v-bind:items-per-page="itemsPerPage"
         v-bind:multi-sort="true"
         v-bind:hide-default-footer="isPrintVersion"
         v-bind:disable-pagination="isPrintVersion"
@@ -82,6 +82,12 @@
       },
       isTemplate() {
         return true;
+      },
+      itemsPerPage() {
+        return Math.max(
+          Math.round(
+            (Math.max(window.document.body?.scrollHeight || 0, window.document.body?.offsetHeight || 0) - 240)
+              / 48), 5);
       }
     },
     methods: {
