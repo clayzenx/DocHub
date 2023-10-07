@@ -13,7 +13,7 @@ export default Object.assign({
                 // eslint-disable-next-line no-console
                 console.warn(`Не найден путь к свойству [${path}]`);
             }
-            return (paths || [])[0];
+            return (paths || []).slice(-1)[0];
         }
     }
 }, new uriTool(config));
