@@ -1,6 +1,6 @@
 import jsonata from 'jsonata';
 import ajv from 'ajv';
-import addFormats from "ajv-formats"
+import addFormats from "ajv-formats";
 import source from '../datasets/source.mjs';
 import {BaseEntities} from '../../global/entities/entities.mjs';
 
@@ -99,8 +99,7 @@ export default {
 			store: {},      // Хранилище вспомогательных переменных для запросов
 			// Исполняет запрос
 			//  context - контекст исполнения запроса
-			//  def - если возникла ошибка, будет возращено это дефолтное значение
-			async evaluate(context, def) {
+			async evaluate(context) {
 				try {
 					if (!this.core) {
 						this.core = jsonata(this.expression);
