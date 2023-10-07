@@ -9,6 +9,11 @@ $package:
   description: Облегченная метамодель для описания прикладного слоя
   # Версия
   version: 3.6.0
+# Стартовая страница для плагина
+docs:
+  dochub.welcome:
+    type: markdown
+    source: docs/welcome.md
 
 imports:
   - dochub/root.yaml

@@ -42,7 +42,7 @@ export default {
 		// Выявленные Проблемы
 		problems: [],
 		// Источники данных манифеста
-		sources: [],
+		sources: {},
 		// Доступные проекты GitLab
 		available_projects: {},
 		// Проекты

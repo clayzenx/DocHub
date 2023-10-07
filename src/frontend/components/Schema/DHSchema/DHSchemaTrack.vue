@@ -142,6 +142,7 @@
       arrows() {
         let result = '';
         const track = this.track.path;
+        if (track.length < 2) return '';
         // Расставляем стрелки завершения пути
         [
           { curr : track[track.length - 1], prev: track[track.length - 2], after: true, arrow: this.endArrow},
