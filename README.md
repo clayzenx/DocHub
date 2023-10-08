@@ -25,11 +25,12 @@ DocHub - инструмент описания архитектуры через
 
 ## Быстрый старт
 
-Рекомендую начать с прочтения статьи [Архитектра рядом с кодом](https://habr.com/ru/post/659595/).
+Рекомендую начать с прочтения статьи [Архитектура рядом с кодом](https://habr.com/ru/post/659595/).
 Познакомиться с работой инструмента и его подробной документацией можно на сайте 
 [https://dochub.info](https://dochub.info/). 
 Примеры использования можно найти в специальном репозитории, который развивает 
-сообщество - [Примеры DocHub](https://github.com/rpiontik/DocHubExamples)
+сообщество - [Примеры DocHub](https://github.com/rpiontik/DocHubExamples). Также полезно
+посмотреть [воркшоп](https://youtu.be/A7U4KiE5uhQ) по старту использования.
 
 Свежие версии плагинов лежат:
 1. Для IDEA в [проекте](./distrib/idea/) и в [маркете JetBrains](https://plugins.jetbrains.com/plugin/18518-dochub-architecture-as-code);
@@ -42,23 +43,27 @@ DocHub - инструмент описания архитектуры через
 
 ```mermaid
 gantt
-    title Новые фичи продукта
+    title RoadMap развития
     dateFormat  YYYY-MM
-    section Q1
-        Plugins                 :done, plugins, 2023-01-01, 40d
-        SmartAnts               :done, smartants, 2023-02-01, 30d
-        Export to Excalidraw    :done, exportexc, 2023-02-20, 11d
-        Backend                 :active, 2023-02-27, 30d
-    section Q2
-        Event Storming tool         :2023-04-01, 90d
-        Mutators                    :2023-04-01, 90d
-        Revers architecture tool    :2023-04-01, 90d
-    section Q3
-        Process Disigner tool       :2023-07-01, 90d
-        Public metamodel repository :2023-07-01, 90d
-        Time Machine                :2023-07-01, 90d
-    section Q4
-        Architectire Commutiny tool :2023-10-01, 90d
+    section Q1 2023
+        Plugins                      :done, plugins, 2023-01-01, 40d
+        SmartAnts                    :done, smartants, 2023-02-01, 30d
+        Export to Excalidraw         :done, exportexc, 2023-02-20, 11d
+        Backend                      :done, 2023-02-27, 30d
+    section Q2 2023
+        PoC revers architecture tool    :done, 2023-04-01, 180d
+        PoC event storming tool         :done, 2023-04-01, 90d
+    section Q3 2023
+        Iaas reverce tool           :done, 2023-07-01, 92d
+        MVP Framework SEAF          :done, 2023-07-01, 92d
+        MVP mutators                :active, 2023-07-01, 150d
+    section Q4 2023
+        Framework SEAF              :active, 2023-10-01, 92d
+        Time Machine                :active, 2023-11-01, 90d
+        Public metamodel repository :active, 2023-10-01, 90d
+    section Q1 2024
+        Process Disigner tool       :2024-01-01, 90d
+        Architectire Commutiny tool :2024-01-01, 90d
 
 click plugins href "https://dochub.info/docs/dochub.plugins.intro"
 click smartants href "https://dochub.info/docs/dochub.smartants"
@@ -261,6 +266,7 @@ npm run build
 По этой причине, наши опубликованные планы, это планы в который мы искренне верим сегодня. Но они является лишь инструментом координации команды и комьюнити продукта. Они могут пересматриваться в любой момент, когда станет
 очевидным, что они устарели.
 
+
 Следите за новостями в [группе комьюнити](https://t.me/archascode) и нашем [канале](https://t.me/dochubchannel).
 
 # Статьи
@@ -270,9 +276,22 @@ npm run build
 * [Код архитектуры — это жидкость](https://habr.com/ru/post/701050/);
 * [Кто последний на индустриальный стандарт? Мне только спросить…](https://habr.com/ru/post/713534/);
 
+# Воркшопы
+* [Старт использования](https://youtu.be/A7U4KiE5uhQ)
+* [Ванильная метамодель DocHub](https://youtu.be/reuVl9rQyXM)
+* [Реверс-архитектура](https://youtu.be/yp4PgZUYBZY)
+* [Опыт ГК Самолет](https://youtu.be/8nMWWaw_GYQ)
+* [Кастомизация метамодели](https://youtu.be/57LxueZy0mc)
+
+# Доклады
+* [Доклад "Архитектура как код" на FlowConf 2023](https://www.youtube.com/watch?v=B7IqUR9yb0w);
+* [Доклад "Архитектура как код" на ArchDays 2022](https://www.youtube.com/watch?v=gLsKxWjRPoI);
+* [Круглый стол 2021](https://youtu.be/tGulYbKW_Lg).
+
 # Сообщество
 
-* [DocHubTeam](https://t.me/archascode)
+* [Группа DocHubTeam](https://t.me/archascode)
+* [Канал "Архитектура как код"](https://t.me/dochubchannel)
 
 # Лицензия
 DocHub распространяется под лицензией Apache License 2.0 Open source license.
