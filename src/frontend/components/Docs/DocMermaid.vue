@@ -8,6 +8,7 @@
   import mermaid from 'mermaid';
   import mustache from 'mustache';
   import mindmap from '@mermaid-js/mermaid-mindmap';
+  import crc16 from '@global/helpers/crc16';
   
   import requests from '@front/helpers/requests';
   import href from '@front/helpers/href';
@@ -40,6 +41,7 @@
         // Получаем шаблон документа
         this.sourceRefresh().then(() => {
           requests.request(this.url).then(({ data }) => {
+            const id = crc16(data);
             let source = this.isTemplate
               ? mustache.render(data, this.source.dataset)
               : data;
@@ -53,7 +55,7 @@
 
               this.$nextTick(() => href.elProcessing(this.$el));
             };
-            mermaid.renderAsync('buffer', source, cb);
+            mermaid.renderAsync(`buffer${id}`, source, cb);
           }).catch((e) => this.error = e);
         });
       }
