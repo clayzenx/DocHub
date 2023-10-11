@@ -1,20 +1,27 @@
 entities:
   docs:
     title: Документы
+    # Конфигурация 
+    config:
+      root_menu: Документы # Корневой элемент меню
     # Строим меню по объектам документа
     menu: >
       (
+        $root_menu := entities.docs.config.root_menu;
         $append([
             {
               "title": 'Документы',
-              "location": 'Документы',
+              "location": $root_menu,
               "expand": true,
               "icon": 'description'
             }
           ],
           docs.$spread().(
+              $location := *.location~>$substring(0, 1) = "/"
+                ? *.location~>$substring(1)
+                : $root_menu & "/" & *.location;
               *.location ? {
-                  "location": "Документы/" & *.location,
+                  "location": $location,
                   "link": "entities/docs/blank?dh-doc-id=" & $keys()[0]
               }
           )
