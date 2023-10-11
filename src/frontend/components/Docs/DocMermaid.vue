@@ -1,5 +1,5 @@
 <template>
-  <box>
+  <box style="overflow-x: auto;">
     <div v-html="svg" />
   </box>
 </template>
