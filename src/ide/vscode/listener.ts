@@ -20,6 +20,7 @@ type TEvent = {
   data?: {
     command?: string,
     content?: {
+      url?: string,
       uri?: string,
       stringifedUri?: string,
       type?: TFiles,
@@ -66,6 +67,10 @@ export default (store: Store<any>): void => {
   window.addEventListener('message', (event: TEvent) => {
     const {command, content, error} = event?.data;
 
+    if (command === 'navigate') {
+      (window as any).Router.push('/');
+      (window as any).Router.push(content.url);
+    }
     if (command === 'response') {
       const {value, type, uuid} = content;
 
