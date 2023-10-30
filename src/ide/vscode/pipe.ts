@@ -23,6 +23,9 @@ export default (): void => {
     applyEntitiesSchema(schema) {
       emit('applyschema', JSON.stringify({ schema }));
     },
+    debug() {
+      emit('debug', undefined);
+    },
     download(content, title, description): void {
       const stringifedUri = JSON.stringify({
         content, title, description

@@ -6,13 +6,20 @@
     dark
     v-bind:class="isPrintVersion ? 'print-version' : ''"
     style="z-index: 99">
-    <v-btn v-if="isBackShow" icon v-on:click="back">
-      <v-icon>arrow_back</v-icon>
-    </v-btn>
+    <i class="fa-solid fa-bug"></i>
     <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
       <header-logo />
     </v-app-bar-nav-icon>
     <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
+    <v-btn v-if="isBackShow" icon v-on:click="back">
+      <v-icon>arrow_back</v-icon>
+    </v-btn>
+    <v-btn v-if="isBackShow" icon v-on:click="debug">
+      <v-icon>track_changes</v-icon>
+    </v-btn>
+    <v-btn v-if="isBackShow" icon v-on:click="refresh">
+      <v-icon>refresh</v-icon>
+    </v-btn>
     <v-spacer />
     <v-btn v-if="isSearchInCode" icon title="Найти в коде" v-on:click="gotoCode">
       <v-icon class="material-icons" style="display: inline">search</v-icon>
@@ -72,6 +79,15 @@
       },
       back() {
         this.$router.back();
+      },
+      debug() {
+        window.$PAPI.debug();
+      },
+      refresh() {
+        const currentRoute = { path: this.$route.path, query: this.$route.query };
+        this.$router.push({ path: '/' }).then(() => {
+          this.$router.push(currentRoute);
+        });
       },
       onLogoClick() {
         if (this.isPlugin) {
