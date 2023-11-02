@@ -17,6 +17,9 @@ export default (): void => {
     initProject(mode): void {
       emit('create', mode);
     },
+    addLinks(node): void {
+      emit('addLinks', node);
+    },
     applyEntitiesSchema(schema) {
       emit('applyschema', JSON.stringify({ schema }));
     },
