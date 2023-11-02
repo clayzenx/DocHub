@@ -24,8 +24,9 @@ type TEvent = {
       uri?: string,
       stringifedUri?: string,
       type?: TFiles,
-      uuid?: string
-      value?: string
+      uuid?: string,
+      value?: string,
+      node?: any
     },
     error?: any
   }
@@ -66,6 +67,11 @@ const normalizeResponse = (type: TFiles, content: string): any => {
 export default (store: Store<any>): void => {
   window.addEventListener('message', (event: TEvent) => {
     const {command, content, error} = event?.data;
+
+    if(command === 'checkIsEntity') {
+      if(store.state.manifest.entities[content.node.name])
+        window.$PAPI.addLinks(content.node);
+    }
 
     if (command === 'navigate') {
       (window as any).Router.push('/');
