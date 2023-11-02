@@ -6,7 +6,7 @@
     dark
     v-bind:class="isPrintVersion ? 'print-version' : ''"
     style="z-index: 99">
-    <i class="fa-solid fa-bug"></i>
+    <i class="fa-solid fa-bug" />
     <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
       <header-logo />
     </v-app-bar-nav-icon>
