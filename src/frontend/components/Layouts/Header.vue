@@ -15,7 +15,7 @@
       <v-icon>arrow_back</v-icon>
     </v-btn>
     <v-btn v-if="isBackShow" icon v-on:click="debug">
-      <v-icon>track_changes</v-icon>
+      <v-icon>mdi-bug</v-icon>
     </v-btn>
     <v-btn v-if="isBackShow" icon v-on:click="refresh">
       <v-icon>refresh</v-icon>
