@@ -32,6 +32,10 @@
           <v-list-item-title>Версия для печати</v-list-item-title>
         </v-list-item>
         <v-list-item>
+          <v-checkbox v-model="isFullScreenDiagram" />
+          <v-list-item-title>Полноэкранные диаграммы</v-list-item-title>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-title style="cursor: pointer;" v-on:click="doPrint">Печать</v-list-item-title>
         </v-list-item>
       </v-list>
@@ -59,6 +63,15 @@
       isCriticalError() {
         return !!(this.$store.state.problems || []).find((item) => item.critical);
       },
+      isFullScreenDiagram: {
+        set(value) {
+          this.$store.commit('setFullScreenDiagram', value);
+        },
+        get() {
+          return this.$store.state.isFullScreenDiagram;
+        }
+      },
+
       isPrintVersion: {
         set(value) {
           this.handleDrawer(!value);

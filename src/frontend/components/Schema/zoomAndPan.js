@@ -5,6 +5,9 @@ export default {
 			panKeys: ['ctrlKey', 'shiftKey'],
 			isMove: false, 			 // Признак перемещения схемы
 			cacheViewBox: null,
+      originalHeight: 500,
+      isFullScreenMode: false,
+      isNeedResize: false,
 			moveX: 0,
 			moveY: 0,
 			zoom: {
@@ -13,6 +16,28 @@ export default {
 			}
 		}
 	}),
+  watch: {
+    '$store.state.isFullScreenDiagram'(value) {
+      console.log('v', value);
+      if(!value) {
+        this.changePanHeight(this.zoomAndPan.originalHeight);
+        return;
+      }
+      this.zoomAndPan.isNeedResize = value;
+      this.zoomAndPan.isFullScreenMode = value;
+      // Do something with the new value
+    },
+  },
+  mounted() {
+    if(
+      this.$route.name == 'entities'
+      && this.$store.state.isFullScreenDiagram
+    ) {
+        this.zoomAndPan.isFullScreenMode = true;
+        this.zoomAndPan.isNeedResize = true;
+        window.addEventListener('resize', () => this.zoomAndPan.isNeedResize = true);
+    }
+  },
 	computed: {
 		koofScreenX() {
 			return this.zoomAndPanElement ? this.ZoomAndPanViewBox.width / this.zoomAndPanElement.clientWidth : 1;
@@ -33,7 +58,7 @@ export default {
 				return this.zoomAndPan.cacheViewBox ?
 					this.zoomAndPan.cacheViewBox
 					// eslint-disable-next-line vue/no-side-effects-in-computed-properties
-					: this.zoomAndPan.cacheViewBox = this.zoomAndPanElement.viewBox.baseVal; 
+					: this.zoomAndPan.cacheViewBox = this.zoomAndPanElement.viewBox.baseVal;
 		},
 		zoomAndPanElement() {
 			return this.$refs.zoomAndPan;
@@ -72,6 +97,15 @@ export default {
 		},
 		zoomAndPanMouseDown(event) {
 			if (!this.isPushKey(event, this.zoomAndPan.panKeys)) return;
+      if(
+        this.zoomAndPan.isNeedResize
+        && this.zoomAndPan.isFullScreenMode
+      ) {
+        this.zoomAndPan.originalHeight = this.zoomAndPanElement.clientHeight;
+        this.changePanHeight(window.innerHeight);
+        this.restoreOriginalZoom();
+        this.zoomAndPan.isNeedResize = false;
+      }
 			this.zoomAndPan.isMove = true;
 			this.zoomAndPan.moveX = event.clientX;
 			this.zoomAndPan.moveY = event.clientY;
@@ -85,6 +119,29 @@ export default {
 		},
 		zoomAndPanMouseUp() {
 			this.zoomAndPan.isMove = false;
-		}
+		},
+    changePanHeight(height) {
+      const currentHeight = this.zoomAndPanElement.clientHeight;
+      if(
+        currentHeight > height
+        && height != this.zoomAndPan.originalHeight
+      ) return;
+      const heightIncreaseRatio = height / currentHeight;
+
+      this.zoomAndPanElement.style.height = height + 'px';
+
+      const currentWidth = this.zoomAndPanElement.clientWidth;
+      const newWidth = currentWidth * heightIncreaseRatio;
+      this.zoomAndPanElement.style.width = newWidth + 'px';
+    },
+    restoreOriginalZoom() {
+      const originalHeight = this.zoomAndPan.originalHeight;
+      const currentHeight = parseInt(this.zoomAndPanElement.style.height);
+      const heightDecreaseRatio = originalHeight / currentHeight;
+
+      const newZoom = this.zoomAndPan.zoom.value / heightDecreaseRatio - this.zoomAndPan.zoom.value;
+
+      this.doZoom(newZoom, this.zoomAndPanElement.clientWidth / 2, this.zoomAndPanElement.clientHeight / 2);
+    }
 	}
 };
