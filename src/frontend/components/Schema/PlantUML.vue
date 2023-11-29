@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     class="plantuml-place"
     v-on:contextmenu="showMenu">
     <error-boundary
@@ -78,6 +78,10 @@
     ],
     data() {
       return {
+        defaultSize: {
+          width: 0,
+          height: 0
+        },
         menu: { // Контекстное меню
           show: false,  // Признак отображения
           x : 0,  // Позиция x
@@ -133,6 +137,9 @@
     watch: {
       uml() {
         this.reloadSVG();
+      },
+      '$store.state.isFullScreenMode'() {
+        this.doResize();
       }
     },
     mounted() {
@@ -162,8 +169,49 @@
           });
         }, 300);
       },
-      doResize() {
+      resizeToFullViewport() {
         if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
+
+        const containerWidth = this.$el.clientWidth;
+        const containerHeight = window.innerHeight;
+
+        if (this.defaultSize.width === 0 || this.defaultSize.height === 0) {
+          this.defaultSize.width = this.svgEl.clientWidth;
+          this.defaultSize.height = this.svgEl.clientHeight;
+        }
+
+        const originalWidth = this.viewBox.width;
+        const originalHeight = this.viewBox.height;
+
+        const aspectRatio = originalWidth / originalHeight;
+
+        this.viewBox.height = containerHeight;
+        this.viewBox.width = containerHeight * aspectRatio;
+
+        const offsetX = (containerWidth - this.viewBox.width) / 2;
+        this.viewBox.x = offsetX;
+
+        this.svgEl.style.width = `${this.viewBox.width}px`;
+        this.svgEl.style.height = '100vh';
+      },
+
+      doResize() {
+        if (this.$store.state.isFullScreenMode) {
+          this.resizeToFullViewport();
+          return;
+        }
+
+        if (!this.svgEl || !this.svgEl.clientWidth || !this.svgEl.clientHeight) return;
+
+        // Restore default size if available
+        if (this.defaultSize.width !== 0 && this.defaultSize.height !== 0) {
+          this.viewBox.width = this.defaultSize.width;
+          this.viewBox.height = this.defaultSize.height;
+
+          // Update SVG element styles
+          this.svgEl.style.width = `${this.defaultSize.width}px`;
+          this.svgEl.style.height = `${this.defaultSize.height}px`;
+        }
 
         const originWidth = this.viewBox.width;
 

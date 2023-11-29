@@ -531,7 +531,7 @@
       // Перестроить viewbox
       rebuildViewBox() {
         if(this.$store.state.isFullScreenMode) {
-          this.resizeToFullViewport()
+          this.resizeToFullViewport();
           return;
         }
         const width = this.presentation.valueBox?.dx - this.presentation.valueBox.x;
