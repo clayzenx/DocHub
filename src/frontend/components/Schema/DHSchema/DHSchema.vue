@@ -352,6 +352,9 @@
       },
       'animation.information'() {
         this.rebuildViewBox();
+      },
+      '$store.state.isFullScreenMode'() {
+        this.rebuildViewBox();
       }
     },
     mounted() {
@@ -511,8 +514,26 @@
           this.updateNodeView();
         } else event.preventDefault();
       },
+      resizeToFullViewport() {
+        const clientWidth = this.$el?.clientWidth || 0;
+        const aspectRatio = (this.presentation.valueBox.dx - this.presentation.valueBox.x) / (this.presentation.valueBox.dy - this.presentation.valueBox.y);
+
+        const newHeight = window.innerHeight;
+        const newWidth = newHeight * aspectRatio;
+
+        const deltaWidth = (clientWidth - newWidth) * 0.5;
+        this.landscape.viewBox.left = -deltaWidth + this.presentation.valueBox.x;
+        this.landscape.viewBox.width = newWidth + deltaWidth * 2;
+
+        this.$el.style.height = `${newHeight}px`;
+        this.landscape.viewBox.height = newHeight;
+      },
       // Перестроить viewbox
       rebuildViewBox() {
+        if(this.$store.state.isFullScreenMode) {
+          this.resizeToFullViewport()
+          return;
+        }
         const width = this.presentation.valueBox?.dx - this.presentation.valueBox.x;
         let height = Math.max(this.presentation.valueBox.dy - this.presentation.valueBox.y, 100);
         const clientWidth = this.$el?.clientWidth || 0;
