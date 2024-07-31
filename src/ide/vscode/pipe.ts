@@ -58,13 +58,13 @@ export default (): void => {
         listeners[uuid] = { res, rej };
       });
     },
-    pullFromCache(key: object) {
+    pullFromCache(key: string, resolver: () => void, args: object): Promise<void> {
       const uuid = uuidv4();
 
       emit('pullFromCache', { uuid, key });
 
       return new Promise((res, rej): void => {
-        listeners[uuid] = { res, rej };
+        listeners[uuid] = { res, rej, resolver, args };
       });
     },
     request(uri): Promise<void> {
