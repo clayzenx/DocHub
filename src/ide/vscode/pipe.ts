@@ -4,7 +4,7 @@ import plantuml from '@front/helpers/plantuml';
 import config from '@front/config';
 
 const emit = (command: string, content: any): Promise<any> | void =>
-  vscode.postMessage({command, content});
+  vscode.postMessage({ command, content });
 
 export const listeners: { [key: string]: any } = {};
 
@@ -53,6 +53,15 @@ export default (): void => {
         stringifedUri,
         uuid
       });
+
+      return new Promise((res, rej): void => {
+        listeners[uuid] = { res, rej };
+      });
+    },
+    pullFromCache(key: object) {
+      const uuid = uuidv4();
+
+      emit('pullFromCache', { uuid, key });
 
       return new Promise((res, rej): void => {
         listeners[uuid] = { res, rej };
