@@ -111,7 +111,7 @@ export default (store: Store<any>): void => {
         const { resolver, args, res } = listeners[uuid]
         if (data.hasCache) {
           // Если кэш есть - отдаем его
-          res(data.cache)
+          res(JSON.parse(data.cache))
           return;
         } else if(!data.hasCache && listeners[uuid].resolver) {
           // Если нет - Получаем его из резолвера и аргументов
