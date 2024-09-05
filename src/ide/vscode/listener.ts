@@ -71,6 +71,14 @@ export default (store: Store<any>): void => {
   window.addEventListener('message', (event: TEvent) => {
     const {command, content, error} = event?.data;
 
+    if(command === 'changeFile') {
+      const datasetsIDs = [...(window as any).Vuex.state.dependencyOf[content.uri]];
+
+      if(datasetsIDs && Array.isArray(datasetsIDs)) {
+        window.$PAPI.clearDatasetsCache(datasetsIDs);
+      }
+    }
+
     if(command === 'fetchPlugins') {
       const plugins = require('../../../plugins.json');
       window.$PAPI.pluginList({ plugins: plugins.inbuilt });

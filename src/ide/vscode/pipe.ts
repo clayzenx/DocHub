@@ -59,6 +59,10 @@ export default (): void => {
         listeners[uuid] = { res, rej };
       });
     },
+    clearDatasetsCache(datasetsIDs: string[]) {
+      const datasetCacheKeys = datasetsIDs.map(id => md5(`{"path":"/datasets/${id}"}`));
+      emit('clearCaches', { datasetCacheKeys });
+    },
     updateCache(key: string, data: any) {
       emit('updateCache', { key, data: JSON.stringify(data) });
     },
