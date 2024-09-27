@@ -10,6 +10,9 @@ const __dirname = path.dirname(__filename);
 global.$paths = {
     public: path.resolve(__dirname, '../../../public/'),
     dist: path.resolve(__dirname, '../../../dist/'),
+    smartants: process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE
+        ? path.resolve(__dirname, `../../..${process.env.VUE_APP_DOCHUB_SMART_ANTS_SOURCE}`)
+        : path.resolve(__dirname, '../../assets/libs/smartants.js'),
     file_storage: (
         process.env.VUE_APP_DOCHUB_BACKEND_FILE_STORAGE 
         ? path.resolve(process.env.VUE_APP_DOCHUB_BACKEND_FILE_STORAGE) 

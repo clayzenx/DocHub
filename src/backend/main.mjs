@@ -10,7 +10,6 @@ import controllerEntity from './controllers/entity.mjs';
 import controllerSmartants from './controllers/smartants.mjs';
 import middlewareAccess from './middlewares/access.mjs';
 import middlewareCluster from './middlewares/cluster.mjs';
-import middlewareBodyParser from './middlewares/body-parser.mjs';
 
 const LOG_TAG = 'server';
 
@@ -23,9 +22,6 @@ app.storage = null;
 
 // Подключаем контроль доступа
 middlewareAccess(app);
-
-// Парсим бади
-middlewareBodyParser(app);
 
 // Основной цикл приложения
 const mainLoop = async function() {
