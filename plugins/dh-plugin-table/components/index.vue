@@ -25,7 +25,7 @@
 <script>
   import yaml from 'yaml';
   import Table from './Table/Table.vue';
-  import { parseSelectOptions } from '../lib/helpers';
+  import { mergeHeaders, parseSelectOptions, prepareTableData } from '../lib/helpers';
 
   export default {
     components: {
@@ -64,20 +64,45 @@
     },
 
     mounted() {
-      this.prepareHeaders();
-      this.loadTableData();
+      this.initTable();
     },
 
     methods: {
-      async prepareHeaders() {
-        this.errorMessage = null;
-        const headers = this.profile.headers;
-        if (!headers) {
-          this.errorMessage = 'Не заполнены заголовки (headers) для таблицы';
+      async initTable() {
+        const data = await this.loadSourceData();
+
+        if (this.errorMessage) {
+          this.isDataLoaded = true;
           return;
         }
 
-        for (let i = 0; i < headers.length; i++) {
+        const { body, headers: sourceHeaders } = data;
+
+        if(!this.profile.headers?.length && !sourceHeaders?.length) {
+          this.errorMessage = 'Не заполнены заголовки (headers) для таблицы';
+          this.isDataLoaded = true;
+          return;
+        }
+
+        const headers =  mergeHeaders(this.profile.headers, sourceHeaders);
+        const formatedHeaders = await this.formatHeaders(headers);
+
+        if (this.errorMessage) {
+          this.isDataLoaded = true;
+          return;
+        }
+
+        const tableData = prepareTableData(body, formatedHeaders);
+
+        this.tableData = tableData;
+        this.tableHeaders = formatedHeaders;
+        this.isDataLoaded = true;
+      },
+
+      async formatHeaders(rawHeaders) {
+        let formatedHeaders = {};
+
+        for (let i = 0; i < rawHeaders.length; i++) {
           const {
             value,
             text = value,
@@ -91,14 +116,14 @@
             pinned = false,
             style = {},
             styles
-          } = headers[i];
+          } = rawHeaders[i];
 
           if (!value) {
             this.errorMessage = 'Не задано значение идентификатора (value) для headers';
             return;
           }
 
-          this.tableHeaders[value] = {
+          formatedHeaders[value] = {
             headerID: value,
             text,
             type,
@@ -123,7 +148,7 @@
             this.isTableEditable = true;
           }
 
-          if (!this.isTableFilterable && this.tableHeaders[value].filterable) {
+          if (!this.isTableFilterable && formatedHeaders[value].filterable) {
             this.isTableFilterable = true;
           }
 
@@ -143,7 +168,7 @@
                   this.errorMessage = `Не удалось получить "${value}/options" по идентификатору ${jsonata}`;
                   return;
                 }
-                this.tableHeaders[value].options = parseSelectOptions(res);
+                formatedHeaders[value].options = parseSelectOptions(res);
               } catch (err) {
                 this.errorMessage = `JSONata запрос "${jsonata}" завершился с ошибкой. Проверте значение в "headers/${value}/options"`;
                 // eslint-disable-next-line no-console
@@ -152,28 +177,17 @@
             }
           }
         }
+
+        return formatedHeaders;
       },
 
-      loadTableData() {
-        this.isDataLoaded = false;
-        this.pullData()
+      async loadSourceData() {
+        return await this.pullData()
           .then((data) => {
-            for (let rowID in data) {
-              const row = data[rowID];
-
-              this.tableData[rowID] = {};
-
-              for (let headerID in this.tableHeaders) {
-                const { type } = this.tableHeaders[headerID];
-
-                if (type === 'checkbox') {
-                  this.tableData[rowID][headerID] = !!row[headerID];
-                  continue;
-                }
-                this.tableData[rowID][headerID] = row[headerID] ?? null;
-              }
+            if (!data.body) {
+              throw new Error();
             }
-            this.isDataLoaded = true;
+            return data;
           })
           .catch((err) => {
             alert(err);
