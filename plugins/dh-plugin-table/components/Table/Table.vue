@@ -38,23 +38,24 @@
               class="cell, cell_header"
               v-bind:style="pinnedRowStyles[headerID]"
               v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
-              {{ text }}
-
-              <v-badge
-                v-if="sortMap[headerID]"
-                class="sort-badge"
-                color="primary"
-                v-bind:content="sortMap[headerID].priority + 1"
-                inline>
-                <v-icon
-                  medium
-                  v-bind:class="sortMap[headerID].direction === 'inc'
-                    ? 'mdi mdi-arrow-up-bold'
-                    : 'mdi mdi-arrow-down-bold'
-                  "
-                  v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
-                  " />
-              </v-badge>
+              <div class="table__header">
+                {{ text }}
+                <v-badge
+                  v-if="sortMap[headerID]"
+                  class="sort-badge"
+                  color="primary"
+                  v-bind:content="sortMap[headerID].priority + 1"
+                  inline>
+                  <v-icon
+                    medium
+                    v-bind:class="sortMap[headerID].direction === 'inc'
+                      ? 'mdi mdi-arrow-up-bold'
+                      : 'mdi mdi-arrow-down-bold'
+                    "
+                    v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
+                    " />
+                </v-badge>
+              </div>
             </th>
           </tr>
 
@@ -190,23 +191,25 @@
               class="cell cell_header"
               v-bind:style="tableOptions.maxWidth"
               v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
-              {{ text }}
+              <div class="table__header">
+                {{ text }}
 
-              <v-badge
-                v-if="sortMap[headerID]"
-                class="sort-badge"
-                color="primary"
-                v-bind:content="sortMap[headerID].priority + 1"
-                inline>
-                <v-icon
-                  medium
-                  v-bind:class="sortMap[headerID].direction === 'inc'
-                    ? 'mdi mdi-arrow-up-bold'
-                    : 'mdi mdi-arrow-down-bold'
-                  "
-                  v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
-                  " />
-              </v-badge>
+                <v-badge
+                  v-if="sortMap[headerID]"
+                  class="sort-badge"
+                  color="primary"
+                  v-bind:content="sortMap[headerID].priority + 1"
+                  inline>
+                  <v-icon
+                    medium
+                    v-bind:class="sortMap[headerID].direction === 'inc'
+                      ? 'mdi mdi-arrow-up-bold'
+                      : 'mdi mdi-arrow-down-bold'
+                    "
+                    v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
+                    " />
+                </v-badge>
+              </div>
             </th>
             <!-- ************* FILTERS ************* -->
             <td v-if="tableOptions.isFiltareble" class="cell cell_filter" v-bind:style="tableOptions.maxWidth">
@@ -595,6 +598,14 @@
   position: relative;
   background-color: var(--color-bg-header);
   color: var(--color-bg-cell);
+}
+
+.table__header {
+  min-height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
 }
 
 .cell_filter {
