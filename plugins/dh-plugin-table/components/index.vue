@@ -16,8 +16,7 @@
       v-bind:direction="profile.direction === 'ttb' ? 'ttb' : 'ltr'"
       v-bind:selection="profile.selection === true"
       v-bind:page-size="profile.page_size ?? 20"
-      v-bind:is-table-editable="isTableEditable"
-      v-bind:is-table-filterable="isTableFilterable"
+      v-bind:filtration="profile.filtration ?? true"
       v-on:on-save="saveTableToFiles" />
   </div>
 </template>
@@ -56,10 +55,7 @@
         isDataLoaded: false,
         tableData: {},
         tableHeaders: [],
-        errorMessage: null,
-
-        isTableEditable: false,
-        isTableFilterable: false
+        errorMessage: null
       };
     },
 
@@ -140,16 +136,11 @@
             }
           };
 
-          if (!this.isTableFilterable && filterable) {
-            this.isTableFilterable = true;
-          }
-
-          if (!this.isTableEditable && editable) {
-            this.isTableEditable = true;
-          }
-
-          if (!this.isTableFilterable && formatedHeaders[value].filterable) {
-            this.isTableFilterable = true;
+          if(editable) {
+            if(!save || !save?.path || !save?.entity) {
+              this.errorMessage = `Не заполнены опции сохранения ("save") для редактируемой колонки ("editable: true"). Проверте значение "save" для "${value}"`;
+              return;
+            }
           }
 
           if (type === 'select' || type === 'multiple-select') {
