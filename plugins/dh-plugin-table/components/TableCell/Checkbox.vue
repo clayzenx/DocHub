@@ -38,6 +38,11 @@
         return getStylesToApply(this.inputValue, this.styles);
       }
     },
+    watch: {
+      value() {
+        this.inputValue = this.value;
+      }
+    },
     methods: {
       updateInput() {
         this.$emit('input', this.inputValue);

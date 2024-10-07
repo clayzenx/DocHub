@@ -1,11 +1,5 @@
 <template>
   <div class="table-cell">
-    <!-- <div 
-      v-if="type === 'text' && disabled" 
-      class="content-container">
-      {{ value }}
-    </div> -->
-
     <dh-text
       v-if="type === 'text' && disabled" 
       v-bind:value="value"
