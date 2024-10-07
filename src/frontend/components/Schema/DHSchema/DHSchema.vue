@@ -152,12 +152,12 @@
         const params = {
           grid, styles, nodes, links, trackWidth, distance, direction, height, symbols, wrap, isDebug
         };
-        if (env.smartantsMode() === 'thread') {
+        if (env.smartantsMode() !== 'front') {
           params.availableWidth = availableWidth;
           compressor.encodeBase64(JSON.stringify(params))
-            .then((query) => requests.request(`${env.backendFileStorageURL()}smartants/${encodeURIComponent(query)}`))
+            .then((query) => requests.request(`${env.backendURL()}/smartants/${encodeURIComponent(query)}`))
             .then(({ data }) => success(data.graph))
-            .catch(({ data }) => reject(data.message));
+            .catch((err) => reject(err));
         } else {
           const hash = window.localStorage ? md5(JSON.stringify(params)) : null;
           const cacheKey = `SmartAnts.cache.v${CACHE_VERSION}.${hash}`;
