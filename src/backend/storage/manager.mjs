@@ -11,7 +11,7 @@ import '../helpers/env.mjs';
 import jsonataDriver from '../../global/jsonata/driver.mjs';
 import jsonataFunctions from '../../global/jsonata/functions.mjs';
 import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
-
+import uriTool from '../helpers/uri.mjs';
 const LOG_TAG = 'storage-manager';
 
 manifestParser.cache = cache;
@@ -95,10 +95,10 @@ export default {
 			try {
 				// загружаю основной файл с ролями
 				const {URI} =  global.$roles;
-				const url = new URL(URI);
+				const url = uriTool.makeURL(URI).url;
 				const manifest = await loader(url);
 				// загружаю правила по умолчанию
-				const defaultUrl = new URL('default.yaml', URI);
+				const defaultUrl = uriTool.makeURL('default.yaml', URI).url;
 				const defaultRoles = await loader(defaultUrl);
 				const systemRules = defaultRoles?.roles;
 				const exclude = defaultRoles?.exclude;

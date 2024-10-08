@@ -34,7 +34,7 @@ export function getUserName(headers) {
                 console.warn(`Verification error: jwt: ${jwt}`);
             }
         } catch (e) {
-            console.error('Error getting user groups!');
+            console.error('Error getting user name!');
             // eslint-disable-next-line no-console
             console.error(e);
             return undefined;

@@ -296,6 +296,24 @@ docs:
     autor: R.Piontik
     type: smartants           
     source: examples/sa-query.jsonata
+  dochub.smartants.examples.physical-connection:
+    location: DocHub/Руководство/Документы/SmartAnts/10 Физическая связь двух объектов
+    description: Физическая связь двух объектов (не интеграция)
+    autor: V.Nefedov, S.Lukyantseva
+    type: smartants           
+    source: examples/sa-physical-connection.yaml
+  dochub.smartants.examples.through-objects:
+    location: DocHub/Руководство/Документы/SmartAnts/11 Интеграция через несколько объектов
+    description: Интеграция через несколько объектов
+    autor: V.Nefedov, S.Lukyantseva
+    type: smartants           
+    source: examples/sa-through-objects.yaml
+  dochub.smartants.examples.without-tips:
+    location: DocHub/Руководство/Документы/SmartAnts/12 Обоюдотупые стрелки
+    description: Обоюдотупые стрелки (без наконечников)
+    autor: V.Nefedov, S.Lukyantseva
+    type: smartants           
+    source: examples/sa-without-tips.yaml
   dochub.example.pml:
     type: PlantUML
     subjects:
