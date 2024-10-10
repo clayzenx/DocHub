@@ -5,7 +5,7 @@ import { WorkerStack } from '../utils/worker-stack.mjs';
 
 const compressor = compress();
 const { source, maxWorkers, workerTimeout, mode } = global.$smartants;
-const smartantsWorkerThreads = mode === 'thread' ? new WorkerStack(maxWorkers, source, workerTimeout, 100000) : null;
+const smartantsWorkerThreads = mode === 'thread' ? new WorkerStack(maxWorkers, source, workerTimeout, 500000) : null;
 
 export default function(app) {
     app.get('/smartants/:data', (req, res) => {
@@ -22,7 +22,7 @@ export default function(app) {
             }
         }).then((result) => {
             if (result?.result !== 'OK') {
-                res.status(500).send({ message: 'Smartants Error', result });
+                res.status(503).send({ message: 'Smartants Error', result });
             } else {
                 res.send(result);
             }
