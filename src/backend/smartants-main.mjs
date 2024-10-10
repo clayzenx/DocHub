@@ -18,7 +18,7 @@ app.get(`/${global.$smartants.pathUrl}:data`, async (req, res) => {
         const result = await smartantsWorkerThreads.execute({ params: query, queryID: md5(req.params.data) });
         res.send(result);
     } catch (err) {
-        res.status(500).send('Smartants internal Error');
+        res.status(503).send('Smartants internal Error');
     }
 });
 
