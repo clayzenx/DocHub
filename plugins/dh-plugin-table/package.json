@@ -1,12 +1,13 @@
 {
   "name": "dh-plugin-table",
   "version": "1.0.0",
-  "description": "Table for DocHub",
+  "description": "Editable table for DocHub",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "license": "MIT",
+  "author": "A.Anenburg",
+  "license": "Apache-2.0",
   "dependencies": {
     "vuetify": "2.6.14",
     "yaml": "1.10.2"
