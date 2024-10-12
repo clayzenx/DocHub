@@ -1,5 +1,5 @@
 import logger from '../utils/logger.mjs';
-import manifestParser from '../../global/manifest/parser.mjs';
+import manifestParser from '../../global/manifest/parser2.mjs';
 import cache from './cache.mjs';
 import md5 from 'md5';
 import events from '../helpers/events.mjs';

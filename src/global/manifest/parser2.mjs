@@ -6,6 +6,24 @@ import cache from './services/cache.mjs'; // Сервис управления �
 import * as semver from 'semver'; // Управление версиями  
 import prototype from './prototype.mjs';
 
+function getAllKeys(obj, prefix = '') {
+    let keys = [];
+
+    for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            const newKey = `${prefix}/${key}`;
+            keys.push(newKey);
+
+            if (typeof obj[key] === 'object' && obj[key] !== null) {
+                keys = keys.concat(getAllKeys(obj[key], newKey));
+            }
+        }
+    }
+
+    return keys;
+}
+
+
 // Кладовка
 // https://github.com/douglascrockford/JSON-js
 
@@ -82,18 +100,29 @@ parser.mergeMap = new Proxy({}, {
         let node = parser.manifest;
         if (!node || (typeof path !== 'string') || path.startsWith('__'))
             return target[path];
-        let uri = null;
+        let uris = [];
         const nodes = path.split('/');
         // if (path.endsWith('summary')) debugger;
         for (const i in nodes) {
             const nodeId = nodes[i];
             if (!nodeId) continue;
             if (typeof node === 'object') {
-                uri = node.__uriOf__(nodeId);
+                const uri = node.__uriOf__?.(nodeId);
+                uri && uris.push(uri);
             } else break;
             node = node?.[nodeId];
         }
-        return uri ? [uri] : [];
+        return uris;
+    },
+    ownKeys() {
+        return getAllKeys(parser.manifest);
+    },
+
+    getOwnPropertyDescriptor() {
+        return {
+            enumerable: true,
+            configurable: true
+        };
     }
 });
 
