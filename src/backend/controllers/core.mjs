@@ -101,8 +101,13 @@ export default (app) => {
             const oldHash = app.storage.hash;
             await storeManager.reloadManifest(app)
                 .then((storage) => storeManager.applyManifest(app, storage))
+                .then(() => app.isReady = true)
                 .then(() => cache.clearCache(oldHash))
-                .then(() => res.json({ message: 'success' }));
+                .then(() => res.json({ message: 'success' }))
+                .catch((err) => {
+                  app.isReady = false;
+                  app.errorMessage = err.message;
+                });
 
             userName = getUserName(req.headers);
             const jsonLog = JSON.stringify({
