@@ -44,4 +44,10 @@ global.$smartants = {
     workerTimeout: process.env.VUE_APP_DOCHUB_SMART_ANTS_WORKER_TIMEOUT ?? 50000
 };
 
+global.$parser = {
+    source: path.resolve(__dirname, `../../global/manifest/parserWorker.mjs`),
+    maxWorkers: process.env.VUE_APP_DOCHUB_PARSER_MAX_THREADS ?? Math.max(os.cpus().length - 2, 1),
+    workerTimeout: process.env.VUE_APP_DOCHUB_PARSER_WORKER_TIMEOUT ?? 50000
+};
+
 export default dotenv;

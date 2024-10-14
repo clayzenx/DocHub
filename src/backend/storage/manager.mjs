@@ -7,6 +7,10 @@ import validators from '../helpers/validators.mjs';
 import entities from '../entities/entities.mjs';
 import objectHash from 'object-hash';
 import '../helpers/env.mjs';
+import { WorkerStack } from '../utils/worker-stack.mjs'
+
+const { maxWorkers, workerTimeout, source } = global.$parser;
+const parserWorker = new WorkerStack(maxWorkers, source, workerTimeout, 100000)
 
 import jsonataDriver from '../../global/jsonata/driver.mjs';
 import jsonataFunctions from '../../global/jsonata/functions.mjs';
@@ -29,6 +33,9 @@ manifestParser.onStartReload = (parser) => {
 manifestParser.onReloaded = (parser) => {
 	logger.log('Manifest is reloaded', LOG_TAG);
 };
+
+manifestParser.onPullSource = async uri =>
+  Promise.resolve((await parserWorker.execute({ uri })).response)
 
 export default {
 	// Кэш для пользовательских функций

@@ -7,6 +7,7 @@ import gitlab from './gitlab.mjs';
 import bitbucket from './bitbucket.mjs';
 import logger from '../utils/logger.mjs';
 import xml from '../../global/helpers/xmlparser.mjs';
+import './env.mjs';
 
 const REQUEST_TAG = 'request';
 
