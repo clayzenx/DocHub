@@ -119,7 +119,7 @@ export default function(app) {
           userName,
           time: Date.now() - start,
           originalUrl: req.originalUrl
-        })
-        logger.log(jsonLog, LOG_TAG);
+        });
+        logger.log('debug', jsonLog, LOG_TAG);
     });
 }

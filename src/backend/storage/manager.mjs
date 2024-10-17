@@ -22,12 +22,12 @@ manifestParser.onError = (error) => {
 
 // eslint-disable-next-line no-unused-vars
 manifestParser.onStartReload = (parser) => {
-	logger.log('Manifest start reloading', LOG_TAG);
+	logger.log('info', 'Manifest start reloading', LOG_TAG);
 };
 
 // eslint-disable-next-line no-unused-vars
 manifestParser.onReloaded = (parser) => {
-	logger.log('Manifest is reloaded', LOG_TAG);
+	logger.log('info', 'Manifest is reloaded', LOG_TAG);
 };
 
 export default {
@@ -78,7 +78,7 @@ export default {
 	},
 	reloadManifest: async function(app) {
 
-		logger.log('Run full reload manifest', LOG_TAG);
+		logger.log('info', 'Run full reload manifest', LOG_TAG);
 		// Загрузку начинаем с виртуального манифеста
 		cache.errorClear();
 		let storageManifest = {};
@@ -125,7 +125,7 @@ export default {
 
 		entities(baseManifest);
 
-		logger.log('Full reload is done', LOG_TAG);
+		logger.log('info', 'Full reload is done', LOG_TAG);
 		const result = {
 			manifest: baseManifest, // Сформированный манифест
 			hash: objectHash(baseManifest), // HASH состояния для контроля в кластере
@@ -139,7 +139,7 @@ export default {
 		};
 
 		// Выводим информацию о текущем hash состояния
-		logger.log(`Hash of manifest is ${result.hash}`, LOG_TAG);
+		logger.log('info', `Hash of manifest is ${result.hash}`, LOG_TAG);
 
 		// Если есть ошибки загрузки, то дергаем callback 
 		result.problems.length && events.onFoundLoadingError();

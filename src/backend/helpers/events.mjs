@@ -12,7 +12,7 @@ export default {
                 .catch((e) => {
                     logger.error(`Error of delivery event onFoundLoadingError to [${listeners.onFoundLoadingError}] with error [${e.message}]`, LOG_TAG);
                 });
-            logger.log(`Sent event onFoundLoadingError to [${listeners.onFoundLoadingError}]`, LOG_TAG);
+            logger.log('info', `Sent event onFoundLoadingError to [${listeners.onFoundLoadingError}]`, LOG_TAG);
         }
     }
 };

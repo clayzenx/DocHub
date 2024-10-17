@@ -81,7 +81,7 @@ export default (app) => {
           time: Date.now() - start,
           originalUrl: req.originalUrl
         });
-        logger.log(jsonLog, LOG_TAG);
+        logger.log('debug', jsonLog, LOG_TAG);
     });
 
     // Запрос на обновление манифеста
@@ -110,7 +110,7 @@ export default (app) => {
               time: Date.now() - start,
               originalUrl: req.route.path
             });
-            logger.log(jsonLog, LOG_TAG);
+            logger.log('debug', jsonLog, LOG_TAG);
         }
     });
 
@@ -179,7 +179,7 @@ export default (app) => {
               time: Date.now() - start,
               originalUrl: req.originalUrl
             });
-            logger.log(jsonLog, LOG_TAG);
+            logger.log('debug', jsonLog, LOG_TAG);
     });
 
     // Возвращает результат работы валидаторов
@@ -207,7 +207,7 @@ export default (app) => {
           time: Date.now() - start,
           originalUrl: req.originalUrl
         });
-        logger.log(jsonLog, LOG_TAG);
+        logger.log('debug', jsonLog, LOG_TAG);
     });
 };
 

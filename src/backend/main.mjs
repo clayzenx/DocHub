@@ -7,6 +7,7 @@ import controllerStatic from './controllers/static.mjs';
 import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
+import controllerLogger from './controllers/logger.mjs';
 import middlewareAccess from './middlewares/access.mjs';
 import middlewareCluster from './middlewares/cluster.mjs';
 
@@ -26,7 +27,7 @@ middlewareAccess(app);
 const mainLoop = async function() {
     // Загружаем манифест
     const server = app.listen(serverPort, function(){
-        logger.log(`DocHub server running on ${serverPort}`, LOG_TAG);
+        logger.log('info', `DocHub server running on ${serverPort}`, LOG_TAG);
     });
 
     server.setTimeout(500000);
@@ -48,6 +49,9 @@ const mainLoop = async function() {
 
              // Контроллер доступа к файлам в хранилище
              controllerStorage(app);
+             
+             // Контроллер логирования
+             controllerLogger(app);
 
              // Статические ресурсы
              controllerStatic(app);

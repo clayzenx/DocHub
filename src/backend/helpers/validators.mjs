@@ -11,13 +11,13 @@ export default function(app) {
 	const pushValidator = (validator) => {
 		app.storage.problems.push(validator);
 	};
-	logger.log('Executing validators..', LOG_TAG);
+	logger.log('info', 'Executing validators..', LOG_TAG);
 
 	let storageManifest = app.storage.manifest;
 	if(isRolesMode()) {
 		storageManifest = app.storage.manifests[app.storage.roleId];
 	}
 	validators(datasets(app), storageManifest, pushValidator, pushValidator);
-	logger.log('Done.', LOG_TAG);
+	logger.log('info', 'Done.', LOG_TAG);
 
 }

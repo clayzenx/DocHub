@@ -343,7 +343,7 @@ const parser = {
 	},
 
 	async import(uri) {
-		console.log('import.uri',uri);
+		// console.log('import.uri',uri);
 		try {
 			const response = this.onPullSource 
 				? await this.onPullSource(uri, '/', this)
