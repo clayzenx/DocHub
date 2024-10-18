@@ -21,7 +21,7 @@ const redisClient = cacheMode === 'redis' ? await createRedisClient() : null;
 export function loadFromAssets(filename) {
     const source = path.resolve(__dirname, '../../assets/' + filename);
 
-    logger.log('info', `Import base metamodel from  [${source}].`, LOG_TAG);
+    logger.log(`Import base metamodel from  [${source}].`, LOG_TAG, 'info');
     return fs.readFileSync(source, { encoding: 'utf8', flag: 'r' });
 }
 
@@ -168,7 +168,7 @@ export default Object.assign(prototype, {
                 content.imports.push(process.env.VUE_APP_DOCHUB_ROOT_MANIFEST);
             }
             
-            logger.log('info', `Root manifest is [${content.imports.join('], [')}].`, LOG_TAG);
+            logger.log(`Root manifest is [${content.imports.join('], [')}].`, LOG_TAG, 'info');
             result = {
                 data: content
             };
@@ -179,7 +179,7 @@ export default Object.assign(prototype, {
                 this.registerError('net', md5(url), 'Request error', url, 'See details in error log of backed server', e.message);
                 throw e;
             }
-            logger.log('verbose', `Source [${url}] is imported.`, LOG_TAG);
+            logger.log(`Source [${url}] is imported.`, LOG_TAG, 'verbose');
         }
         return result;
     }

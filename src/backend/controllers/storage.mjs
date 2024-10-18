@@ -19,7 +19,7 @@ export default (app) => {
         //const url = decodeURIComponent(req.params.url);
         const uri = url.split('?')[0];
         const baseURL = app.storage?.md5Map[hash];
-        logger.log('debug', `Request to storage ${req.originalUrl}`, LOG_TAG);
+        logger.log(`Request to storage ${req.originalUrl}`, LOG_TAG, 'debug');
         if (!baseURL || !uri) {
             res.status(403).json({
                 error: 'Access denied'

@@ -1,10 +1,13 @@
 import request from './request.mjs';
-import jsonataDriver from '../../global/jsonata/driver.mjs';
+// import jsonataDriver from '../../global/jsonata/driver.mjs';
 import datasetDriver from '../../global/datasets/driver.mjs';
 import pathTool from '../../global/manifest/tools/path.mjs';
 import entities from '../entities/entities.mjs';
 import {isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
 import md5 from 'md5';
+
+import JSONataDriver from '../helpers/jsonata.mjs';
+const jsonataDriver = JSONataDriver();
 
 export default function(app) {
 

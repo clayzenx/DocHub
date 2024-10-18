@@ -22,8 +22,8 @@ global.$listeners = {
 };
 
 global.$logger = {
-    level: process.env.VUE_APP_DOCHUB_LOGGER_LEVEL,
-    logfile: process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE
+    level: process.env.VUE_APP_DOCHUB_LOGGER_LEVEL ?? 'debug',
+    logfile: process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE ?? 'src/hidden/log.log'
 };
 
 global.$roles = {

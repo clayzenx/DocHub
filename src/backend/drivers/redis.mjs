@@ -10,8 +10,8 @@ export default async function() {
     if (client) return client;
     const url = process.env.VUE_APP_DOCHUB_REDIS_URL;
     client = url ? createClient({url}) : createClient();
-    client.on('error', err => logger.log('error', `Error of redis client: ${err.toString()}`, LOG_TAG));
+    client.on('error', err => logger.log('error', `Error of redis client: ${err.toString()}`, LOG_TAG, 'error'));
     await client.connect();
-    logger.log('info', 'Redis client is enabled', LOG_TAG);
+    logger.log('Redis client is enabled', LOG_TAG, 'info');
     return client;
 }

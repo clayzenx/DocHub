@@ -27,7 +27,7 @@ middlewareAccess(app);
 const mainLoop = async function() {
     // Загружаем манифест
     const server = app.listen(serverPort, function(){
-        logger.log('info', `DocHub server running on ${serverPort}`, LOG_TAG);
+        logger.log(`DocHub server running on ${serverPort}`, LOG_TAG, 'info');
     });
 
     server.setTimeout(500000);

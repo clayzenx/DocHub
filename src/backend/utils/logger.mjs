@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from "winston";
-import './helpers/env.mjs';
+import '../helpers/env.mjs';
 
 const loggingLevels = {
 	levels: {
@@ -38,12 +38,15 @@ export const mainLogger = createLogger({
 });
 
 export default {
-	log(level, text, tag) {
+	log(text, tag = '', level = 'info') {
 		// eslint-disable-next-line no-console
 		// console.log(`${Date.now()}:${tag}:${text}`);
 		mainLogger.log(level, `${tag}:${text}`);
 	},
-	error(text, tag) {
+	info(text, tag = '') {
+		mainLogger.info(`${tag}:${text}`);
+	},
+	error(text, tag = '') {
 		// eslint-disable-next-line no-console
 		// console.error(`${Date.now()}:${tag}:${text}`);
 		mainLogger.error(`${tag}:${text}`);

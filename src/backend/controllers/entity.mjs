@@ -120,6 +120,6 @@ export default function(app) {
           time: Date.now() - start,
           originalUrl: req.originalUrl
         });
-        logger.log('debug', jsonLog, LOG_TAG);
+        logger.log(jsonLog, LOG_TAG, 'debug');
     });
 }
