@@ -1,5 +1,5 @@
 import './helpers/env.mjs';
-import logger from './utils/logger.mjs';
+import logger from './utils/logger/index.mjs';
 import storeManager from './storage/manager.mjs';
 import express from 'express';
 import middlewareCompression from './middlewares/compression.mjs';
@@ -51,7 +51,9 @@ const mainLoop = async function() {
              controllerStorage(app);
              
              // Контроллер логирования
-             controllerLogger(app);
+             if (process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE) {
+                 controllerLogger(app);
+             }
 
              // Статические ресурсы
              controllerStatic(app);

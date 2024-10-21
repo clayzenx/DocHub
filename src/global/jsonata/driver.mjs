@@ -143,12 +143,12 @@ export default {
                                 result && this.logger.info('Result:', result);
                                 this.logger.groupEnd();
                             } else {
-                                this.logger.log({
+                                this.logger.log(JSON.stringify({
                                     name: `JSONata tracer expression (${obj.trace.exposition / 1000} seconds)`,
                                     statistics: obj.trace,
                                     query: obj.expression,
                                     result
-                                }, 'JSONata tracer', 'debug');
+                                }), 'JSONata tracer', 'debug');
                             }
 
                         };
@@ -164,12 +164,16 @@ export default {
                     });
 
                 } catch (e) {
-                    // eslint-disable-next-line no-console
-                    console.error('JSONata error:');
-                    // eslint-disable-next-line no-console
-                    console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
-                    // eslint-disable-next-line no-console
-                    console.error(e);
+                    if (this.logger.groupCollapsed) {
+                        // eslint-disable-next-line no-console
+                        this.logger.error('JSONata error:');
+                        // eslint-disable-next-line no-console
+                        this.logger.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
+                        // eslint-disable-next-line no-console
+                        this.logger.error(e);
+                    } else {
+                        this.logger.error(JSON.stringify(e), 'JSONata error');
+                    }
                     throw e;
                 }
             }

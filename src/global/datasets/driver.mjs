@@ -40,7 +40,7 @@ export default {
 					resolve(JSON.parse(JSON.stringify(data)));
 					break;
 				case 'jsonata-query': {
-					const exp = this.jsonataDriver.expression(data, subject, params, true);
+					const exp = this.jsonataDriver.expression(data, subject, params);
 					exp.onError = reject;
 					exp.evaluate(context)
 						.then((result) => resolve(result))

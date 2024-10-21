@@ -1,6 +1,6 @@
 // Обеспечивает работу DocHub в кластере
 import createRedisClient from '../drivers/redis.mjs';
-import logger from '../utils/logger.mjs';
+import logger from '../utils/logger/index.mjs';
 
 const LOG_TAG = 'cluster-middleware';
 

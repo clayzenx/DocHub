@@ -1,6 +1,6 @@
 import prototype from '../../global/manifest/services/cache.mjs';
 import request from '../helpers/request.mjs';
-import logger from '../utils/logger.mjs';
+import logger from '../utils/logger/index.mjs';
 import uriTool from '../helpers/uri.mjs';
 import { fileURLToPath } from 'url';
 import yaml from 'yaml';
@@ -124,8 +124,8 @@ export default Object.assign(prototype, {
             }
 
             if (res) {
-                console.log('__dirname', __dirname);
-                console.log('fileName', fileName);
+                logger.log(`__dirname:_${__dirname}`, LOG_TAG, 'verbose');
+                logger.log(`fileName: ${fileName}`, LOG_TAG, 'verbose');
                 if (fileName) {
                     res.setHeader('Content-Type', 'application/json').sendFile(fileName);
                 } else res.status(200).json(result);

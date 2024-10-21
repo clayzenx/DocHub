@@ -1,22 +1,21 @@
 import { KJUR } from "jsrsasign";
+import logger from "../utils/logger/index.mjs";
 
 export function getRoles(headers) {
-    console.log('headers', headers);
+    logger.log(`headers: ${headers}`, 'JWT', 'debug');
     const jwt = headers?.authorization?.slice(7);
 
     if (!!jwt && typeof jwt === "string" && !jwt.includes('undefined')) {
         try {
-            console.log('headers.authorization', jwt);
-            console.log('KJUR.jws.JWS.parse(jwt)',KJUR.jws.JWS.parse(jwt));
+            logger.log(`headers.authorization: ${jwt}`, 'JWT', 'debug');
+            logger.log(`KJUR.jws.JWS.parse(jwt): ${KJUR.jws.JWS.parse(jwt)}`, 'JWT', 'debug');
             if(KJUR.jws.JWS.verifyJWT(jwt, process.env.VUE_APP_DOCHUB_AUTH_PUBLIC_KEY, {alg: ['RS256']})) {
                 return KJUR.jws.JWS.parse(jwt)?.payloadObj?.realm_access?.roles || [];
             } else {
-                console.warn(`Verification error: jwt: ${jwt}`);
+                logger.log(`Verification error: jwt: ${jwt}`, 'JWT', 'warn');
             }
         } catch (e) {
-            console.error('Error getting user groups!');
-            // eslint-disable-next-line no-console
-            console.error(e);
+            logger.error(`Error getting user groups! ${e}`, 'JWT', 'error');
             return [];
         }
     }
@@ -31,12 +30,10 @@ export function getUserName(headers) {
             if(KJUR.jws.JWS.verifyJWT(jwt, process.env.VUE_APP_DOCHUB_AUTH_PUBLIC_KEY, {alg: ['RS256']})) {
                 return KJUR.jws.JWS.parse(jwt)?.payloadObj.preferred_username || undefined;
             } else {
-                console.warn(`Verification error: jwt: ${jwt}`);
+                logger.log(`Verification error: jwt: ${jwt}`, 'JWT', 'warn');
             }
         } catch (e) {
-            console.error('Error getting user name!');
-            // eslint-disable-next-line no-console
-            console.error(e);
+            logger.error(`Error getting user name! ${e}`, 'JWT', 'error');
             return undefined;
         }
     }

@@ -1,5 +1,5 @@
 import request from './request.mjs';
-import logger from '../utils/logger.mjs';
+import logger from '../utils/logger/index.mjs';
 
 const LOG_TAG = 'storage-manager';
 const listeners = global.$listeners;

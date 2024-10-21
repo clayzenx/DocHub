@@ -5,7 +5,7 @@ import queries from '../../global/jsonata/queries.mjs';
 import helpers from './helpers.mjs';
 import compression from '../../global/compress/compress.mjs';
 import {getRoles, getUserName} from '../helpers/jwt.mjs';
-import logger from '../utils/logger.mjs';
+import logger from '../utils/logger/index.mjs';
 import {DEFAULT_ROLE, getCurrentRuleId, getCurrentRules, isRolesMode} from '../utils/rules.mjs';
 
 const compressor = compression();

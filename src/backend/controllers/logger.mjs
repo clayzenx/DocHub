@@ -1,4 +1,4 @@
-import logger from "../utils/logger.mjs";
+import logger from "../utils/logger/index.mjs";
 
 export default (app) => {
     app.put('/logger/update-level', (req, res) => {
