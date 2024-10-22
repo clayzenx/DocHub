@@ -12,8 +12,8 @@ import '../helpers/env.mjs';
 import jsonataFunctions from '../../global/jsonata/functions.mjs';
 import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
 import uriTool from '../helpers/uri.mjs';
-import JSONataDriver from '../helpers/jsonata.mjs';
-const jsonataDriver = JSONataDriver();
+import jsonataDriver from '../helpers/jsonata.mjs';
+// const jsonataDriver = JSONataDriver();
 const LOG_TAG = 'storage-manager';
 
 

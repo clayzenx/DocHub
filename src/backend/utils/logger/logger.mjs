@@ -17,7 +17,7 @@ const loggingTransports = [
 ];
 
 if (global.$logger.logfile) {
-	transports.push(new transports.File({ filename: global.$logger.logfile }));
+	loggingTransports.push(new transports.File({ filename: global.$logger.logfile }));
 }
 
 const loggingFormat = format.printf(({ level, message, timestamp }) => {
@@ -29,6 +29,7 @@ export const mainLogger = createLogger({
 	level: global.$logger.level,
 	format: format.combine(
 		format.timestamp(),
+		format.splat(),
 		loggingFormat
 	),
 	transports: loggingTransports

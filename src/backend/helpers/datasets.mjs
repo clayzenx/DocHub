@@ -6,8 +6,8 @@ import entities from '../entities/entities.mjs';
 import {isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
 import md5 from 'md5';
 
-import JSONataDriver from '../helpers/jsonata.mjs';
-const jsonataDriver = JSONataDriver();
+import jsonataDriver from '../helpers/jsonata.mjs';
+// const jsonataDriver = JSONataDriver();
 
 export default function(app) {
 
