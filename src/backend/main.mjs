@@ -7,6 +7,7 @@ import controllerStatic from './controllers/static.mjs';
 import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
+import controllerSmartants from './controllers/smartants.mjs';
 import middlewareAccess from './middlewares/access.mjs';
 import middlewareCluster from './middlewares/cluster.mjs';
 
@@ -45,6 +46,9 @@ const mainLoop = async function() {
 
              // API сущностей
              controllerEntity(app);
+             
+             // Smartants
+             controllerSmartants(app);
 
              // Контроллер доступа к файлам в хранилище
              controllerStorage(app);

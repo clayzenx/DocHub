@@ -125,6 +125,9 @@
   import SchemaTrack from './DHSchemaTrack.vue';
   import SchemaDebugNode from './DHSchemaDebugNode.vue';
   import md5 from 'md5';
+  import env from '@front/helpers/env';
+  import requests from '@front/helpers/requests';
+  import compress from '@global/compress/compress.mjs';
 
   import ZoomAndPan from '../zoomAndPan';
 
@@ -143,51 +146,60 @@
       const queryID = message.data.queryID;
       listeners[queryID] && listeners[queryID](message.data);
     };
+    const compressor = compress();
     this.make = (grid, styles, nodes, links, trackWidth, distance, direction, height, symbols, availableWidth, wrap, isDebug) => {
       return new Promise((success, reject) => {
         const params = {
           grid, styles, nodes, links, trackWidth, distance, direction, height, symbols, wrap, isDebug
         };
-        const hash = window.localStorage ? md5(JSON.stringify(params)) : null;
-        const cacheKey = `SmartAnts.cache.v${CACHE_VERSION}.${hash}`;
-
-        // Пытаемся достать результат из кэша
-        let cacheData = null;
-        if (cacheKey) {
-          cacheData = localStorage.getItem(cacheKey);
-          cacheData = cacheData ? JSON.parse(cacheData): null;
-        }
-        // Если кэш есть, отдаем результат из него
-        if (cacheData) {
-          success(cacheData);
-        } else {
-          // Иначе запускаем построение диаграммы
-          const queryID = uuidv4();
+        if (env.smartantsMode() !== 'front') {
           params.availableWidth = availableWidth;
-          listeners[queryID] = (message) => {
-            try {
-              if (message.result === 'OK') {
-                if (message.graph?.warnings?.length === 0) {
-                  // Кэшируем успешный результат
-                  try {
-                    // md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
-                  } catch (e) {
-                    //todo:разобраться с переполнением кэша
-                    // eslint-disable-next-line no-console
-                    console.warn(`Can't cache SA result: ${e}`);
+          compressor.encodeBase64(JSON.stringify(params))
+            .then((query) => requests.request(`${env.backendURL()}/smartants/${encodeURIComponent(query)}`))
+            .then(({ data }) => success(data.graph))
+            .catch((err) => reject(err));
+        } else {
+          const hash = window.localStorage ? md5(JSON.stringify(params)) : null;
+          const cacheKey = `SmartAnts.cache.v${CACHE_VERSION}.${hash}`;
+
+          // Пытаемся достать результат из кэша
+          let cacheData = null;
+          if (cacheKey) {
+            cacheData = localStorage.getItem(cacheKey);
+            cacheData = cacheData ? JSON.parse(cacheData): null;
+          }
+          // Если кэш есть, отдаем результат из него
+          if (cacheData) {
+            success(cacheData);
+          } else {
+            // Иначе запускаем построение диаграммы
+            const queryID = uuidv4();
+            params.availableWidth = availableWidth;
+            listeners[queryID] = (message) => {
+              try {
+                if (message.result === 'OK') {
+                  if (message.graph?.warnings?.length === 0) {
+                    // Кэшируем успешный результат
+                    try {
+                      // md5 && localStorage.setItem(cacheKey, JSON.stringify(message.graph));
+                    } catch (e) {
+                      //todo:разобраться с переполнением кэша
+                      // eslint-disable-next-line no-console
+                      console.warn(`Can't cache SA result: ${e}`);
+                    }
                   }
+                  success(message.graph);
                 }
-                success(message.graph);
+                else reject(message.error);
+              } finally {
+                delete listeners[queryID];
               }
-              else reject(message.error);
-            } finally {
-              delete listeners[queryID];
-            }
-          };
-          worker.postMessage({
-            queryID,
-            params: JSON.parse(JSON.stringify(params))
-          });
+            };
+            worker.postMessage({
+              queryID,
+              params: JSON.parse(JSON.stringify(params))
+            });
+          }
         }
       });
     };
