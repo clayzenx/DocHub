@@ -75,13 +75,15 @@ function sourceType(content) {
     return source.type(content);
 }
 
+function log(content, tag) {
+    // eslint-disable-next-line no-console
+    console.info(`${tag}: ${JSON.stringify(content, null, 2)}`);
+}
+
 export default {
     // Функция должна возвращать коллекцию пользовательских функций JSONata
     customFunctions: null,
     logger: console,
-    coreLogFunction(content, tag) {
-        this.logger.info(`${tag}: ${JSON.stringify(content, null, 2)}`);
-    },
     // Создает объект запроса JSONata
     //  expression - JSONata выражение
     //  self    - объект, который вызывает запрос (доступен по $self в запросе)
@@ -97,7 +99,6 @@ export default {
             onError: null,  // Событие ошибки выполнения запроса
             store: {},      // Хранилище вспомогательных переменных для запросов
             logger: this.logger,    // Логгер трассировки запросов
-            coreLogFunction: this.coreLogFunction,
             // Исполняет запрос
             //  context - контекст исполнения запроса
             async evaluate(context) {
@@ -115,7 +116,7 @@ export default {
                             this.core.registerFunction(functionId, this.customFunctions[functionId]);
                         }
                         if (!funcs?.log) {
-                            this.core.registerFunction('log', this.coreLogFunction);
+                            this.core.registerFunction('log', log);
                         }
                         this.core.registerFunction('set', (key, data) => {
                             return obj.store[key] = data;

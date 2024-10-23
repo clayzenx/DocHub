@@ -8,4 +8,5 @@ import logger from '../utils/logger/index.mjs';
     return JSONataDriver;
 } */
 
-export default Object.assign({}, JSONataDriver, {logger});
+export default Object.assign({}, JSONataDriver, { logger });
+// export default JSONataDriver;
