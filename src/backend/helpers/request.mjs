@@ -5,7 +5,7 @@ import yaml from 'yaml';
 import uriTool from './uri.mjs';
 import gitlab from './gitlab.mjs';
 import bitbucket from './bitbucket.mjs';
-import logger from '../utils/logger/index.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import xml from '../../global/helpers/xmlparser.mjs';
 
 const REQUEST_TAG = 'request';

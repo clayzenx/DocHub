@@ -1,6 +1,6 @@
 import prototype from '../../global/manifest/services/cache.mjs';
 import request from '../helpers/request.mjs';
-import logger from '../utils/logger/index.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import uriTool from '../helpers/uri.mjs';
 import { fileURLToPath } from 'url';
 import yaml from 'yaml';

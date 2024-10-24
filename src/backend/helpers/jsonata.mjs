@@ -1,4 +1,4 @@
 import JSONataDriver from '../../global/jsonata/driver.mjs';
-import logger from '../utils/logger/index.mjs';
+import { jsonataLogger } from '../utils/logger/index.mjs';
 
-export default Object.assign({}, JSONataDriver, { logger });
+export default Object.assign({}, JSONataDriver, { logger: jsonataLogger });

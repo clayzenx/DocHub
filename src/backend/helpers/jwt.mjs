@@ -1,5 +1,5 @@
 import { KJUR } from 'jsrsasign';
-import logger from '../utils/logger/index.mjs';
+import { logger } from '../utils/logger/index.mjs';
 
 export function getRoles(headers) {
     logger.log(`headers: ${JSON.stringify(headers)}`, 'JWT', 'debug');

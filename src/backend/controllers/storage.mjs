@@ -1,4 +1,4 @@
-import logger from '../utils/logger/index.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import request from '../helpers/request.mjs';
 import {getRoles} from '../helpers/jwt.mjs';
 import {getCurrentRuleId, getCurrentRules} from "../utils/rules.mjs";

@@ -1,5 +1,5 @@
 import './helpers/env.mjs';
-import logger from './utils/logger/index.mjs';
+import { logger } from './utils/logger/index.mjs';
 import storeManager from './storage/manager.mjs';
 import express from 'express';
 import middlewareCompression from './middlewares/compression.mjs';

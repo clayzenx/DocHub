@@ -1,4 +1,4 @@
-import logger from '../utils/logger/index.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import manifestParser from '../../global/manifest/parser.mjs';
 import cache from './cache.mjs';
 import md5 from 'md5';

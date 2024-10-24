@@ -1,4 +1,5 @@
 import winston from './logger.mjs';
+import jsonataLogger from './jsonata-logger.mjs';
 
 const logger = process.env.VUE_APP_DOCHUB_LOGGER_ENABLE?.toLowerCase() === 'on'
     ? winston 
@@ -17,4 +18,4 @@ const logger = process.env.VUE_APP_DOCHUB_LOGGER_ENABLE?.toLowerCase() === 'on'
         }
     };
 
-export default logger;
+export { jsonataLogger, logger };

@@ -1,6 +1,6 @@
 import validators from '../../global/rules/validators.mjs';
 import datasets from './datasets.mjs';
-import logger from '../utils/logger/index.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import {isRolesMode} from "../utils/rules.mjs";
 
 const LOG_TAG = 'validators';

@@ -23,7 +23,8 @@ global.$listeners = {
 
 global.$logger = {
     level: process.env.VUE_APP_DOCHUB_LOGGER_LEVEL ?? 'info',
-    logfile: process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE
+    logfile: process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE,
+    jsonataLogfile: process.env.VUE_APP_DOCHUB_JSONATA_LOGFILE
 };
 
 global.$roles = {

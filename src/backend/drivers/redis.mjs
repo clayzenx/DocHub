@@ -1,5 +1,5 @@
 // Обеспечивает подключение к Redis
-import logger from '../utils/logger/index.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import { createClient } from 'redis';
 
 const LOG_TAG = 'redis-driver';
