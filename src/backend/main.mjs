@@ -8,8 +8,10 @@ import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
 import controllerProbes from './controllers/probes.mjs';
+import controllerSmartants from './controllers/smartants.mjs';
 import middlewareAccess from './middlewares/access.mjs';
 import middlewareCluster from './middlewares/cluster.mjs';
+import middlewareBodyParser from './middlewares/body-parser.mjs';
 
 const LOG_TAG = 'server';
 
@@ -25,6 +27,8 @@ middlewareAccess(app);
 
 // Подключаем контролер доступности
 controllerProbes(app);
+// Парсим бади
+middlewareBodyParser(app);
 
 // Основной цикл приложения
 const mainLoop = async function() {
@@ -49,6 +53,9 @@ const mainLoop = async function() {
 
              // API сущностей
              controllerEntity(app);
+             
+             // Smartants
+             controllerSmartants(app);
 
              // Контроллер доступа к файлам в хранилище
              controllerStorage(app);
