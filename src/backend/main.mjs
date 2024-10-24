@@ -16,6 +16,7 @@ const LOG_TAG = 'server';
 //const express = require('express');
 const app = express();
 const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
+const loggerEnabled = process.env.VUE_APP_DOCHUB_LOGGER_ENABLE?.toLowerCase() === 'on';
 
 // Актуальный манифест
 app.storage = null;
@@ -51,7 +52,7 @@ const mainLoop = async function() {
              controllerStorage(app);
              
              // Контроллер логирования
-             if (process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE) {
+             if (loggerEnabled) {
                  controllerLogger(app);
              }
 

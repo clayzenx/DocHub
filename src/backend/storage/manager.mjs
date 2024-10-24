@@ -7,13 +7,11 @@ import validators from '../helpers/validators.mjs';
 import entities from '../entities/entities.mjs';
 import objectHash from 'object-hash';
 import '../helpers/env.mjs';
-
-// import jsonataDriver from '../../global/jsonata/driver.mjs';
-import jsonataFunctions from '../../global/jsonata/functions.mjs';
-import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
-import uriTool from '../helpers/uri.mjs';
 import jsonataDriver from '../helpers/jsonata.mjs';
-// const jsonataDriver = JSONataDriver();
+import jsonataFunctions from '../../global/jsonata/functions.mjs';
+import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
+import uriTool from '../helpers/uri.mjs';
+
 const LOG_TAG = 'storage-manager';
 
 

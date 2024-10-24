@@ -1,11 +1,11 @@
-import logger from "../utils/logger/index.mjs";
+import logger from '../utils/logger/index.mjs';
 
 export default (app) => {
     app.put('/logger/update-level', (req, res) => {
         const secret = req.query.secret;
         if (secret !== process.env.VUE_APP_DOCHUB_RELOAD_SECRET) {
             res.status(403).send({
-                error: `Error reload secret is not valid [${secret}]`
+                error: `Error: reload secret is not valid [${secret}]`
             });
         } else {
             if (logger.level) {

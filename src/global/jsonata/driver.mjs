@@ -76,8 +76,8 @@ function sourceType(content) {
 }
 
 function log(content, tag) {
-    // eslint-disable-next-line no-console
-    console.info(`${tag}: ${JSON.stringify(content, null, 2)}`);
+    const message = this.logger.groupCollapsed ? JSON.stringify(content, null, 2) : JSON.stringify(content);
+    this.logger.log(message, tag, 'debug');
 }
 
 export default {
@@ -116,7 +116,7 @@ export default {
                             this.core.registerFunction(functionId, this.customFunctions[functionId]);
                         }
                         if (!funcs?.log) {
-                            this.core.registerFunction('log', log);
+                            this.core.registerFunction('log', log.bind(this));
                         }
                         this.core.registerFunction('set', (key, data) => {
                             return obj.store[key] = data;

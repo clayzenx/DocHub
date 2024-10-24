@@ -1,19 +1,19 @@
 import winston from './logger.mjs';
 
-const logger = process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE 
+const logger = process.env.VUE_APP_DOCHUB_LOGGER_ENABLE?.toLowerCase() === 'on'
     ? winston 
     : {
-        log(text, tag = '') {
+        log(text, tag = '', level = 'info') {
             // eslint-disable-next-line no-console
-            console.log(`${Date.now()}:${tag}:${text}`);
+            console.log(`${Date.now()} [${level}]:${tag}:${text}`);
         },
         info(text, tag = '') {
             // eslint-disable-next-line no-console
-            console.info(`${Date.now()}:${tag}:${text}`);
+            console.info(`${Date.now()} [info]:${tag}:${text}`);
         },
         error(text, tag = '') {
             // eslint-disable-next-line no-console
-            console.error(`${Date.now()}:${tag}:${text}`);
+            console.error(`${Date.now()} [error]:${tag}:${text}`);
         }
     };
 
