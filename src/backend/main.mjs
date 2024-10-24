@@ -8,6 +8,7 @@ import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
 import controllerLogger from './controllers/logger.mjs';
+import controllerProbes from './controllers/probes.mjs';
 import middlewareAccess from './middlewares/access.mjs';
 import middlewareCluster from './middlewares/cluster.mjs';
 
@@ -23,6 +24,9 @@ app.storage = null;
 
 // Подключаем контроль доступа
 middlewareAccess(app);
+
+// Подключаем контролер доступности
+controllerProbes(app);
 
 // Основной цикл приложения
 const mainLoop = async function() {
@@ -58,6 +62,11 @@ const mainLoop = async function() {
 
              // Статические ресурсы
              controllerStatic(app);
+
+             app.isReady = true;
+         }).catch(err => {
+             app.isReady = false;
+             app.errorMessage = err.message;
          });
 };
 

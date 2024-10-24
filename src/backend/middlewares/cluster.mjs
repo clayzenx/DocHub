@@ -33,9 +33,12 @@ export default async(app, storeManager) => {
                 storeManager.reloadManifest(app)
                 .then(async(storage) => {
                     await storeManager.applyManifest(app, storage);
+                    app.isReady = true;
                     logger.log(`Reloading complete. Current hash is [${app.storage.hash}], remote hash is [${remoteHash}].`, LOG_TAG, 'info');
                 })
                 .catch((err) => {
+                    app.isReady = false;
+                    app.errorMessage = err.message;
                     logger.error(err, LOG_TAG);
                 });
             }
