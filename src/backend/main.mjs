@@ -1,5 +1,5 @@
 import './helpers/env.mjs';
-import logger from './utils/logger.mjs';
+import { logger } from './utils/logger/index.mjs';
 import storeManager from './storage/manager.mjs';
 import express from 'express';
 import middlewareCompression from './middlewares/compression.mjs';
@@ -7,6 +7,7 @@ import controllerStatic from './controllers/static.mjs';
 import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
+import controllerLogger from './controllers/logger.mjs';
 import controllerProbes from './controllers/probes.mjs';
 import middlewareAccess from './middlewares/access.mjs';
 import middlewareCluster from './middlewares/cluster.mjs';
@@ -16,6 +17,7 @@ const LOG_TAG = 'server';
 //const express = require('express');
 const app = express();
 const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
+const loggerEnabled = process.env.VUE_APP_DOCHUB_LOGGER_ENABLE?.toLowerCase() === 'on';
 
 // Актуальный манифест
 app.storage = null;
@@ -30,7 +32,7 @@ controllerProbes(app);
 const mainLoop = async function() {
     // Загружаем манифест
     const server = app.listen(serverPort, function(){
-        logger.log(`DocHub server running on ${serverPort}`, LOG_TAG);
+        logger.log(`DocHub server running on ${serverPort}`, LOG_TAG, 'info');
     });
 
     server.setTimeout(500000);
@@ -52,6 +54,11 @@ const mainLoop = async function() {
 
              // Контроллер доступа к файлам в хранилище
              controllerStorage(app);
+             
+             // Контроллер логирования
+             if (loggerEnabled) {
+                 controllerLogger(app);
+             }
 
              // Статические ресурсы
              controllerStatic(app);
@@ -60,7 +67,7 @@ const mainLoop = async function() {
          }).catch(err => {
              app.isReady = false;
              app.errorMessage = err.message;
-         })
+         });
 };
 
 mainLoop();

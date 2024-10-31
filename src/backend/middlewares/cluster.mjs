@@ -1,6 +1,6 @@
 // Обеспечивает работу DocHub в кластере
 import createRedisClient from '../drivers/redis.mjs';
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 
 const LOG_TAG = 'cluster-middleware';
 
@@ -17,7 +17,7 @@ export default async(app, storeManager) => {
 
         // Устанавливаем в кластере HASH своей загрузки
         client.set(CLUSTER_HASH_KEY, app.storage.hash);
-        logger.log(`Hash of cluster updated to [${app.storage?.hash}]`, LOG_TAG);
+        logger.log(`Hash of cluster updated to [${app.storage?.hash}]`, LOG_TAG, 'info');
 
         // Устанавливаем обработчик события изменения манифеста
         storeManager.onApplyManifest.push(async() => {
@@ -28,13 +28,13 @@ export default async(app, storeManager) => {
             // Если идет перезагрузка, отдаем 503
             const remoteHash = await client.get(CLUSTER_HASH_KEY) || app.storage?.hash;
             if (remoteHash !== app.storage?.hash) {
-                logger.log(`Cluster inconsistency detected. Current hash is [${app.storage?.hash}], remote hash is [${remoteHash}]. Reloading manifest...`, LOG_TAG);
+                logger.log(`Cluster inconsistency detected. Current hash is [${app.storage?.hash}], remote hash is [${remoteHash}]. Reloading manifest...`, LOG_TAG, 'warn');
                 storeManager.cleanStorage(app);
                 storeManager.reloadManifest(app)
                 .then(async(storage) => {
                     await storeManager.applyManifest(app, storage);
                     app.isReady = true;
-                    logger.log(`Reloading complete. Current hash is [${app.storage.hash}], remote hash is [${remoteHash}].`, LOG_TAG);
+                    logger.log(`Reloading complete. Current hash is [${app.storage.hash}], remote hash is [${remoteHash}].`, LOG_TAG, 'info');
                 })
                 .catch((err) => {
                     app.isReady = false;

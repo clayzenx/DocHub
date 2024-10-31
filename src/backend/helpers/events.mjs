@@ -1,5 +1,5 @@
 import request from './request.mjs';
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 
 const LOG_TAG = 'storage-manager';
 const listeners = global.$listeners;
@@ -12,7 +12,7 @@ export default {
                 .catch((e) => {
                     logger.error(`Error of delivery event onFoundLoadingError to [${listeners.onFoundLoadingError}] with error [${e.message}]`, LOG_TAG);
                 });
-            logger.log(`Sent event onFoundLoadingError to [${listeners.onFoundLoadingError}]`, LOG_TAG);
+            logger.log(`Sent event onFoundLoadingError to [${listeners.onFoundLoadingError}]`, LOG_TAG, 'info');
         }
     }
 };

@@ -1,6 +1,6 @@
 import validators from '../../global/rules/validators.mjs';
 import datasets from './datasets.mjs';
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import {isRolesMode} from "../utils/rules.mjs";
 
 const LOG_TAG = 'validators';
@@ -11,13 +11,13 @@ export default function(app) {
 	const pushValidator = (validator) => {
 		app.storage.problems.push(validator);
 	};
-	logger.log('Executing validators..', LOG_TAG);
+	logger.log('Executing validators..', LOG_TAG, 'info');
 
 	let storageManifest = app.storage.manifest;
 	if(isRolesMode()) {
 		storageManifest = app.storage.manifests[app.storage.roleId];
 	}
 	validators(datasets(app), storageManifest, pushValidator, pushValidator);
-	logger.log('Done.', LOG_TAG);
+	logger.log('Done.', LOG_TAG, 'info');
 
 }

@@ -1,4 +1,4 @@
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import request from '../helpers/request.mjs';
 import {getRoles} from '../helpers/jwt.mjs';
 import {getCurrentRuleId, getCurrentRules} from "../utils/rules.mjs";
@@ -19,7 +19,7 @@ export default (app) => {
         //const url = decodeURIComponent(req.params.url);
         const uri = url.split('?')[0];
         const baseURL = app.storage?.md5Map[hash];
-        logger.log(`Request to storage ${req.originalUrl}`, LOG_TAG);
+        logger.log(`Request to storage ${req.originalUrl}`, LOG_TAG, 'debug');
         if (!baseURL || !uri) {
             res.status(403).json({
                 error: 'Access denied'
