@@ -212,6 +212,7 @@ const parser = {
 	},
 
 	async parseImports(manifest, baseURI) {
+		const manifestSources = [];
 		for (const key in manifest?.imports || []) {
 			const url = parser.cache.makeURIByBaseURI(manifest.imports[key], baseURI);
 			if (this.loaded[url]) {
@@ -219,9 +220,14 @@ const parser = {
 				console.warn(`Manifest [${url}] already loaded.`);
 			} else {
 				this.loaded[url] = true;
-				await this.import(url, true);
+				manifestSources.push([url, this.loadManifestSource(url)]);
 			}
 		}
+		while (manifestSources.length) {
+			const [url, manifest] = manifestSources.shift();
+			await this.importManifest(url, await manifest);
+		}
+
 	},
 
 	async parseManifest(manifest, uri) {
@@ -344,14 +350,27 @@ const parser = {
 
 	async import(uri) {
 		console.log('import.uri',uri);
+		const manifest = await this.loadManifestSource(uri);
+		return this.importManifest(uri, manifest);
+	},
+
+	async loadManifestSource(uri) {
+		console.log('load.uri',uri);
 		try {
-			const response = this.onPullSource 
+			const response = this.onPullSource
 				? await this.onPullSource(uri, '/', this)
 				: await parser.cache.request(uri, '/');
-			const manifest = response && (typeof response.data === 'object'
+			return response && (typeof response.data === 'object'
 				? response.data
 				: JSON.parse(response.data));
+		} catch (e) {
+			this.registerError(e, e.uri || uri);
+		}
+    },
 
+	async importManifest(uri, manifest) {
+		console.log('import.manifest',uri);
+		try {
 			// если манифест - пакет
 			if (manifest?.$package) {
 				const $package = manifest.$package;
