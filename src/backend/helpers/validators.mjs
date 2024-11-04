@@ -6,7 +6,7 @@ import {isRolesMode} from "../utils/rules.mjs";
 const LOG_TAG = 'validators';
 
 // Выполняет валидаторы и накладывает исключения
-export default function(app) {
+export default async function(app) {
 	app.storage.problems = app.storage.problems || [];
 	const pushValidator = (validator) => {
 		app.storage.problems.push(validator);
@@ -17,7 +17,7 @@ export default function(app) {
 	if(isRolesMode()) {
 		storageManifest = app.storage.manifests[app.storage.roleId];
 	}
-	validators(datasets(app), storageManifest, pushValidator, pushValidator);
+	await validators(datasets(app), storageManifest, pushValidator, pushValidator);
 	logger.log('Done.', LOG_TAG);
 
 }
