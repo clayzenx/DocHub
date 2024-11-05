@@ -23,8 +23,9 @@
 
 <script>
   import yaml from 'yaml';
-  import Table from './Table/Table.vue';
+  import env, { Plugins } from '@front/helpers/env';
   import { mergeHeaders, parseSelectOptions, prepareTableData } from '../lib/helpers';
+  import Table from './Table/Table.vue';
 
   export default {
     components: {
@@ -191,7 +192,13 @@
 
       async getDataFromFile(path) {
         return this.getContent(path)
-          .then(({ data }) => {
+          .then((res) => {
+            let data;
+            if (env.isPlugin(Plugins.vscode)) {
+              data = yaml.parse(res.data);
+            } else {
+              data = res.data;
+            }
             return data;
           })
           .catch((err) => {
