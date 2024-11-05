@@ -427,10 +427,17 @@
       changeSelectedRows(selectedItems, updatedColumns, data) {
         selectedItems.forEach(rowID => {
           updatedColumns.forEach((headerID) => {
-            this.tableData[rowID][headerID] = data[headerID];
+            if(data[headerID] && typeof data[headerID] === 'object') {
+              if(Array.isArray(data[headerID])) {
+                this.tableData[rowID][headerID] = [...data[headerID]];
+              } else {
+                this.tableData[rowID][headerID] = {...data[headerID]};
+              }
+            } else {
+              this.tableData[rowID][headerID] = data[headerID];
+            }
           });
         });
-
       },
 
       // eslint-disable-next-line no-unused-vars
