@@ -234,7 +234,7 @@
 }
 
 .menu-item-selected {
-  background: rgb(52, 149, 219);
+  background: #00755D;
 }
 
 .menu-item-selected * {
