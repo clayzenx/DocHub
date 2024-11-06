@@ -5,7 +5,7 @@ import queries from '../../global/jsonata/queries.mjs';
 import helpers from './helpers.mjs';
 import compression from '../../global/compress/compress.mjs';
 import {getRoles, getUserName} from '../helpers/jwt.mjs';
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import {DEFAULT_ROLE, getCurrentRuleId, getCurrentRules, isRolesMode} from '../utils/rules.mjs';
 
 const compressor = compression();
@@ -86,7 +86,7 @@ export default (app) => {
           time: Date.now() - start,
           originalUrl: req.originalUrl
         });
-        logger.log(jsonLog, LOG_TAG);
+        logger.log(jsonLog, LOG_TAG, 'debug');
     });
 
     // Запрос на обновление манифеста
@@ -106,8 +106,13 @@ export default (app) => {
             const oldHash = app.storage.hash;
             await storeManager.reloadManifest(app)
                 .then((storage) => storeManager.applyManifest(app, storage))
+                .then(() => app.isReady = true)
                 .then(() => cache.clearCache(oldHash))
-                .then(() => res.json({ message: 'success' }));
+                .then(() => res.json({ message: 'success' }))
+                .catch((err) => {
+                  app.isReady = false;
+                  app.errorMessage = err.message;
+                });
 
             userName = getUserName(req.headers);
             const jsonLog = JSON.stringify({
@@ -115,7 +120,7 @@ export default (app) => {
               time: Date.now() - start,
               originalUrl: req.route.path
             });
-            logger.log(jsonLog, LOG_TAG);
+            logger.log(jsonLog, LOG_TAG, 'debug');
         }
     });
 
@@ -184,7 +189,7 @@ export default (app) => {
               time: Date.now() - start,
               originalUrl: req.originalUrl
             });
-            logger.log(jsonLog, LOG_TAG);
+            logger.log(jsonLog, LOG_TAG, 'debug');
     });
 
     // Возвращает результат работы валидаторов
@@ -212,7 +217,7 @@ export default (app) => {
           time: Date.now() - start,
           originalUrl: req.originalUrl
         });
-        logger.log(jsonLog, LOG_TAG);
+        logger.log(jsonLog, LOG_TAG, 'debug');
     });
 };
 

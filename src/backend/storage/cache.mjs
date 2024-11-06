@@ -1,6 +1,6 @@
 import prototype from '../../global/manifest/services/cache.mjs';
 import request from '../helpers/request.mjs';
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import uriTool from '../helpers/uri.mjs';
 import { fileURLToPath } from 'url';
 import yaml from 'yaml';
@@ -21,7 +21,7 @@ const redisClient = cacheMode === 'redis' ? await createRedisClient() : null;
 export function loadFromAssets(filename) {
     const source = path.resolve(__dirname, '../../assets/' + filename);
 
-    logger.log(`Import base metamodel from  [${source}].`, LOG_TAG);
+    logger.log(`Import base metamodel from  [${source}].`, LOG_TAG, 'info');
     return fs.readFileSync(source, { encoding: 'utf8', flag: 'r' });
 }
 
@@ -128,8 +128,8 @@ export default Object.assign(prototype, {
             }
 
             if (res) {
-                console.log('__dirname', __dirname);
-                console.log('fileName', fileName);
+                logger.log(`__dirname:_${__dirname}`, LOG_TAG, 'verbose');
+                logger.log(`fileName: ${fileName}`, LOG_TAG, 'verbose');
                 if (fileName) {
                     res.setHeader('Content-Type', 'application/json').sendFile(fileName);
                 } else res.status(200).json(result);
@@ -183,7 +183,7 @@ export default Object.assign(prototype, {
                 this.registerError('net', md5(url), 'Request error', url, 'See details in error log of backed server', e.message);
                 throw e;
             }
-            logger.log(`Source [${url}] is imported.`, LOG_TAG);
+            logger.log(`Source [${url}] is imported.`, LOG_TAG, 'verbose');
         }
         return result;
     }

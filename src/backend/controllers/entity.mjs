@@ -10,7 +10,7 @@ import request from '../helpers/request.mjs';
 import md5 from 'md5';
 import {getUserName} from '../helpers/jwt.mjs';
 import {isRolesMode} from "../utils/rules.mjs";
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 
 const LOG_TAG = 'entity-handler';
 
@@ -119,7 +119,7 @@ export default function(app) {
           userName,
           time: Date.now() - start,
           originalUrl: req.originalUrl
-        })
-        logger.log(jsonLog, LOG_TAG);
+        });
+        logger.log(jsonLog, LOG_TAG, 'debug');
     });
 }

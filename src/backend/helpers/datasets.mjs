@@ -1,9 +1,9 @@
 import request from './request.mjs';
-import jsonataDriver from '../../global/jsonata/driver.mjs';
 import datasetDriver from '../../global/datasets/driver.mjs';
+import jsonataDriver from '../helpers/jsonata.mjs';
 import pathTool from '../../global/manifest/tools/path.mjs';
 import entities from '../entities/entities.mjs';
-import {isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
+import {isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import md5 from 'md5';
 
 export default function(app) {
@@ -30,7 +30,9 @@ export default function(app) {
 			// Драйвер запросов к ресурсам
 			request,
 			// Драйвер запросов JSONata
-			jsonataDriver
+			jsonataDriver,
+			// Включает/выключает трассировку запросов JSONata
+			traceJsonata: process.env.VUE_APP_DOCHUB_JSONATA_ANALYZER?.toLowerCase() === 'y'
 		});
 	
 	return result;

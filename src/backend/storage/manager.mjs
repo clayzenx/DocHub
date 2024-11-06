@@ -1,4 +1,4 @@
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import manifestParser from '../../global/manifest/parser.mjs';
 import cache from './cache.mjs';
 import md5 from 'md5';
@@ -7,27 +7,27 @@ import validators from '../helpers/validators.mjs';
 import entities from '../entities/entities.mjs';
 import objectHash from 'object-hash';
 import '../helpers/env.mjs';
-
-import jsonataDriver from '../../global/jsonata/driver.mjs';
+import jsonataDriver from '../helpers/jsonata.mjs';
 import jsonataFunctions from '../../global/jsonata/functions.mjs';
-import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
+import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import uriTool from '../helpers/uri.mjs';
+
 const LOG_TAG = 'storage-manager';
 
-manifestParser.cache = cache;
 
+manifestParser.cache = cache;
 manifestParser.onError = (error) => {
 	logger.error(`Error of loading manifest ${error}`, LOG_TAG);
 };
 
 // eslint-disable-next-line no-unused-vars
 manifestParser.onStartReload = (parser) => {
-	logger.log('Manifest start reloading', LOG_TAG);
+	logger.log('Manifest start reloading', LOG_TAG, 'info');
 };
 
 // eslint-disable-next-line no-unused-vars
 manifestParser.onReloaded = (parser) => {
-	logger.log('Manifest is reloaded', LOG_TAG);
+	logger.log('Manifest is reloaded', LOG_TAG, 'info');
 };
 
 export default {
@@ -78,7 +78,7 @@ export default {
 	},
 	reloadManifest: async function(app) {
 
-		logger.log('Run full reload manifest', LOG_TAG);
+		logger.log('Run full reload manifest', LOG_TAG, 'info');
 		// Загрузку начинаем с виртуального манифеста
 		cache.errorClear();
 		let storageManifest = {};
@@ -125,7 +125,7 @@ export default {
 
 		entities(baseManifest);
 
-		logger.log('Full reload is done', LOG_TAG);
+		logger.log('Full reload is done', LOG_TAG, 'info');
 		const result = {
 			manifest: baseManifest, // Сформированный манифест
 			hash: objectHash(baseManifest), // HASH состояния для контроля в кластере
@@ -139,7 +139,7 @@ export default {
 		};
 
 		// Выводим информацию о текущем hash состояния
-		logger.log(`Hash of manifest is ${result.hash}`, LOG_TAG);
+		logger.log(`Hash of manifest is ${result.hash}`, LOG_TAG, 'info');
 
 		// Если есть ошибки загрузки, то дергаем callback 
 		result.problems.length && events.onFoundLoadingError();

@@ -7,6 +7,9 @@ import { BaseEntities } from '../../global/entities/entities.mjs';
 // import ajv_localize from 'ajv-i18n/localize/ru';
 // const ajv_localize = require('ajv-i18n/localize/ru');
 
+const LOG_TAG = 'jsonata';
+const TRACER_LOG_TAG = 'jsonata-tracer';
+
 // Расширенные функции JSONata
 function wcard(id, template) {
     if (!id || !template) return false;
@@ -73,13 +76,14 @@ function sourceType(content) {
 }
 
 function log(content, tag) {
-    // eslint-disable-next-line no-console
-    console.info(`${tag}: ${JSON.stringify(content, null, 2)}`);
+    const message = this.logger.groupCollapsed ? JSON.stringify(content, null, 2) : JSON.stringify(content);
+    this.logger.log(message, tag, 'verbose');
 }
 
 export default {
     // Функция должна возвращать коллекцию пользовательских функций JSONata
     customFunctions: null,
+    logger: console,
     // Создает объект запроса JSONata
     //  expression - JSONata выражение
     //  self    - объект, который вызывает запрос (доступен по $self в запросе)
@@ -94,6 +98,7 @@ export default {
             core: null,
             onError: null,  // Событие ошибки выполнения запроса
             store: {},      // Хранилище вспомогательных переменных для запросов
+            logger: this.logger,    // Логгер трассировки запросов
             // Исполняет запрос
             //  context - контекст исполнения запроса
             async evaluate(context) {
@@ -111,7 +116,7 @@ export default {
                             this.core.registerFunction(functionId, this.customFunctions[functionId]);
                         }
                         if (!funcs?.log) {
-                            this.core.registerFunction('log', log);
+                            this.core.registerFunction('log', log.bind(this));
                         }
                         this.core.registerFunction('set', (key, data) => {
                             return obj.store[key] = data;
@@ -132,16 +137,21 @@ export default {
                         const doStat = (result) => {
                             obj.trace.end = (new Date()).getTime();
                             obj.trace.exposition = this.trace.end - this.trace.start;
-                            // eslint-disable-next-line no-console
-                            console.groupCollapsed(`JSONata tracer expression (${obj.trace.exposition / 1000} seconds):`);
-                            // eslint-disable-next-line no-console
-                            console.info('Statistics:', obj.trace);
-                            // eslint-disable-next-line no-console
-                            console.info('Query:', obj.expression);
-                            // eslint-disable-next-line no-console
-                            result && console.info('Result:', result);
-                            // eslint-disable-next-line no-console
-                            console.groupEnd();
+                            if (this.logger.groupCollapsed) {
+                                this.logger.groupCollapsed(`JSONata tracer expression (${obj.trace.exposition / 1000} seconds):`);
+                                this.logger.info('Statistics:', obj.trace);
+                                this.logger.info('Query:', obj.expression);
+                                result && this.logger.info('Result:', result);
+                                this.logger.groupEnd();
+                            } else {
+                                this.logger.log(JSON.stringify({
+                                    name: `JSONata tracer expression (${obj.trace.exposition / 1000} seconds)`,
+                                    statistics: obj.trace,
+                                    query: obj.expression,
+                                    result
+                                }), TRACER_LOG_TAG, 'debug');
+                            }
+
                         };
                         this.core.evaluate(context)
                             .then((result) => {
@@ -155,12 +165,13 @@ export default {
                     });
 
                 } catch (e) {
-                    // eslint-disable-next-line no-console
-                    console.error('JSONata error:');
-                    // eslint-disable-next-line no-console
-                    console.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
-                    // eslint-disable-next-line no-console
-                    console.error(e);
+                    if (this.logger.groupCollapsed) {
+                        this.logger.error('JSONata error:');
+                        this.logger.log(this.expression.slice(0, e.position) + '%c' + this.expression.slice(e.position), 'color:red');
+                        this.logger.error(e);
+                    } else {
+                        this.logger.error(JSON.stringify(e), LOG_TAG);
+                    }
                     throw e;
                 }
             }

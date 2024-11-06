@@ -26,6 +26,12 @@ global.$listeners = {
     onFoundLoadingError: process.env.VUE_APP_DOCHUB_BACKEND_EVENT_LOADING_ERRORS_FOUND
 };
 
+global.$logger = {
+    level: process.env.VUE_APP_DOCHUB_LOGGER_LEVEL ?? 'info',
+    logfile: process.env.VUE_APP_DOCHUB_LOGGER_LOGFILE,
+    jsonataLogfile: process.env.VUE_APP_DOCHUB_JSONATA_LOGFILE
+};
+
 global.$roles = {
     MODE: process.env.VUE_APP_DOCHUB_ROLES_MODEL,
     URI: process.env.VUE_APP_DOCHUB_ROLES
