@@ -1,0 +1,11 @@
+{
+  "name": "markdown-it-katex",
+  "version": "2.0.3",
+  "description": "dummy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vladislav Markin",
+  "license": "Apache-2.0"
+}
