@@ -8,14 +8,13 @@
     style="z-index: 99">
     <div class="main-layout__header">
       <div class="main-layout__header__menu">
-        <i class="fa-solid fa-bug" />
         <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
           <menu-icon />
         </v-app-bar-nav-icon>
-        <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
+        <div class="main-layout__header__menu__logo" style="cursor: pointer" v-on:click="onLogoClick">
           <header-logo />
-        </v-app-bar-nav-icon>
-        <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
+          <v-toolbar-title>DocHub</v-toolbar-title>
+        </div>
         <v-btn v-if="isBackShow" icon v-on:click="back">
           <v-icon>arrow_back</v-icon>
         </v-btn>
@@ -179,7 +178,12 @@
 .main-layout__header__menu {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+.main-layout__header__menu__logo {
+  display: flex;
+  align-items: end;
+  gap: 2px;
 }
 
 header.print-version {
