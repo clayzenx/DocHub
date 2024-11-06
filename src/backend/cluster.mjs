@@ -26,13 +26,13 @@ if (cluster.isPrimary) {
         cluster.fork();
     }
 
-    cluster.on('exit', (worker, code, signal) => {
+    cluster.on('exit', (worker) => {
         logger.log(`Worker ${worker.process.pid} died, restarting`, LOG_TAG);
         const newWorker = cluster.fork();
 
         newWorker.once('online', () => {
             if (manifest !== null) {
-                newWorker.send({ type: 'manifest', data: result });
+                newWorker.send({ type: 'manifest', data: manifest });
             }
         });
     });
@@ -57,6 +57,16 @@ if (cluster.isPrimary) {
 
     loadManifest();
 
+    const app = express();
+
+    app.get('/live', async(_, res) => {
+        return res.status(200).json({
+            message: 'app is live'
+        });
+    });
+
+    app.listen(8090, () => console.log('Live check server running on port 8090'));
+
 } else {
 
     const app = express();
@@ -66,19 +76,13 @@ if (cluster.isPrimary) {
     app.storage = null;
     middlewareAccess(app);
 
-    app.get('/alive', (req, res) => {
-        res.send('Alive');
+    app.get('/health', (req, res) => {
+        return res.status(app.storage == null ? 503 : 200).json({
+            message: app.storage == null ? 'Loading...' : 'Ready'
+        });
     });
 
-    app.get('/ready', (req, res) => {
-        if (app.storage == null) {
-            res.status(503);
-            res.send('Loading...');
-        } else
-            res.send('Ready');
-    });
-
-    const server = app.listen(serverPort, function () {
+    const server = app.listen(serverPort, function() {
         logger.log(`Cluster fork ${process.pid} running on ${serverPort}`, LOG_TAG);
     });
 
