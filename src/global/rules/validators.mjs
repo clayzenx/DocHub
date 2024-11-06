@@ -1,7 +1,9 @@
+import EventEmitter from 'events';
+
 const THEAD_LIMIT = 3;
 
 // Выполняет валидаторы и накладывает исключения
-export default async function(datasets, manifest, success, reject) {
+export default function(datasets, manifest, success, reject) {
 	const rules = manifest?.rules || {};
 	const validators = rules?.validators || {};
 	const exceptions = rules?.exceptions || {};
@@ -9,7 +11,8 @@ export default async function(datasets, manifest, success, reject) {
 	let stop = false;
 	const context = {
 		stop: () => stop = true,
-		stack: Object.keys(validators)
+		stack: Object.keys(validators),
+		events: new EventEmitter()
 	};
 
 	const runValidator = (id) => {
@@ -41,6 +44,10 @@ export default async function(datasets, manifest, success, reject) {
 					}
 				);
 			}).finally(() => {
+				if(!context.stack.length) {
+					context.events.emit('stackEmpty');
+					return;
+				}
 				const nextId = context.stack.pop();
 				if (nextId && !stop) setTimeout(() => runValidator(nextId), 50);
 			});

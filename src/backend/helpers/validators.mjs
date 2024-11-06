@@ -1,9 +1,19 @@
 import validators from '../../global/rules/validators.mjs';
 import datasets from './datasets.mjs';
 import { logger } from '../utils/logger/index.mjs';
-import {isRolesMode} from "../utils/rules.mjs";
+import {isRolesMode} from '../utils/rules.mjs';
 
 const LOG_TAG = 'validators';
+
+const waitForStackToClear = async (context) => {
+	return new Promise((resolve) => {
+		context.events.on('stackEmpty', () => {
+			context.events.removeAllListeners('stackEmpty');
+			resolve();
+		});
+		if(!context.stack.length) context.events.emit('stackEmpty');
+	});
+}
 
 // Выполняет валидаторы и накладывает исключения
 export default async function(app) {
@@ -11,13 +21,13 @@ export default async function(app) {
 	const pushValidator = (validator) => {
 		app.storage.problems.push(validator);
 	};
-	logger.log('Executing validators..', LOG_TAG, 'info');
-
 	let storageManifest = app.storage.manifest;
 	if(isRolesMode()) {
 		storageManifest = app.storage.manifests[app.storage.roleId];
 	}
-	await validators(datasets(app), storageManifest, pushValidator, pushValidator);
-	logger.log('Done.', LOG_TAG, 'info');
+	logger.log(`Executing validators.. ${storageManifest}`, LOG_TAG);
+	const context = validators(datasets(app), storageManifest, pushValidator, pushValidator);
 
+	await waitForStackToClear(context);
+	logger.log('Done.', LOG_TAG, 'info');
 }
