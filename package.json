@@ -1,18 +1,15 @@
 {
   "name": "seaf-archtool-core",
-  "version": "3.15.0",
+  "version": "3.14.0",
   "main": "src/backend/main.mjs",
   "files": [
     "/dist"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RabotaRu/DocHub.git"
+    "url": "git+https://gitverse.ru/seafteam/seaf-archtool-core.git"
   },
-  "bugs": {
-    "url": "https://github.com/RabotaRu/DocHub/issues"
-  },
-  "homepage": "https://github.com/RabotaRu/DocHub#readme",
+  "homepage": "https://gitverse.ru/seafteam/seaf-archtool-core",
   "scripts": {
     "lib": "vue-cli-service build --name test --target lib",
     "plugin": "export VUE_APP_DOCHUB_MODE=plugin && vue-cli-service build",
