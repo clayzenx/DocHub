@@ -102,7 +102,7 @@ export default {
 			if (subject.source || (subject.data /* depricated */)) {
 				if (subject.origin) {
 					if (typeof subject.origin === 'string') {
-						this.parseSource(context, subject.origin, subject, params, baseURI, params.datasetID)
+						this.parseSource(context, subject.origin, subject, params, baseURI, params?.datasetID)
 							.then((data) => exec(data))
 							.catch((e) => reject(e));
 					} else if ((typeof subject.origin === 'object') && !Array.isArray(subject.origin)) {
