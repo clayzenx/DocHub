@@ -7,6 +7,6 @@
         "plugins/svg",
         "plugins/bpmnjs",
         "plugins/drawio",
-        "plugins/dh-plugin-table"
+        "plugins/editable-table"
     ]
 }

@@ -1,5 +1,5 @@
 {
-  "name": "dh-plugin-table",
+  "name": "editable-table",
   "version": "1.0.0",
   "description": "Editable table for DocHub",
   "main": "index.js",
