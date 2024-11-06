@@ -9,7 +9,7 @@
     <div class="main-layout__header">
       <div class="main-layout__header__menu">
         <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
-          <menu-icon />
+          <menu-icon style="padding: 5px 6px 4px 4px"/>
         </v-app-bar-nav-icon>
         <div class="main-layout__header__menu__logo" style="cursor: pointer" v-on:click="onLogoClick">
           <header-logo />
