@@ -27,7 +27,7 @@ export function loadFromAssets(filename) {
 
 // Подключает базовую метамодель
 function loadBaseMatamodel() {
-    return yaml.parse(loadFromAssets('base.yaml'));
+    return yaml.parse(loadFromAssets('master-schema.yaml'));
 }
 
 // Кэш в памяти
@@ -40,7 +40,7 @@ const errorType = {
 };
 
 export default Object.assign(prototype, {
-    // Выполняет resolve URL 
+    // Выполняет resolve URL
     makeURIByBaseURI: uriTool.makeURIByBaseURI,
     // Содержит ошибки, которые возникли за сессию
     errors: {},
@@ -52,9 +52,9 @@ export default Object.assign(prototype, {
     //  prefix - Префикс, который будет использован перед ключом
     async clearCache(prefix) {
       switch (cacheMode) {
-        case 'none': return; 
+        case 'none': return;
         case 'memory': memoryCache = {}; break;
-        case 'redis': 
+        case 'redis':
             // eslint-disable-next-line no-case-declarations
             const keys = await redisClient.keys(`DocHub.cache.${prefix || ''}.*`);
             keys.map((key) => redisClient.del(key));
@@ -72,7 +72,7 @@ export default Object.assign(prototype, {
     },
     // Регистрирует ошибку
     // type         - Секция ошибки (system/syntax/net)
-    // uid          - Уникальный идентификатор ошибки. 
+    // uid          - Уникальный идентификатор ошибки.
     // title        - Определяет представление ошибки в дереве.
     // location     - URL с расположением объекта, где выявлена ошибка.
     // correction   - Краткое пояснение, как исправить ошибку.
@@ -88,7 +88,7 @@ export default Object.assign(prototype, {
             uid, title, location, correction, description
         });
     },
-    // Получает данные из кэша 
+    // Получает данные из кэша
     //  prefix - Префикс, который будет использован перед ключом
     //  key - ключ
     //  resolve - если в кэше данные не будут найдены, будет вызвана функция для генерации данных
@@ -97,30 +97,34 @@ export default Object.assign(prototype, {
         let fileName = null;
         try {
             let result = null;
+
             const md5Key = `DocHub.cache.${prefix || 'unknown'}.${md5(key)}`;
-            
+
             switch (cacheMode) {
-                case 'none': result = resolve && await resolve() || undefined; break;
-                case 'memory': result = memoryCache[md5Key] 
-                    || (resolve && (memoryCache[md5Key] = await resolve()));
-                    break;
-                case 'redis': 
-                    result = await redisClient.get(md5Key);
-                    if (result) {
-                        result = JSON.parse(result);
-                    } else {
-                        result = await resolve();
-                        await redisClient.set(md5Key, JSON.stringify(result));
-                    }
-                    break;
-                default: {
-                    const hash = md5(key);
-                    fileName = path.resolve(__dirname, '../../../', cacheMode, `${hash}.cache`);
-                    if (!fs.existsSync(fileName)) {
-                        result = JSON.stringify(await resolve() || null);
-                        fs.writeFileSync(fileName, result, { encoding: 'utf8' });
-                    }
+              case 'none':
+                result = resolve && await resolve() || undefined;
+                break;
+              case 'memory':
+                result = memoryCache[md5Key]
+                  || (resolve && (memoryCache[md5Key] = await resolve()));
+                break;
+              case 'redis':
+                result = await redisClient.get(md5Key);
+                if (result) {
+                  result = JSON.parse(result);
+                } else {
+                  result = await resolve();
+                  await redisClient.set(md5Key, JSON.stringify(result));
                 }
+                break;
+              default: {
+                const hash = md5(key);
+                fileName = path.resolve(__dirname, '../../../', cacheMode, `${hash}.cache`);
+                if (!fs.existsSync(fileName)) {
+                  result = JSON.stringify(await resolve() || null);
+                  fs.writeFileSync(fileName, result, { encoding: 'utf8' });
+                }
+              }
             }
 
             if (res) {
@@ -154,7 +158,7 @@ export default Object.assign(prototype, {
             // Подключаем базовую метамодель
             const content = loadBaseMatamodel();
             if (!content.imports) content.imports = [];
-            
+
             // Подключаем метамодель DocHub или собственную
             content.imports.push(process.env.VUE_APP_DOCHUB_METAMODEL || '/metamodel/root.yaml');
 
@@ -167,7 +171,7 @@ export default Object.assign(prototype, {
             if (process.env.VUE_APP_DOCHUB_ROOT_MANIFEST) {
                 content.imports.push(process.env.VUE_APP_DOCHUB_ROOT_MANIFEST);
             }
-            
+
             logger.log(`Root manifest is [${content.imports.join('], [')}].`, LOG_TAG);
             result = {
                 data: content
