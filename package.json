@@ -15,6 +15,7 @@
     "plugin": "export VUE_APP_DOCHUB_MODE=plugin && vue-cli-service build",
     "backend-build": "export VUE_APP_DOCHUB_MODE=backend && npm run build",
     "backend-up": "node src/backend/main.mjs",
+    "cluster": "wsl node src/backend/cluster.mjs",
     "backend": "export VUE_APP_DOCHUB_MODE=backend && npm run build && node src/backend/main.mjs",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",

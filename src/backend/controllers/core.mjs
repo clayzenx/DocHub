@@ -103,16 +103,18 @@ export default (app) => {
             if(isRolesMode()) {
                 app.storage = {...app.storage, manifests: null};
             }
-            const oldHash = app.storage.hash;
-            await storeManager.reloadManifest(app)
-                .then((storage) => storeManager.applyManifest(app, storage))
-                .then(() => app.isReady = true)
-                .then(() => cache.clearCache(oldHash))
-                .then(() => res.json({ message: 'success' }))
-                .catch((err) => {
-                  app.isReady = false;
-                  app.errorMessage = err.message;
-                });
+            process.send({type:'manifest_reload'});
+            // const oldHash = app.storage.hash;
+            // await storeManager.reloadManifest(app)
+            //     .then((storage) => storeManager.applyManifest(app, storage))
+            //     .then(() => app.isReady = true)
+            //     .then(() => cache.clearCache(oldHash))
+            //     .then(() => res.json({ message: 'success' }))
+            //     .catch((err) => {
+            //       app.isReady = false;
+            //       app.errorMessage = err.message;
+            //     });
+            res.json({ message: 'success' });
 
             userName = getUserName(req.headers);
             const jsonLog = JSON.stringify({

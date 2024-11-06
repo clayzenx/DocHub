@@ -1,7 +1,7 @@
 const THEAD_LIMIT = 3;
 
 // Выполняет валидаторы и накладывает исключения
-export default function(datasets, manifest, success, reject) {
+export default async function(datasets, manifest, success, reject) {
 	const rules = manifest?.rules || {};
 	const validators = rules?.validators || {};
 	const exceptions = rules?.exceptions || {};
