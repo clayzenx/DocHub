@@ -1,5 +1,5 @@
 import './helpers/env.mjs';
-import logger from './utils/logger.mjs';
+import { logger } from './utils/logger/index.mjs';
 import express from 'express';
 import middlewareCompression from './middlewares/compression.mjs';
 import controllerStatic from './controllers/static.mjs';
