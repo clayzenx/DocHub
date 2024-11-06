@@ -1,5 +1,5 @@
 {
-  "name": "dh-plugin-table",
+  "name": "editable-table",
   "version": "1.0.0",
   "description": "Editable table for DocHub",
   "main": "index.js",
@@ -7,6 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "A.Anenburg",
+  "contributors": [
+    {
+      "name": "Aleksandr Anenburg",
+      "company": "Sber"
+    }
+  ],
   "license": "Apache-2.0",
   "dependencies": {
     "vuetify": "2.6.14",
