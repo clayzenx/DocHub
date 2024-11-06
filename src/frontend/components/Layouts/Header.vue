@@ -2,55 +2,58 @@
   <v-app-bar
     app
     clipped-left
-    color="#3495db"
+    color="#00755D"
     dark
     v-bind:class="isPrintVersion ? 'print-version' : ''"
     style="z-index: 99">
     <div class="main-layout__header">
       <div class="main-layout__header__menu">
-    <i class="fa-solid fa-bug" />
-    <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
-      <header-logo />
-    </v-app-bar-nav-icon>
-    <v-toolbar-title style="cursor: pointer" v-on:click="onLogoClick">DocHub</v-toolbar-title>
-    <v-btn v-if="isBackShow" icon v-on:click="back">
-      <v-icon>arrow_back</v-icon>
-    </v-btn>
-    <v-btn v-if="isBackShow" icon v-on:click="debug">
-      <v-icon>mdi-bug</v-icon>
-    </v-btn>
-    <v-btn v-if="isBackShow" icon v-on:click="refresh">
-      <v-icon>refresh</v-icon>
-    </v-btn>
+        <v-app-bar-nav-icon v-on:click="() => handleDrawer()">
+          <menu-icon style="padding: 5px 6px 4px 4px"/>
+        </v-app-bar-nav-icon>
+        <div class="main-layout__header__menu__logo" style="cursor: pointer" v-on:click="onLogoClick">
+          <header-logo />
+          <v-toolbar-title>DocHub</v-toolbar-title>
+        </div>
+        <v-btn v-if="isBackShow" icon v-on:click="back">
+          <v-icon>arrow_back</v-icon>
+        </v-btn>
+        <v-btn v-if="isBackShow" icon v-on:click="debug">
+          <v-icon>mdi-bug</v-icon>
+        </v-btn>
+        <v-btn v-if="isBackShow" icon v-on:click="refresh">
+          <v-icon>refresh</v-icon>
+        </v-btn>
       </div>
       <div v-if="isRolesMode" class="main-layout__header__menu">
-        <v-toolbar-title right offset-y style="cursor: pointer" v-on:click="loginout()">{{
+        <v-toolbar-title right offset-y style="cursor: pointer" v-on:click="loginout()">
+          {{
             user || 'Login'
           }}
         </v-toolbar-title>
         <v-spacer />
-    <v-btn v-if="isCriticalError" icon title="Есть критические ошибки!" v-on:click="gotoProblems">
-      <v-icon class="material-icons blink" style="display: inline">error</v-icon>
-    </v-btn>
-    <v-btn v-if="gotoIconShow" icon title="Найти в коде" v-on:click="gotoCode">
-      <v-icon class="material-icons" style="display: inline">code</v-icon>
-    </v-btn>
-    <v-menu offset-y>
-      <template #activator="{ on, attrs }">
-        <v-btn icon v-bind="attrs" v-on="on">
-          <v-icon>mdi-dots-vertical</v-icon>
+        <v-btn v-if="isCriticalError" icon title="Есть критические ошибки!" v-on:click="gotoProblems">
+          <v-icon class="material-icons blink" style="display: inline">error</v-icon>
         </v-btn>
-      </template>
-      <v-list>
-        <v-list-item>
-          <v-checkbox v-model="isPrintVersion" />
-          <v-list-item-title>Версия для печати</v-list-item-title>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-title style="cursor: pointer;" v-on:click="doPrint">Печать</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu>
+        <v-btn v-if="gotoIconShow" icon title="Найти в коде" v-on:click="gotoCode">
+          <v-icon class="material-icons" style="display: inline">code</v-icon>
+        </v-btn>
+        <v-menu offset-y>
+          <template #activator="{ on, attrs }">
+            <v-btn icon v-bind="attrs" v-on="on">
+              <v-icon>mdi-dots-vertical</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-checkbox v-model="isPrintVersion" />
+              <v-list-item-title>Версия для печати</v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title style="cursor: pointer;" v-on:click="doPrint">Печать</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </div>
     </div>
   </v-app-bar>
@@ -61,11 +64,13 @@
   import oidcClient from '@front/auth/oidc-client';
 
   import HeaderLogo from './HeaderLogo';
+  import MenuIcon from './MenuIcon';
 
   export default {
     name: 'Header',
     components: {
-      HeaderLogo
+      HeaderLogo,
+      MenuIcon
     },
     data() {
       return {
@@ -154,10 +159,8 @@
       },
       loginout() {
         this.user ? oidcClient.logout() : oidcClient.login();
-        console.log("login/logout");
         this.user ? oidcClient.logout() : oidcClient.login().then(() => {
           window.Vuex.dispatch('setRolesFromToken');
-          console.log("call set roles from token");
         });
       }
     }
@@ -175,7 +178,12 @@
 .main-layout__header__menu {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+}
+.main-layout__header__menu__logo {
+  display: flex;
+  align-items: end;
+  gap: 2px;
 }
 
 header.print-version {

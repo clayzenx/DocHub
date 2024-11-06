@@ -56,6 +56,11 @@ export default (app) => {
         };
     }
 
+    // Получаем тайтл из переменной окружения
+    app.get('/api/title', (_, res) => {
+      res.json({ title: process.env.VUE_APP_DOCHUB_TITLE || 'SEAF' });
+    });
+
     // Выполняет произвольные запросы 
     app.get('/core/storage/jsonata/:query', async function(req, res) {
         if (!helpers.isServiceReady(app, res)) return;
