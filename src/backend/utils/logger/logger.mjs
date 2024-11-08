@@ -32,7 +32,8 @@ export const mainLogger = createLogger({
 		format.splat(),
 		loggingFormat
 	),
-	transports: loggingTransports
+	transports: loggingTransports,
+	exceptionHandlers: loggingTransports
 });
 
 export default {

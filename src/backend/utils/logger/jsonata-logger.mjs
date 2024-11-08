@@ -10,7 +10,7 @@ const loggingLevels = {
 };
 
 const loggingTransports = [
-	new transports.Console({ level: 'verbose' })
+	new transports.Console({ level: 'error' })
 ];
 
 if (global.$logger.jsonataLogfile) {
