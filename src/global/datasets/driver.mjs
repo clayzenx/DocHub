@@ -110,7 +110,7 @@ export default {
 						const data = {};
 						for (const key in subject.origin) {
 							++counter;
-							this.parseSource(context, subject.origin[key], subject, params, baseURI, params.datasetID).then((content) => {
+							this.parseSource(context, subject.origin[key], subject, params, baseURI, params?.datasetID).then((content) => {
 								data[key] = content;
 								if (!--counter) exec(data);
 							}).catch((e) => reject(e));
