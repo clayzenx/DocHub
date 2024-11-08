@@ -39,13 +39,12 @@ if (cluster.isPrimary) {
 
     const loadManifest = () => {
         const manifestLoader = new Worker('./src/backend/utils/manifest_loader.mjs');
-        manifestLoader.on('message', async(result) => {
-            const app = {};
-            await storeManager.applyManifest(app, result, true, true);
-            manifest = app.storage;
+        manifestLoader.on('message', (result) => {
+            manifest = result;
             for (const id in cluster.workers) {
-                cluster.workers[id].send({type: 'manifest', data: app.storage});
+                cluster.workers[id].send({type: 'manifest', data: manifest});
             }
+            logger.log('Spreading manifest to workers finished', LOG_TAG, 'debug');
         });
     };
 
