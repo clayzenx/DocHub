@@ -13,7 +13,7 @@
         </v-app-bar-nav-icon>
         <div class="main-layout__header__menu__logo" style="cursor: pointer" v-on:click="onLogoClick">
           <header-logo />
-          <v-toolbar-title>DocHub</v-toolbar-title>
+          <v-toolbar-title>SEAF</v-toolbar-title>
         </div>
         <v-btn v-if="isBackShow" icon v-on:click="back">
           <v-icon>arrow_back</v-icon>

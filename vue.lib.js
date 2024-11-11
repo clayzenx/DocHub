@@ -24,8 +24,8 @@ const entries = {};
 });
 
 const manifest = {
-  name: 'DocHub',
-  short_name: 'DocHub',
+  name: 'SEAF Archtool',
+  short_name: 'SEAF',
   description: 'Architecture as a code',
   background_color: '#ffffff',
   crossorigin: 'use-credentials',
