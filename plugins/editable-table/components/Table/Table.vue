@@ -1,7 +1,7 @@
 <template>
   <div class="layout">
     <div class="wrapper">
-      <div v-if="isTableEditable" class="action-block">
+      <div v-if="tableOptions.isEditable" class="action-block">
         <div class="action-block_edit">
           <v-btn color="primary" v-on:click="$emit('on-save')"> Сохранить </v-btn>
           <v-btn
@@ -13,7 +13,7 @@
           </v-btn>
         </div>
 
-        <v-btn v-if="!selection && isTableFilterable" v-on:click="onResetFilters">
+        <v-btn v-if="!selection && tableOptions.isFiltareble" v-on:click="onResetFilters">
           Очистить фильтр
         </v-btn>
       </div>
@@ -38,28 +38,29 @@
               class="cell, cell_header"
               v-bind:style="pinnedRowStyles[headerID]"
               v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
-              {{ text }}
-
-              <v-badge
-                v-if="sortMap[headerID]"
-                class="sort-badge"
-                color="primary"
-                v-bind:content="sortMap[headerID].priority + 1"
-                inline>
-                <v-icon
-                  medium
-                  v-bind:class="sortMap[headerID].direction === 'inc'
-                    ? 'mdi mdi-arrow-up-bold'
-                    : 'mdi mdi-arrow-down-bold'
-                  "
-                  v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
-                  " />
-              </v-badge>
+              <div class="table__header">
+                {{ text }}
+                <v-badge
+                  v-if="sortMap[headerID]"
+                  class="sort-badge"
+                  color="primary"
+                  v-bind:content="sortMap[headerID].priority + 1"
+                  inline>
+                  <v-icon
+                    medium
+                    v-bind:class="sortMap[headerID].direction === 'inc'
+                      ? 'mdi mdi-arrow-up-bold'
+                      : 'mdi mdi-arrow-down-bold'
+                    "
+                    v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
+                    " />
+                </v-badge>
+              </div>
             </th>
           </tr>
 
           <!-- ***************************** FILTER ROW ***************************** -->
-          <tr v-if="isTableFilterable" class="table__row">
+          <tr v-if="tableOptions.isFiltareble" class="table__row">
             <!-- ************* RESET ************* -->
             <td v-if="selection" class="cell cell_filter cell_reset-filter">
               <v-btn icon v-on:click="onResetFilters">
@@ -149,7 +150,7 @@
                 v-on:change="onSelectAllRows" />
             </td>
             <!-- ************* RESET FILTER ************* -->
-            <td v-if="isTableFilterable" class="cell cell_reset-filter cell_filter">
+            <td v-if="tableOptions.isFiltareble" class="cell cell_reset-filter cell_filter">
               <v-btn icon v-on:click="onResetFilters">
                 <v-icon medium>cancel</v-icon>
               </v-btn>
@@ -188,28 +189,30 @@
             <!-- ************* HEADERS ************* -->
             <th
               class="cell cell_header"
-              v-bind:style="maxWidthRowStyle"
+              v-bind:style="tableOptions.maxWidth"
               v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
-              {{ text }}
+              <div class="table__header">
+                {{ text }}
 
-              <v-badge
-                v-if="sortMap[headerID]"
-                class="sort-badge"
-                color="primary"
-                v-bind:content="sortMap[headerID].priority + 1"
-                inline>
-                <v-icon
-                  medium
-                  v-bind:class="sortMap[headerID].direction === 'inc'
-                    ? 'mdi mdi-arrow-up-bold'
-                    : 'mdi mdi-arrow-down-bold'
-                  "
-                  v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
-                  " />
-              </v-badge>
+                <v-badge
+                  v-if="sortMap[headerID]"
+                  class="sort-badge"
+                  color="primary"
+                  v-bind:content="sortMap[headerID].priority + 1"
+                  inline>
+                  <v-icon
+                    medium
+                    v-bind:class="sortMap[headerID].direction === 'inc'
+                      ? 'mdi mdi-arrow-up-bold'
+                      : 'mdi mdi-arrow-down-bold'
+                    "
+                    v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
+                    " />
+                </v-badge>
+              </div>
             </th>
             <!-- ************* FILTERS ************* -->
-            <td v-if="isTableFilterable" class="cell cell_filter" v-bind:style="maxWidthRowStyle">
+            <td v-if="tableOptions.isFiltareble" class="cell cell_filter" v-bind:style="tableOptions.maxWidth">
               <table-cell
                 v-if="filterable && type === 'checkbox'"
                 v-model="filters[headerID]"
@@ -227,7 +230,7 @@
               v-for="([rowID, row]) in filteredAndSortedItemsSlice"
               v-bind:key="rowID"
               v-bind:class="['cell', 'cell_body', { cell_selected: selectedItems.includes(rowID) }]"
-              v-bind:style="[maxWidthRowStyle]">
+              v-bind:style="[tableOptions.maxWidth]">
               <table-cell
                 v-model.trim="row[headerID]"
                 v-bind:type="type"
@@ -253,10 +256,7 @@
     </v-alert>
 
     <v-dialog v-model="isDialogOpen" max-width="800">
-      <mass-fill 
-        v-bind:headers="headers" 
-        v-on:click-save="massDataFill" 
-        v-on:click-cancel="isDialogOpen = false" />
+      <mass-fill v-bind:headers="headers" v-on:click-save="massDataFill" v-on:click-cancel="isDialogOpen = false" />
     </v-dialog>
   </div>
 </template>
@@ -278,15 +278,10 @@
         type: Object,
         required: true
       },
-      isTableEditable: {
+      filtration: {
         type: Boolean,
         required: true
       },
-      isTableFilterable: {
-        type: Boolean,
-        required: true
-      },
-
       headers: {
         type: Array,
         required: true
@@ -315,7 +310,6 @@
         sortList: []
       };
     },
-
     computed: {
       items() {
         return Object.entries(this.tableData);
@@ -346,11 +340,9 @@
         }
         return false;
       },
-
       numberOfPages() {
         return Math.ceil(this.filteredAndSortedItems.length / this.pageSize);
       },
-
       sortMap() {
         const result = {};
         this.sortList.forEach((sorter, index) => {
@@ -358,11 +350,9 @@
         });
         return result;
       },
-
       isSortActive() {
         return this.sortList.length > 0;
       },
-
       pinnedRowStyles() {
         const result = {};
         let marginCount = 0;
@@ -387,25 +377,32 @@
 
         return result;
       },
-
-      maxWidthRowStyle() {
+      tableOptions() {
+        let hasFiltarebleColumn = false;
+        let hasEditableColumn = false;
         let maxWidth = 0;
 
-        for (let i = 0; i < this.headers.length; i++) {
-          const { width } = this.headers[i];
+        this.headers.forEach(({ disabled, filterable, width }) => {
+          if (filterable) {
+            hasFiltarebleColumn = true;
+          }
+          if (!disabled) {
+            hasEditableColumn = true;
+          }
 
           const parsedWidth = parseFloat(width);
 
           if (width && parsedWidth > maxWidth) {
             maxWidth = parsedWidth;
           }
-        }
+        });
 
         return {
-          minWidth: maxWidth === 0 ? 'auto' : `${maxWidth}px`
+          isEditable: hasEditableColumn,
+          isFiltareble: this.filtration && hasFiltarebleColumn,
+          maxWidth: maxWidth
         };
       }
-
     },
 
     watch: {
@@ -426,14 +423,21 @@
         this.isDialogOpen = false;
         this.changeSelectedRows(this.selectedItems, updatedColumns, data);
       },
-        
+
       changeSelectedRows(selectedItems, updatedColumns, data) {
         selectedItems.forEach(rowID => {
           updatedColumns.forEach((headerID) => {
-            this.tableData[rowID][headerID] = data[headerID];
+            if(data[headerID] && typeof data[headerID] === 'object') {
+              if(Array.isArray(data[headerID])) {
+                this.tableData[rowID][headerID] = [...data[headerID]];
+              } else {
+                this.tableData[rowID][headerID] = {...data[headerID]};
+              }
+            } else {
+              this.tableData[rowID][headerID] = data[headerID];
+            }
           });
         });
-
       },
 
       // eslint-disable-next-line no-unused-vars
@@ -601,6 +605,14 @@
   position: relative;
   background-color: var(--color-bg-header);
   color: var(--color-bg-cell);
+}
+
+.table__header {
+  min-height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
 }
 
 .cell_filter {

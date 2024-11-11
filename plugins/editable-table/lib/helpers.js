@@ -113,3 +113,66 @@ export function getStylesToApply(value, styles) {
   }
   return result;
 }
+
+export function deepMerge(target, source) {
+  for (let key in source) {
+    const value = source[key];
+
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      if (typeof target[key] === 'undefined') {
+        target[key] = {};
+      }
+      const deepTarget = target[key];
+      deepMerge(deepTarget, value);
+    } else {
+      target[key] = value;
+    }
+  }
+  return target;
+}
+
+export function mergeHeaders(targetList, sourceList) {
+  if(!targetList || !sourceList) {
+    return targetList ?? sourceList;
+  }
+
+  const HEADER_INDEX_MAP = {};
+  targetList.forEach((header, index) => {
+    HEADER_INDEX_MAP[header.value] = index;
+  });
+
+  sourceList.forEach((header) => {
+    let index = HEADER_INDEX_MAP[header.value];
+
+    if(index === undefined) {
+      targetList.push(header);
+    } else {
+      deepMerge(targetList[index], header);
+    }
+  });
+
+  return targetList;
+}
+
+export function prepareTableData(data, headers) {
+  const dataTable = {};
+
+  for (let rowID in data) {
+    const row = data[rowID];
+
+    if (dataTable[rowID] === undefined) {
+      dataTable[rowID] = {};
+    }
+    
+    for (let headerID in headers) {
+      const { type } = headers[headerID];
+
+      if (type === 'checkbox') {
+        dataTable[rowID][headerID] = !!row[headerID];
+        continue;
+      }
+      dataTable[rowID][headerID] = row[headerID] ?? null;
+    }
+  }
+  return dataTable;
+}
