@@ -135,7 +135,7 @@ function ManifestObject(destination, source, owner) {
                     return result;
                 }
             });
-        } else if (typeof value === 'object') {
+        } else if (Boolean(value) && typeof value === 'object') {
             Object.defineProperty(this, propName, {
                 enumerable: true,
                 configurable: true,
