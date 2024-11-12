@@ -18,7 +18,7 @@ function startWorker(cluster, manifest = null) {
     const newWorker = cluster.fork();
     newWorker.once('online',
         () => setTimeout(
-            () => newWorker.send({ type: 'start', data: manifest })
+            () => newWorker.send({ type: 'manifest', data: manifest })
             , 1000)
     );
 }
@@ -114,13 +114,10 @@ if (cluster.isPrimary) {
     const app = express();
     const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
 
+    startClusterWorker(app, serverPort);
 
     process.on('message', (message) => {
         switch (message.type) {
-            case 'start':
-                startClusterWorker(app, serverPort);
-            // break не нужен, обрабатываем манифест
-            // eslint-disable-next-line no-fallthrough
             case 'manifest':
                 applyManifest(app, message.data);
                 break;
