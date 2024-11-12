@@ -11,6 +11,7 @@ import jsonataDriver from '../helpers/jsonata.mjs';
 import jsonataFunctions from '../../global/jsonata/functions.mjs';
 import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import uriTool from '../helpers/uri.mjs';
+import validatorsWarmup from '../cluster/validators_warmup.mjs';
 
 const LOG_TAG = 'storage-manager';
 
@@ -157,6 +158,9 @@ export default {
 		app.storage = storage;  // Инициализируем данные хранилища
 		this.resetCustomFunctions(storage.manifest);
 		app.storage.roles = [];
+		if (isCluster && isPrimary) {
+			validatorsWarmup(app);
+		}
 		if (!isCluster || isPrimary) {
 			await validators(app);        // Выполняет валидаторы
 		}
