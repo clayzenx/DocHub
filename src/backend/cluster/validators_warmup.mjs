@@ -5,6 +5,8 @@ const LOG_TAG = 'validators_warmup';
 
 export default async function(app) {
 
+    logger.log('Validators cache warm up started', LOG_TAG, 'info');
+
     const datasetsForApp = datasets(app);
 
     for (const key in app.storage.manifest.datasets) {

@@ -81,11 +81,10 @@ if (cluster.isPrimary) {
     }
 
     // Пробуем перезапустить рабочие воркеры, если они отвалились.
-    // Теоретически сюда может попасть liveness воркер, и он будет перезапущен как обычный. Но, скорее всего в этом
-    // случае до этого момента k8s уже прибьет этот под
+
     cluster.on('exit', (worker) => {
         logger.log(`Worker ${worker.process.pid} died, restarting`, LOG_TAG, 'warn');
-        startWorker(worker, manifest);
+        startWorker(cluster, manifest);
     });
 
     // Загружаем манифест в отдельном потоке
