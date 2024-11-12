@@ -159,7 +159,7 @@ export default {
 		this.resetCustomFunctions(storage.manifest);
 		app.storage.roles = [];
 		if (isCluster && isPrimary) {
-			validatorsWarmup(app);
+			await validatorsWarmup(app);
 		}
 		if (!isCluster || isPrimary) {
 			await validators(app);        // Выполняет валидаторы
