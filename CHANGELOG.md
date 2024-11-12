@@ -1,8 +1,8 @@
 ## v3.13.3
 
 ### Новые фичи:
-- Обновлена версия плагина **seaf-archtool-ideplugin-jetbrains** **4.1.2**.
-- Обновлена версия плагина **seaf-archtool-ideplugin-vscode 0.2.2**.
+- Обновлена версия плагина **seaf-archtool-ideplugin-jetbrains** **4.1.3**.
+- Обновлена версия плагина **seaf-archtool-ideplugin-vscode 0.2.3**.
 - В плагин **seaf-archtool-ideplugin-vscode** добавлены редактируемые таблицы
 
 ### Исправлены ошибки:
