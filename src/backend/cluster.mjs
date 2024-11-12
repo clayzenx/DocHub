@@ -15,28 +15,94 @@ import storeManager from './storage/manager.mjs';
 const LOG_TAG = 'cluster';
 
 
+function startWorker(cluster, manifest = null) {
+    const newWorker = cluster.fork();
+    newWorker.once('online',
+        () => setTimeout(
+            () => newWorker.send({ type: 'start', data: manifest })
+            , 1000)
+    );
+}
+
+function startLivenessWorker(app, serverPort) {
+    app.get('/health/livez', async(_, res) => {
+        return res.status(200).json({ status: 'alive' });
+    });
+
+    app.listen(serverPort, () => logger.log(`Liveness fork ${process.pid} running on ${serverPort}`, LOG_TAG, 'info'));
+}
+
+async function applyManifest(app, manifest) {
+    if (manifest === null)
+        return;
+
+    await storeManager.applyManifest(app, manifest, true, false);
+    // Подключаем драйвер кластера
+    await middlewareCluster(app, storeManager);
+
+    // Подключаем сжатие контента
+    middlewareCompression(app);
+
+    // API ядра
+    controllerCore(app);
+
+    // API сущностей
+    controllerEntity(app);
+
+    // Контроллер доступа к файлам в хранилище
+    controllerStorage(app);
+
+    // Статические ресурсы
+    controllerStatic(app);
+}
+
+function startClusterWorker(app, serverPort) {
+    // Актуальный манифест
+    app.storage = null;
+    middlewareAccess(app);
+
+    // Проба readiness
+    app.get('/health/readyz', (req, res) => {
+        return app.storage == null
+            ? res.status(503).json({ status: 'loading manifest' })
+            : res.status(200).json({ status: 'ready' });
+    });
+
+    // Запуск сервера
+    const server = app.listen(serverPort, function() {
+        logger.log(`Cluster fork ${process.pid} running on ${serverPort}`, LOG_TAG, 'info');
+    });
+
+    server.setTimeout(500000);
+}
+
 if (cluster.isPrimary) {
-    logger.log(`Master ${process.pid} is running`, LOG_TAG);
+    logger.log(`Master ${process.pid} is running`, LOG_TAG, 'info');
+
+    const livenessWorker = cluster.fork();
+    livenessWorker.once('online',
+        () => setTimeout(
+            () => livenessWorker.send({ type: 'liveness' })
+            , 1000)
+    );
 
     let manifest = null;
 
-    logger.log(`Cluster forks: ${process.env.VUE_APP_DOCHUB_CLUSTER_FORKS}`, LOG_TAG);
+    logger.log(`Cluster forks: ${process.env.VUE_APP_DOCHUB_CLUSTER_FORKS}`, LOG_TAG, 'info');
 
     for (let i = 0; i < process.env.VUE_APP_DOCHUB_CLUSTER_FORKS; i++) {
-        cluster.fork();
+        startWorker(cluster);
     }
 
+    // Пробуем перезапустить рабочие воркеры, если они отвалились.
+    // Теоретически сюда может попасть liveness воркер, и он будет перезапущен как обычный. Но, скорее всего в этом
+    // случае до этого момента k8s уже прибьет этот под
     cluster.on('exit', (worker) => {
-        logger.log(`Worker ${worker.process.pid} died, restarting`, LOG_TAG);
-        const newWorker = cluster.fork();
-
-        newWorker.once('online', () => {
-            if (manifest !== null) {
-                newWorker.send({ type: 'manifest', data: manifest });
-            }
-        });
+        logger.log(`Worker ${worker.process.pid} died, restarting`, LOG_TAG, 'warn');
+        startWorker(worker, manifest);
     });
 
+    // Загружаем манифест в отдельном потоке
     const loadManifest = () => {
         const manifestLoader = new Worker('./src/backend/utils/manifest_loader.mjs');
         manifestLoader.on('message', (result) => {
@@ -48,6 +114,7 @@ if (cluster.isPrimary) {
         });
     };
 
+    // Обрабатываем команду на загрузку манифеста
     cluster.on('message', (worker, message) => {
        if(message.type === 'manifest_reload') {
            loadManifest();
@@ -56,60 +123,29 @@ if (cluster.isPrimary) {
 
     loadManifest();
 
-    const app = express();
-
-    app.get('/live', async(_, res) => {
-        return res.status(200).json({
-            message: 'app is live'
-        });
-    });
-
-    app.listen(8090, () => console.log('Live check server running on port 8090'));
-
 } else {
 
     const app = express();
     const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
+    const livenessPort = process.env.VUE_APP_DOCHUB_LIVENESS_PORT || 8090;
 
-    // Актуальный манифест
-    app.storage = null;
-    middlewareAccess(app);
-
-    app.get('/health', (req, res) => {
-        return res.status(app.storage == null ? 503 : 200).json({
-            message: app.storage == null ? 'Loading...' : 'Ready'
-        });
-    });
-
-    const server = app.listen(serverPort, function() {
-        logger.log(`Cluster fork ${process.pid} running on ${serverPort}`, LOG_TAG);
-    });
-
-    server.setTimeout(500000);
-
-    process.on('message', async(message) => {
-       if (message.type === 'manifest') {
-            await storeManager.applyManifest(app, message.data, true, false);
-            // Подключаем драйвер кластера
-            await middlewareCluster(app, storeManager);
-
-            // Подключаем сжатие контента
-            middlewareCompression(app);
-
-            // API ядра
-            controllerCore(app);
-
-            // API сущностей
-            controllerEntity(app);
-
-            // Контроллер доступа к файлам в хранилище
-            controllerStorage(app);
-
-            // Статические ресурсы
-            controllerStatic(app);
-       }
+    process.on('message', (message) => {
+        switch (message.type) {
+            case 'liveness':
+                startLivenessWorker(app, livenessPort);
+                break;
+            case 'start':
+                startClusterWorker(app, serverPort);
+            // break не нужен, обрабатываем манифест
+            // eslint-disable-next-line no-fallthrough
+            case 'manifest':
+                applyManifest(app, message.data);
+                break;
+            default:
+                logger.log(`Unknown message type ${message.type}`, LOG_TAG, 'warn');
+        }
     });
 
 
-    logger.log(`Worker ${process.pid} started`, LOG_TAG);
+    logger.log(`Worker ${process.pid} started`, LOG_TAG, 'info');
 }
