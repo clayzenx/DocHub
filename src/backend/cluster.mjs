@@ -14,7 +14,6 @@ import storeManager from './storage/manager.mjs';
 
 const LOG_TAG = 'cluster';
 
-
 function startWorker(cluster, manifest = null) {
     const newWorker = cluster.fork();
     newWorker.once('online',
@@ -22,14 +21,6 @@ function startWorker(cluster, manifest = null) {
             () => newWorker.send({ type: 'start', data: manifest })
             , 1000)
     );
-}
-
-function startLivenessWorker(app, serverPort) {
-    app.get('/health/livez', async(_, res) => {
-        return res.status(200).json({ status: 'alive' });
-    });
-
-    app.listen(serverPort, () => logger.log(`Liveness fork ${process.pid} running on ${serverPort}`, LOG_TAG, 'info'));
 }
 
 async function applyManifest(app, manifest) {
@@ -79,12 +70,7 @@ function startClusterWorker(app, serverPort) {
 if (cluster.isPrimary) {
     logger.log(`Master ${process.pid} is running`, LOG_TAG, 'info');
 
-    const livenessWorker = cluster.fork();
-    livenessWorker.once('online',
-        () => setTimeout(
-            () => livenessWorker.send({ type: 'liveness' })
-            , 1000)
-    );
+    new Worker('./src/backend/cluster/liveness.mjs');
 
     let manifest = null;
 
@@ -104,7 +90,7 @@ if (cluster.isPrimary) {
 
     // Загружаем манифест в отдельном потоке
     const loadManifest = () => {
-        const manifestLoader = new Worker('./src/backend/utils/manifest_loader.mjs');
+        const manifestLoader = new Worker('./src/backend/cluster/manifest_loader.mjs');
         manifestLoader.on('message', (result) => {
             manifest = result;
             for (const id in cluster.workers) {
@@ -127,13 +113,10 @@ if (cluster.isPrimary) {
 
     const app = express();
     const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
-    const livenessPort = process.env.VUE_APP_DOCHUB_LIVENESS_PORT || 8090;
+
 
     process.on('message', (message) => {
         switch (message.type) {
-            case 'liveness':
-                startLivenessWorker(app, livenessPort);
-                break;
             case 'start':
                 startClusterWorker(app, serverPort);
             // break не нужен, обрабатываем манифест
