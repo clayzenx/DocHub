@@ -1,3 +1,3 @@
 import plugin from './components/index.vue';
 
-DocHub.documents.register('dh-plugin-table', plugin);
+DocHub.documents.register('editable-table', plugin);
