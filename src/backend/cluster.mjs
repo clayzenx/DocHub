@@ -107,7 +107,8 @@ if (cluster.isPrimary) {
        }
     });
 
-    loadManifest();
+    // костыль. Загрузка манифеста мешает нормальному старту кластера. Нужно разбираться.
+    setTimeout(() => loadManifest(), 10000);
 
 } else {
 
