@@ -9,7 +9,12 @@ export default async function(app) {
 
     const datasetsForApp = datasets(app);
 
+    logger.log(`Validators cache warm datasetsForApp = ${datasetsForApp}`, LOG_TAG, 'info');
+    logger.log(`Validators cache warm app.storage.manifest.datasets = ${app.storage.manifest.datasets}`, LOG_TAG, 'info');
+
     for (const key in app.storage.manifest.datasets) {
+        logger.log(`Validators cache warm key = ${key}`, LOG_TAG, 'info');
+
         await datasetsForApp.getData(app.storage.manifest, { origin: key, source: '({})' });
     }
 
