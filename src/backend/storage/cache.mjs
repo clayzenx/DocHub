@@ -56,7 +56,7 @@ export default Object.assign(prototype, {
         case 'memory': memoryCache = {}; break;
         case 'redis':
             // eslint-disable-next-line no-case-declarations
-            const keys = await redisClient.keys(`DocHub.cache.${prefix || ''}.*`);
+            const keys = await redisClient.keys(`SEAF.cache.${prefix || ''}.*`);
             keys.map((key) => redisClient.del(key));
             break;
         default: {
@@ -98,7 +98,7 @@ export default Object.assign(prototype, {
         try {
             let result = null;
 
-            const md5Key = `DocHub.cache.${prefix || 'unknown'}.${md5(key)}`;
+            const md5Key = `SEAF.cache.${prefix || 'unknown'}.${md5(key)}`;
 
             switch (cacheMode) {
               case 'none':

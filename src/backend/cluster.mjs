@@ -7,12 +7,16 @@ import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
 import middlewareAccess from './middlewares/access.mjs';
-import middlewareCluster from './middlewares/cluster.mjs';
 import cluster from 'node:cluster';
 import {Worker} from 'node:worker_threads';
 import storeManager from './storage/manager.mjs';
+import {NodeStatus, ClusterCache} from './cluster/cache.mjs';
+import {Node} from "yaml/types";
+
 
 const LOG_TAG = 'cluster';
+
+const CHECK_CLUSTER_STATUS_INTERVAL = 5000;
 
 function startWorker(cluster, manifest = null) {
     const newWorker = cluster.fork();
@@ -28,8 +32,6 @@ async function applyManifest(app, manifest) {
         return;
 
     await storeManager.applyManifest(app, manifest, true, false);
-    // Подключаем драйвер кластера
-    await middlewareCluster(app, storeManager);
 
     // Подключаем сжатие контента
     middlewareCompression(app);
@@ -47,10 +49,17 @@ async function applyManifest(app, manifest) {
     controllerStatic(app);
 }
 
-function startClusterWorker(app, serverPort) {
+function startClusterWorker(app, serverPort, cache) {
     // Актуальный манифест
     app.storage = null;
     middlewareAccess(app);
+
+    app.get('/health', async(req, res) => {
+        const commandState = await cache?.getCommandState();
+        return commandState
+            ? res.status(200).json({ status: commandState })
+            : res.status(503).json({ status: 'Not ready' });
+    });
 
     // Проба readiness
     app.get('/health/readyz', (req, res) => {
@@ -67,12 +76,24 @@ function startClusterWorker(app, serverPort) {
     server.setTimeout(500000);
 }
 
+const cache = new ClusterCache();
+await cache.init();
+
 if (cluster.isPrimary) {
-    logger.log(`Master ${process.pid} is running`, LOG_TAG, 'info');
+
+    const nodeId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+    logger.log(`Master ${process.pid} with nodeId=${nodeId} is running`, LOG_TAG, 'info');
 
     new Worker('./src/backend/cluster/liveness.mjs');
 
     let manifest = null;
+
+    const spreadManifest = function() {
+        for (const id in cluster.workers) {
+            cluster.workers[id].send({type: 'manifest', data: manifest});
+        }
+        logger.log('Spreading manifest to workers finished', LOG_TAG, 'debug');
+    };
 
     logger.log(`Cluster forks: ${process.env.VUE_APP_DOCHUB_CLUSTER_FORKS}`, LOG_TAG, 'info');
 
@@ -87,34 +108,87 @@ if (cluster.isPrimary) {
         startWorker(cluster, manifest);
     });
 
+    let isLoading = false;
     // Загружаем манифест в отдельном потоке
     const loadManifest = () => {
+        if (isLoading) {
+            logger.log('Manifest is loading', LOG_TAG, 'info');
+            return;
+        }
+
         const manifestLoader = new Worker('./src/backend/cluster/manifest-loader.mjs');
-        manifestLoader.on('message', (result) => {
+        isLoading = true;
+        cache.updateCommandState('loading manifest');
+
+        manifestLoader.once('message', (result) => {
+            setTimeout(() => {
+                isLoading = false;
+                cache.updateCommandState('ready');
+            }, CHECK_CLUSTER_STATUS_INTERVAL * 2);
+
             manifest = result;
-            for (const id in cluster.workers) {
-                cluster.workers[id].send({type: 'manifest', data: manifest});
-            }
-            logger.log('Spreading manifest to workers finished', LOG_TAG, 'debug');
+            manifest.isCluster = true;
+            cache.setManifest(manifest);
+            spreadManifest();
         });
+        manifestLoader.onerror = () => {
+            isLoading = false;
+            manifestLoader.onerror = null;
+            cache.updateCommandState('error');
+        };
     };
 
+
+    setInterval(async() => {
+        const status = await cache.status(nodeId);
+        switch (status.status) {
+            case NodeStatus.MASTER:
+                // nothing to do
+                break;
+            case NodeStatus.SLAVE:
+                if (status.manifest && status.manifest !== manifest?.hash) {
+                    logger.log(`Slave. Manifest hash updated. Sync. Hash=${status.manifest}`, LOG_TAG, 'info');
+                    manifest = await cache.getManifest(status.manifest);
+                    if (manifest) {
+                        spreadManifest();
+                    }
+                }
+                break;
+            case NodeStatus.WAIT:
+                logger.log('Waiting', LOG_TAG, 'info');
+                break;
+            case NodeStatus.NO_MANIFEST:
+                if (manifest) {
+                    cache.setManifest(manifest);
+                    cache.updateCommandState('ready');
+                } else {
+                    loadManifest();
+                }
+                break;
+            case NodeStatus.RELOAD:
+                loadManifest();
+                break;
+            default:
+                logger.log(`Unknown cache status: ${status.status}`, LOG_TAG, 'warn');
+        }
+    }, CHECK_CLUSTER_STATUS_INTERVAL);
+
     // Обрабатываем команду на загрузку манифеста
-    cluster.on('message', (worker, message) => {
+    cluster.on('message', async(worker, message) => {
        if(message.type === 'manifest_reload') {
-           loadManifest();
+           const commandState = await cache.getCommandState();
+           if (commandState === 'ready' || commandState === 'error') {
+               await cache.setCommand('manifest_reload');
+           }
        }
     });
-
-    // костыль. Загрузка манифеста мешает нормальному старту кластера. Нужно разбираться.
-    setTimeout(() => loadManifest(), 10000);
 
 } else {
 
     const app = express();
     const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
 
-    startClusterWorker(app, serverPort);
+    startClusterWorker(app, serverPort, cache);
 
     process.on('message', (message) => {
         switch (message.type) {

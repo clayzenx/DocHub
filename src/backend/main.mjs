@@ -11,7 +11,6 @@ import controllerSmartants from './controllers/smartants.mjs';
 import controllerLogger from './controllers/logger.mjs';
 import controllerProbes from './controllers/probes.mjs';
 import middlewareAccess from './middlewares/access.mjs';
-import middlewareCluster from './middlewares/cluster.mjs';
 
 const LOG_TAG = 'server';
 
@@ -41,8 +40,6 @@ const mainLoop = async function() {
      storeManager.reloadManifest(app)
          .then(async(storage) => {
              await storeManager.applyManifest(app, storage);
-             // Подключаем драйвер кластера
-             await middlewareCluster(app, storeManager);
 
              // Подключаем сжатие контента
              middlewareCompression(app);
