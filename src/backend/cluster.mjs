@@ -89,7 +89,7 @@ if (cluster.isPrimary) {
 
     // Загружаем манифест в отдельном потоке
     const loadManifest = () => {
-        const manifestLoader = new Worker('./src/backend/cluster/manifest_loader.mjs');
+        const manifestLoader = new Worker('./src/backend/cluster/manifest-loader.mjs');
         manifestLoader.on('message', (result) => {
             manifest = result;
             for (const id in cluster.workers) {
