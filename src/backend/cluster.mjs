@@ -11,7 +11,6 @@ import cluster from 'node:cluster';
 import {Worker} from 'node:worker_threads';
 import storeManager from './storage/manager.mjs';
 import {NodeStatus, ClusterCache} from './cluster/cache.mjs';
-import {Node} from "yaml/types";
 
 
 const LOG_TAG = 'cluster';
@@ -63,6 +62,9 @@ function startClusterWorker(app, serverPort, cache) {
 
     // Проба readiness
     app.get('/health/readyz', (req, res) => {
+        if (app.readyz) {
+            return res.status(app.readyz.code).json(app.readyz.message);
+        }
         return app.storage == null
             ? res.status(503).json({ status: 'loading manifest' })
             : res.status(200).json({ status: 'ready' });
@@ -84,6 +86,8 @@ if (cluster.isPrimary) {
     const nodeId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
     logger.log(`Master ${process.pid} with nodeId=${nodeId} is running`, LOG_TAG, 'info');
 
+    const noRequestsOnLoading = (process.env.VUE_APP_DOCHUB_CLUSTER_NO_REQUESTS_ON_LOADING || 'off') === 'on';
+
     new Worker('./src/backend/cluster/liveness.mjs');
 
     let manifest = null;
@@ -93,6 +97,16 @@ if (cluster.isPrimary) {
             cluster.workers[id].send({type: 'manifest', data: manifest});
         }
         logger.log('Spreading manifest to workers finished', LOG_TAG, 'debug');
+    };
+
+    const spreadReadyz = function(status) {
+        if (!noRequestsOnLoading)
+            return;
+
+        for (const id in cluster.workers) {
+            cluster.workers[id].send({type: 'readyz', data: status});
+        }
+        logger.log(`Spreading readyz ${status} to workers finished`, LOG_TAG, 'debug');
     };
 
     logger.log(`Cluster forks: ${process.env.VUE_APP_DOCHUB_CLUSTER_FORKS}`, LOG_TAG, 'info');
@@ -119,6 +133,7 @@ if (cluster.isPrimary) {
         const manifestLoader = new Worker('./src/backend/cluster/manifest-loader.mjs');
         isLoading = true;
         cache.updateCommandState('loading manifest');
+        spreadReadyz({code: 503, message: {status: 'Loading manifest'}});
 
         manifestLoader.once('message', (result) => {
             setTimeout(() => {
@@ -130,11 +145,13 @@ if (cluster.isPrimary) {
             manifest.isCluster = true;
             cache.setManifest(manifest);
             spreadManifest();
+            spreadReadyz();
         });
         manifestLoader.onerror = () => {
             isLoading = false;
             manifestLoader.onerror = null;
             cache.updateCommandState('error');
+            spreadReadyz();
         };
     };
 
@@ -194,6 +211,9 @@ if (cluster.isPrimary) {
         switch (message.type) {
             case 'manifest':
                 applyManifest(app, message.data);
+                break;
+            case 'readyz':
+                app.readyz = message.data;
                 break;
             default:
                 logger.log(`Unknown message type ${message.type}`, LOG_TAG, 'warn');
