@@ -106,7 +106,13 @@ export default (store: Store<any>): void => {
       }
 
       try {
-        const data = normalizeResponse(type, value);
+        let data = normalizeResponse(type, value);
+
+        if(data.isResolver) {
+          const { resolver, args, res } = listeners[uuid]
+          resolver(...Object.entries(args)).then(res);
+          return;
+        }
 
         listeners[uuid].res({
           data,
