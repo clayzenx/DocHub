@@ -17,7 +17,6 @@
 
   import {diagram} from '@mermaid-js/mermaid-mindmap/dist/diagram-definition.ae1f7a29.js';
   import {diagram as architecture_diagram} from 'mermaid/dist/chunks/mermaid.core/architectureDiagram-AYX4OTIS';
-  import {diagram as timeline_diagram} from 'mermaid/dist/chunks/mermaid.core/timeline-definition-27KQCCZ3';
   import {diagram as c4Diagram} from 'mermaid/dist/chunks/mermaid.core/c4Diagram-GPMAACGM';
   import {diagram as classDiagram} from 'mermaid/dist/chunks/mermaid.core/classDiagram-FEGYTUDG';
   import {diagram as classDiagram_v2} from 'mermaid/dist/chunks/mermaid.core/classDiagram-v2-R65JCUOM';
@@ -30,7 +29,7 @@
   import {diagram as infoDiagram} from 'mermaid/dist/chunks/mermaid.core/infoDiagram-P5D6MX3V';
   import {diagram as journeyDiagram} from 'mermaid/dist/chunks/mermaid.core/journeyDiagram-UIGPPNLY';
   import {diagram as kanbanDiagram} from 'mermaid/dist/chunks/mermaid.core/kanban-definition-KMT3NSR2';
-  import {diagram as mindmap_diagram} from 'mermaid/dist/chunks/mermaid.core/mindmap-definition-R7LC4OIY';
+  import {diagram as mindmapDiagram} from 'mermaid/dist/chunks/mermaid.core/mindmap-definition-R7LC4OIY';
   import {diagram as pieDiagram} from 'mermaid/dist/chunks/mermaid.core/pieDiagram-BLWKPB35';
   import {diagram as quadrantDiagram} from 'mermaid/dist/chunks/mermaid.core/quadrantDiagram-QXWEEFXS';
   import {diagram as requirementDiagram} from 'mermaid/dist/chunks/mermaid.core/requirementDiagram-XAUNFCZY';
@@ -40,6 +39,7 @@
   import {diagram as stateDiagram_v2} from 'mermaid/dist/chunks/mermaid.core/stateDiagram-v2-HP6YRVRG';
   import {diagram as timelineDiagram} from 'mermaid/dist/chunks/mermaid.core/timeline-definition-27KQCCZ3';
   import {diagram as xychartDiagram} from 'mermaid/dist/chunks/mermaid.core/xychartDiagram-MYLB5AYS';
+  import {diagram as blockDiagram} from 'mermaid/dist/chunks/mermaid.core/blockDiagram-XN6IQ5JY';
 
   /*
   mermaid.initialize({
@@ -56,8 +56,6 @@
   function never_used() {
     // eslint-disable-next-line no-console
     console.log(diagram);
-    // eslint-disable-next-line no-console
-    console.log(timeline_diagram);
     // eslint-disable-next-line no-console
     console.log(architecture_diagram);
     // eslint-disable-next-line no-console
@@ -85,7 +83,7 @@
     // eslint-disable-next-line no-console
     console.log(kanbanDiagram);
     // eslint-disable-next-line no-console
-    console.log(mindmap_diagram);
+    console.log(mindmapDiagram);
     // eslint-disable-next-line no-console
     console.log(pieDiagram);
     // eslint-disable-next-line no-console
@@ -104,6 +102,8 @@
     console.log(timelineDiagram);
     // eslint-disable-next-line no-console
     console.log(xychartDiagram);
+    // eslint-disable-next-line no-console
+    console.log(blockDiagram);
   }
 
   export default {
