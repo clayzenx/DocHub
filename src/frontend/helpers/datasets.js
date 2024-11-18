@@ -46,10 +46,11 @@ export default function() {
       async parseSource(context, data, subject, params, baseURI) {
         const sourceType = source.type(data);
         if (sourceType === 'id') {
+          const args = { context, data, subject, params, baseURI };
           if(env.isPlugin())
             return await window.$PAPI.pullFromCache(`{"path":"/datasets/${data}"}`, async() => {
               return await this.parentParseSource(context, data, subject, params, baseURI);
-            });
+            }, args);
           else return await this.parentParseSource(context, data, subject, params, baseURI);
 
         } else {
