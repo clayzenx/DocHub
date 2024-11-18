@@ -108,13 +108,19 @@ export default (store: Store<any>): void => {
       try {
         let data = normalizeResponse(type, value);
 
+        const { resolver, args, res } = listeners[uuid]
         if (data.hasCache) {
-          // return data from vscode cache
-          //res(data.cache)
+          // Если кэш есть - отдаем его
+          res(data.cache)
           return;
         } else if(!data.hasCache && listeners[uuid].resolver) {
-          const { resolver, args, res } = listeners[uuid]
-          resolver(...Object.entries(args)).then(res);
+          // Если нет - Получаем его из резолвера и аргументов
+          const key = data.key
+          resolver(...Object.entries(args)).then((data: any) => {
+            // Вызываем updateCache и отдаем данные
+            window.$PAPI.updateCache(key, data)
+            res(data);
+          });
           return;
         } else
         listeners[uuid].res({
