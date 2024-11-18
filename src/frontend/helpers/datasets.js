@@ -60,7 +60,7 @@ export default function() {
 
           const args = { context, data, subject, params, baseURI };
           if (env.isPlugin())
-            return await window.$PAPI.pullFromCache(`{"path":"/datasets/${data}"}`, async () => {
+            return await window.$PAPI.pullFromCache(`{"path":"/datasets/${data}"}`, async() => {
               return await this.parentParseSource(context, data, subject, params, baseURI);
             }, args);
           else return await this.parentParseSource(context, data, subject, params, baseURI);
