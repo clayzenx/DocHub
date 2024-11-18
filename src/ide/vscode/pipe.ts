@@ -59,12 +59,8 @@ export default (): void => {
         listeners[uuid] = { res, rej };
       });
     },
-    clearDatasetsCache(datasetsIDs: string[]) {
-      const datasetCacheKeys = datasetsIDs.map(id => md5(`{"path":"/datasets/${id}"}`));
-      emit('clearCaches', { datasetCacheKeys });
-    },
     updateCache(key: string, data: any) {
-      emit('updateCache', { key, data: JSON.stringify(data) });
+      emit('updateCache', { key, data });
     },
     pullFromCache(key: string, resolver: () => void, args: object): Promise<void> {
       const uuid = uuidv4();
@@ -82,26 +78,6 @@ export default (): void => {
       emit('request', {
         stringifedUri,
         uuid
-      });
-
-      return new Promise((res, rej): void => {
-        listeners[uuid] = { res, rej };
-      });
-    },
-    pushFile(fullPath, content): Promise<void> {
-      const url = new URL(fullPath);
-      const uri = { raw: false, url };
-      const stringifedUri = JSON.stringify(uri);
-
-      const arrayBuffer = new TextEncoder().encode(content);
-      const uint8Array = new Uint8Array(arrayBuffer);
-
-      const uuid = uuidv4();
-
-      emit('push-file', {
-        stringifedUri,
-        uuid,
-        value: uint8Array
       });
 
       return new Promise((res, rej): void => {
