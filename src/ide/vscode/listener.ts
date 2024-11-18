@@ -108,12 +108,15 @@ export default (store: Store<any>): void => {
       try {
         let data = normalizeResponse(type, value);
 
-        if(data.isResolver) {
+        if (data.hasCache) {
+          // return data from vscode cache
+          //res(data.cache)
+          return;
+        } else if(!data.hasCache && listeners[uuid].resolver) {
           const { resolver, args, res } = listeners[uuid]
           resolver(...Object.entries(args)).then(res);
           return;
-        }
-
+        } else
         listeners[uuid].res({
           data,
           headers: {
