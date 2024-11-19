@@ -75,7 +75,7 @@ function sourceType(content) {
     return source.type(content);
 }
 
-function log() {
+function log(content, tag) {
     const message = this.logger.groupCollapsed ? JSON.stringify(content, null, 2) : JSON.stringify(content);
     this.logger.log(message, tag, 'verbose');
 }
