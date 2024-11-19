@@ -58,13 +58,11 @@ export default function() {
           if (!dependencyOf[filename]) dependencyOf[filename] = new Set();
           dependencyOf[filename].add(data);
 
-          const args = { context, data, subject, params, baseURI };
-          if (env.isPlugin())
-            return await window.$PAPI.pullFromCache(`{"path":"/datasets/${data}"}`, async() => {
-              return await this.parentParseSource(context, data, subject, params, baseURI);
-            }, args);
-          else return await this.parentParseSource(context, data, subject, params, baseURI);
-
+          if (env.isPlugin()) {
+            return await this.parentParseSource(context, data, subject, params, baseURI);
+          } else {
+            return await this.parentParseSource(context, data, subject, params, baseURI);
+          }
         } else {
           return await this.parentParseSource(context, data, subject, params, baseURI);
         }
