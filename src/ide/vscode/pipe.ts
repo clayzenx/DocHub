@@ -31,9 +31,9 @@ export default (): void => {
     debug() {
       emit('debug', undefined);
     },
-    download(content, title, description): void {
+    download(content, title, description, extension): void {
       const stringifedUri = JSON.stringify({
-        content, title, description
+        content, title, description, extension
       });
 
       emit('download', stringifedUri);
