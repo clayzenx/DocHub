@@ -1,3 +1,3 @@
-# Добро пожаловать в DocHub!
+# Добро пожаловать в Seaf Archtool!
 
 ![](@document/dochub.conception)

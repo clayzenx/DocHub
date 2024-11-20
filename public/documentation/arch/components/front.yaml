@@ -3,7 +3,7 @@ components:
   #                       C4Model L1
   #***********************************************************
   dochub.front:             # Идентификатор компонента
-    title: DocHub           # Название компонента
+    title: Seaf Archtool          # Название компонента
     entity: component       # Сущность компонента из PlantUML (https://plantuml.com/ru/deployment-diagram)
     source: ./              # Произвольное поле. Указывающее на исходный код.
     expert: R.Piontik       # Произвольное поле. Эксперт по компоненту.
@@ -40,7 +40,7 @@ components:
   #                       C4Model L2
   #***********************************************************
   dochub.front.spa:
-    title: SPA приложение DocHub
+    title: SPA приложение Seaf Archtool
     entity: component
     source: ./src/frontend/main.js
     criticality: 1
