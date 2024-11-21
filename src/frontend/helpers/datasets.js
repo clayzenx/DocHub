@@ -58,14 +58,9 @@ export default function() {
           if (!dependencyOf[filename]) dependencyOf[filename] = new Set();
           dependencyOf[filename].add(data);
 
-          if (env.isPlugin()) {
-            return await this.parentParseSource(context, data, subject, params, baseURI);
-          } else {
-            return await this.parentParseSource(context, data, subject, params, baseURI);
-          }
-        } else {
-          return await this.parentParseSource(context, data, subject, params, baseURI);
         }
+
+        return await this.parentParseSource(context, data, subject, params, baseURI);
       },
       // Переопределяем метод получения данных для работы с бэком
       getDataOriginal: datasetDriver.getData,

@@ -57,9 +57,6 @@ export default (): void => {
         listeners[uuid] = { res, rej };
       });
     },
-    updateCache(key: string, data: any) {
-      emit('updateCache', { key, data });
-    },
     request(uri): Promise<void> {
       const stringifedUri = JSON.stringify(uri);
       const uuid = uuidv4();
