@@ -10,12 +10,12 @@ rules:
     dochub.metamodel.contexts.no_found_component:
       title: Несуществующие компоненты
       source: >
-        ([(  
+        ([(
           $MANIFEST := $;
-          contexts.$spread().(                      
+          contexts.$spread().(
             $CONTEXT_ID := $keys()[0];
             *.components.
-              {                   
+              {
                 "contextID": $CONTEXT_ID,
                 "componentID": $
               };
@@ -23,7 +23,7 @@ rules:
         ).{
             "uid": "$dh-mm-nfc-" & contextID & "-" & componentID,
             "correction": "Определите компонент или удалите ссылку на него в контексте",
-            "description": "Возможно компонент [" & componentID & "] не описан или описан в подключаемой 
+            "description": "Возможно компонент [" & componentID & "] не описан или описан в подключаемой
             кодовой базе архитектуры, которая сейчас недоступна.",
             "location": "/architect/contexts/" & contextID
         }])
@@ -51,12 +51,12 @@ rules:
     dochub.metamodel.components.no_found_aspect:
       title: Аспект не определен
       source: >
-        ([(  
+        ([(
           $MANIFEST := $;
-          components.$spread().(                      
+          components.$spread().(
             $COMPONENT_ID := $keys()[0];
             *.aspects.
-              {                   
+              {
                 "componentID": $COMPONENT_ID,
                 "aspectID": $
               };
@@ -64,7 +64,7 @@ rules:
         ).{
             "uid": "$dh-mm-nfa-" & contextID & "-" & componentID,
             "correction": "Определите аспект или удалите ссылку на него",
-            "description": "Возможно аспект [" & aspectID & "] не описан или описан в подключаемой 
+            "description": "Возможно аспект [" & aspectID & "] не описан или описан в подключаемой
             кодовой базе архитектуры, которая сейчас недоступна.",
             "location": "/architect/spects/" & aspectID
         }])
@@ -107,7 +107,7 @@ rules:
             )[$ and $not($exists($lookup($MANIFEST.components, linkID)))]].{
                 "uid": "$dh-mm-cmp-lnk-nf-" & ownerID & "-" & linkID,
                 "correction": "Определите компонент [" & linkID & "] или удалите ссылку на него",
-                "description": "Возможно компонент [" & linkID & "] не описан или описан в подключаемой 
+                "description": "Возможно компонент [" & linkID & "] не описан или описан в подключаемой
                 кодовой базе архитектуры, которая сейчас недоступна.",
                 "location": "/architect/components/" & ownerID
             }]
@@ -153,7 +153,7 @@ entities:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$": # Шаблон ключа
           title: Идентификатор сущности
           type: object
-          properies:
+          properties:
             presentations:                    # Презентации
               type: object
               additionalProperties: false
@@ -162,7 +162,7 @@ entities:
                   oneOf:
                     - type: object
                       properties:
-                        type: 
+                        type:
                           type: $doctypes         # Внутренний тип - тип документа
                         template:
                           type: $file
@@ -174,14 +174,14 @@ entities:
                         - source
                     - type: object
                       properties:
-                        type: 
+                        type:
                           type: $doctypes         # Внутренний тип - тип документа
                         source:
                           type: $file
                       required:
                         - type
                         - source
-                  
 
 
-        
+
+

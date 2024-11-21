@@ -11,6 +11,7 @@ import jsonataDriver from '../helpers/jsonata.mjs';
 import jsonataFunctions from '../../global/jsonata/functions.mjs';
 import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import uriTool from '../helpers/uri.mjs';
+import datasetsWarmup from '../cluster/datasets-warmup.mjs';
 
 const LOG_TAG = 'storage-manager';
 
@@ -153,13 +154,21 @@ export default {
 		}
 		return result;
 	},
-	applyManifest: async function(app, storage) {
+	applyManifest: async function(app, storage, isCluster = false, isPrimary = false) {
 		app.storage = storage;  // Инициализируем данные хранилища
 		this.resetCustomFunctions(storage.manifest);
 		app.storage.roles = [];
-		validators(app);        // Выполняет валидаторы
+		if (isCluster && isPrimary) {
+			await datasetsWarmup(app);
+		}
+		if (!isCluster || isPrimary) {
+			await validators(app);        // Выполняет валидаторы
+		}
 		Object.freeze(app.storage);
-		this.onApplyManifest.map((listener) => listener(app));
+
+		if (!isCluster || !isPrimary) {
+			this.onApplyManifest.map((listener) => listener(app));
+		}
 	},
 	cleanStorage(app) {
 		this.cacheFunction = null;

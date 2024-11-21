@@ -5,6 +5,9 @@ import pathTool from '../../global/manifest/tools/path.mjs';
 import entities from '../entities/entities.mjs';
 import {isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import md5 from 'md5';
+import source from '../../global/datasets/source.mjs';
+import cache from '../storage/cache.mjs';
+
 
 export default function(app) {
 
@@ -32,8 +35,20 @@ export default function(app) {
 			// Драйвер запросов JSONata
 			jsonataDriver,
 			// Включает/выключает трассировку запросов JSONata
-			traceJsonata: process.env.VUE_APP_DOCHUB_JSONATA_ANALYZER?.toLowerCase() === 'y'
+			traceJsonata: process.env.VUE_APP_DOCHUB_JSONATA_ANALYZER?.toLowerCase() === 'y',
+			async parseSource(context, data, subject, params, baseURI) {
+				const sourceType = source.type(data);
+				if (sourceType === 'id') {
+					return await cache.pullFromCache(app.storage.hash, `{"path":"/datasets/${data}"}`, async() => {
+						return await this.parentParseSource(context, data, subject, params, baseURI);
+					});
+				} else {
+					return await this.parentParseSource(context, data, subject, params, baseURI);
+				}
+			}
 		});
-	
+
+	result.parentParseSource = datasetDriver.parseSource.bind(result);
+
 	return result;
 }

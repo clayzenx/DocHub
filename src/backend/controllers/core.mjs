@@ -56,6 +56,11 @@ export default (app) => {
         };
     }
 
+    // Получаем тайтл из переменной окружения
+    app.get('/api/title', (_, res) => {
+      res.json({ title: process.env.VUE_APP_DOCHUB_TITLE || 'SEAF' });
+    });
+
     // Выполняет произвольные запросы 
     app.get('/core/storage/jsonata/:query', async function(req, res) {
         if (!helpers.isServiceReady(app, res)) return;
@@ -93,6 +98,9 @@ export default (app) => {
                 error: `Error reload secret is not valid [${reloadSecret}]`
             });
             return;
+        } else if(app.storage?.isCluster) {
+            process.send({type:'manifest_reload'});
+            res.json({ message: 'command sent' });
         } else {
             let userName;
             if(isRolesMode()) {
@@ -101,13 +109,8 @@ export default (app) => {
             const oldHash = app.storage.hash;
             await storeManager.reloadManifest(app)
                 .then((storage) => storeManager.applyManifest(app, storage))
-                .then(() => app.isReady = true)
                 .then(() => cache.clearCache(oldHash))
-                .then(() => res.json({ message: 'success' }))
-                .catch((err) => {
-                  app.isReady = false;
-                  app.errorMessage = err.message;
-                });
+                .then(() => res.json({ message: 'success' }));
 
             userName = getUserName(req.headers);
             const jsonLog = JSON.stringify({

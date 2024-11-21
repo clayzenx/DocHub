@@ -1,6 +1,6 @@
 contexts:   # Контексты представления архитектурных компонентов
     dochub:                                 # Идентификатор контекста
-        title: Общая архитектура DocHub     # Название контекста
+        title: Общая архитектура Seaf Archtool     # Название контекста
         location: DocHub                    # Размещение документа в дереве навигации
         components:                         # Компоненты входящие в контекст
             - dochub.front
@@ -9,7 +9,7 @@ contexts:   # Контексты представления архитектур
             - dochub.gitlab
             - dochub.web
     dochub.front:
-        title: Контейнерная архитектура DocHub
+        title: Контейнерная архитектура Seaf Archtool
         location: DocHub/Контейнерная архитектура
         components:
             - dochub.browser.*

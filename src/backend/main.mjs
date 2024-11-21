@@ -7,10 +7,10 @@ import controllerStatic from './controllers/static.mjs';
 import controllerCore from './controllers/core.mjs';
 import controllerStorage from './controllers/storage.mjs';
 import controllerEntity from './controllers/entity.mjs';
+import controllerSmartants from './controllers/smartants.mjs';
 import controllerLogger from './controllers/logger.mjs';
 import controllerProbes from './controllers/probes.mjs';
 import middlewareAccess from './middlewares/access.mjs';
-import middlewareCluster from './middlewares/cluster.mjs';
 
 const LOG_TAG = 'server';
 
@@ -40,8 +40,6 @@ const mainLoop = async function() {
      storeManager.reloadManifest(app)
          .then(async(storage) => {
              await storeManager.applyManifest(app, storage);
-             // Подключаем драйвер кластера
-             await middlewareCluster(app, storeManager);
 
              // Подключаем сжатие контента
              middlewareCompression(app);
@@ -52,9 +50,12 @@ const mainLoop = async function() {
              // API сущностей
              controllerEntity(app);
 
+             // Smartants
+             controllerSmartants(app);
+
              // Контроллер доступа к файлам в хранилище
              controllerStorage(app);
-             
+
              // Контроллер логирования
              if (loggerEnabled) {
                  controllerLogger(app);

@@ -1,9 +1,9 @@
 @startuml
 title "Развитие архитектуры экосистем"
 participant "Компания A" as company_a
-participant "DocHub A" as dochub_a
+participant "Seaf Archtool A" as dochub_a
 participant "Компания B" as company_b
-participant "DocHub B" as dochub_b
+participant "Seaf Archtool" as dochub_b
 database "Branch\nCompany A" as rb_company_a
 database "Branch\nCompany B" as rb_company_b
 database "Branch\nmaster" as rb_master

@@ -1,23 +1,21 @@
 {
-  "name": "dochubcore",
-  "version": "1.0.6",
+  "name": "seaf-archtool-core",
+  "version": "3.15.0",
   "main": "src/backend/main.mjs",
   "files": [
     "/dist"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RabotaRu/DocHub.git"
+    "url": "git+https://gitverse.ru/seafteam/seaf-archtool-core.git"
   },
-  "bugs": {
-    "url": "https://github.com/RabotaRu/DocHub/issues"
-  },
-  "homepage": "https://github.com/RabotaRu/DocHub#readme",
+  "homepage": "https://gitverse.ru/seafteam/seaf-archtool-core",
   "scripts": {
     "lib": "vue-cli-service build --name test --target lib",
     "plugin": "export VUE_APP_DOCHUB_MODE=plugin && vue-cli-service build",
     "backend-build": "export VUE_APP_DOCHUB_MODE=backend && npm run build",
     "backend-up": "node src/backend/main.mjs",
+    "cluster": "node src/backend/cluster.mjs",
     "backend": "export VUE_APP_DOCHUB_MODE=backend && npm run build && node src/backend/main.mjs",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -25,7 +23,8 @@
     "lint": "vue-cli-service lint",
     "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js",
-    "postinstall": "find plugins -maxdepth 1 -type d -exec sh -c \"cd '{}' && if [ -f package.json ]; then npm install; fi\" \\;"
+    "postinstall": "find plugins -maxdepth 1 -type d -exec sh -c \"cd '{}' && if [ -f package.json ]; then npm install; fi\" \\;",
+    "smartants-up": "node src/backend/smartants-main.mjs"
   },
   "dependencies": {
     "@asyncapi/react-component": "1.0.0-next.44",
@@ -36,18 +35,19 @@
     "ajv-formats": "2.1.1",
     "ajv-i18n": "4.2.0",
     "axios": "0.21.4",
+    "babel-runtime": "6.26.0",
     "core-js": "3.26.1",
     "dateformat": "3.0.3",
-    "jsonata": "2.0.3",
+    "jsonata": "2.0.5",
     "jsrsasign": "10.8.6",
     "md5": "2.3.0",
-    "mermaid": "10.6.1",
+    "mermaid": "11.4.0",
     "monaco-editor": "0.34.1",
     "mustache": "4.2.0",
     "oidc-client-ts": "2.4.0",
     "semver": "7.5.4",
     "stream": "0.0.2",
-    "swagger-ui": "3.52.5",
+    "swagger-ui": "4.19.1",
     "timers": "0.1.1",
     "uuid": "8.3.2",
     "vis-network": "9.1.2",
@@ -55,12 +55,14 @@
     "vue-async-computed": "3.9.0",
     "vue-cookie": "1.1.4",
     "vue-markdown": "2.2.4",
+    "markdown-it-katex": "file:./dummies/markdown-it-katex",
     "vue-router": "3.6.5",
     "vuetify": "2.6.14",
     "vuex": "3.6.2",
     "winston": "3.15.0",
-    "xml2js": "0.6.2",
-    "yaml": "1.10.2"
+    "xml2js": "0.5.0",
+    "yaml": "1.10.2",
+    "openapi-ui": "1.0.4"
   },
   "devDependencies": {
     "@babel/eslint-parser": "7.19.1",
@@ -85,18 +87,17 @@
     "express": "4.18.2",
     "fake-indexeddb": "4.0.1",
     "generator-code": "1.7.1",
-    "html-webpack-plugin": "5.5.0",
+    "html-webpack-plugin": "5.5.4",
     "jasmine-unit-test-generator": "1.3.1",
     "jest": "29.4.1",
     "jest-environment-jsdom": "29.4.1",
     "jest-test-gen": "1.4.3",
     "nodemon": "2.0.20",
-    "object-hash": "3.0.0",
-    "postcss-loader": "2.1.6",
+    "postcss-loader": "4.3.0",
     "raw-loader": "4.0.2",
     "redis": "4.6.10",
-    "ts-loader": "8.2.0",
-    "ts-node": "10.9.1",
+    "ts-loader": "9.5.1",
+    "ts-node": "10.9.2",
     "ts-node-dev": "2.0.0",
     "typescript": "4.9.4",
     "vue-loader": "13.7.3",
@@ -106,10 +107,27 @@
     "vue-template-compiler": "2.7.14",
     "webpack-bundle-analyzer": "4.8.0",
     "webpack-pwa-manifest": "4.3.0",
-    "yo": "4.3.0"
+    "yo": "4.3.0",
+    "object-hash": "3.0.0"
   },
   "overrides": {
-    "es5-ext": "0.10.53"
+    "es5-ext": "0.10.53",
+    "postcss": "8.4.32",
+    "http-cache-semantics": "4.1.1",
+    "react": "=17.0.2",
+    "react-dom": "=17.0.2",
+    "nopt": "6.0.0",
+    "nth-check": "2.1.1",
+    "cosmiconfig": "7.1.0",
+    "cytoscape": "3.24.0",
+    "cacheable-request": "12.0.0",
+    "trim-newlines": "4.1.0",
+    "semver-regex": "3.1.3",
+    "dompurify": "3.1.7",
+    "@babel/core": "7.21.8",
+    "fast-loops": "1.1.4",
+    "http-proxy-middleware": "3.0.3",
+    "webpack-dev-middleware": "7.4.2"
   },
   "postcss": {
     "plugins": {

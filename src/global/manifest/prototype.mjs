@@ -36,7 +36,8 @@ export default {
     expandSection(manifest, sectionId) {
         const section = manifest?.[sectionId] || {};
         for (const key in section) {
-            const protoPath = section[key].$prototype;
+            // TODO: добавить логирование при пустой секции манифеста;
+            const protoPath = section[key]?.$prototype;
             if (protoPath) {
                 if (section[key].__setPrototype__) section[key].__setPrototype__(sectionId, protoPath);
                 else section[key] = this.makePrototype(section[protoPath], section[key]);
