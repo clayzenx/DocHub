@@ -7,6 +7,7 @@
         "plugins/svg",
         "plugins/bpmnjs",
         "plugins/drawio",
-        "plugins/editable-table"
+        "plugins/editable-table",
+        "plugins/meta-integration"
     ]
 }
