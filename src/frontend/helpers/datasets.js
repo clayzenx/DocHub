@@ -6,8 +6,6 @@ import pathTool from '@global/manifest/tools/path.mjs';
 import env from '@front/helpers/env';
 import compress from '@global/compress/compress.mjs';
 
-const dependencyOf = {};
-
 const compressor = compress({
   // eslint-disable-next-line no-undef
   DecompressionStream,
@@ -45,22 +43,16 @@ export default function() {
       },
       // Драйвер запросов JSONata
       jsonataDriver: query,
-      async parseSource(context, data, subject, params, baseURI, dependency) {
+      async parseSource(context, data, subject, params, baseURI) {
         const sourceType = source.type(data);
-        if (sourceType === 'id') {
-          if (dependency) {
-            const filename = window.Vuex.state.manifest.datasets[data].__uri__;
-            if (!dependencyOf[filename]) dependencyOf[filename] = new Set();
-            dependencyOf[filename].add(dependency);
-          }
-
-          const filename = window.Vuex.state.manifest.datasets[data].__uri__;
-          if (!dependencyOf[filename]) dependencyOf[filename] = new Set();
-          dependencyOf[filename].add(data);
-
+        if (sourceType === 'id' && env.isPlugin()) {
+          const args = { context, data, subject, params, baseURI };
+          return await window.$PAPI.pullFromCache(`{"path":"/datasets/${data}"}`, async() => {
+            return await this.parentParseSource(context, data, subject, params, baseURI);
+          }, args);
+        } else {
+          return await this.parentParseSource(context, data, subject, params, baseURI);
         }
-
-        return await this.parentParseSource(context, data, subject, params, baseURI);
       },
       // Переопределяем метод получения данных для работы с бэком
       getDataOriginal: datasetDriver.getData,
