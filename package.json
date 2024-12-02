@@ -23,7 +23,7 @@
     "lint": "vue-cli-service lint",
     "test": "jest --watch",
     "meta-import": "node src/tools/meta/import.js",
-    "postinstall": "cp -r hooks/* .git/hooks && find plugins -maxdepth 1 -type d -exec sh -c \"cd '{}' && if [ -f package.json ]; then npm install; fi\" \\;",
+    "postinstall": "if test -d \".git\"; then cp -r hooks/* .git/hooks; fi && find plugins -maxdepth 1 -type d -exec sh -c \"cd '{}' && if [ -f package.json ]; then npm install; fi\" \\;",
     "smartants-up": "node src/backend/smartants-main.mjs"
   },
   "dependencies": {
