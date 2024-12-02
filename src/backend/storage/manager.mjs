@@ -1,5 +1,5 @@
 import { logger } from '../utils/logger/index.mjs';
-import manifestParser from '../../global/manifest/parser.mjs';
+import manifestParser from '../../global/manifest/parser2.mjs';
 import cache from './cache.mjs';
 import md5 from 'md5';
 import events from '../helpers/events.mjs';
@@ -66,7 +66,7 @@ export default {
 				for(let nRule in manifest?.roles) {
 					if(app.new_rules[rule] === nRule) {
 						mergeRules = mergeRules.concat(manifest?.roles[nRule]);
-						ids.push(nRule)
+						ids.push(nRule);
 					}
 				}
 			}
@@ -92,7 +92,7 @@ export default {
 			await manifestParser.stopLoad();
 		};
 
-		let createRoleManifest = async function () {
+		let createRoleManifest = async function() {
 			try {
 				// загружаю основной файл с ролями
 				const {URI} =  global.$roles;
@@ -111,7 +111,7 @@ export default {
 			} catch (e) {
 				this.registerError(e, e.uri || uri);
 			}
-		}
+		};
 
 		await createManifest();
 

@@ -9,6 +9,20 @@ import prototype from './prototype.mjs';
 // Кладовка
 // https://github.com/douglascrockford/JSON-js
 
+// Определяет глубину лога источника для секции
+const sectionDeepLog = {
+    forms: 0,
+    namespaces: 0,
+    imports: 0,
+    aspects: 2,
+    docs: 3,
+    contexts: 2,
+    components: 2,
+    entities: 6,
+    rules: 3,
+    datasets: 2,
+    $default$: 2
+};
 class PackageError extends Error {
     constructor(uri, message) {
         super(message);
@@ -32,7 +46,20 @@ const parser = {
     // Обработчик события запуска парсинга манифеста
     onStartReload: null,
     // Публичный корневой объект манифеста
-    manifest: null,
+    _manifest: null,
+    get manifest() {
+        return this._manifest;
+    },
+    set manifest(value) {
+        if(this._manifest && typeof value === 'object') {
+            for(let key in this._manifest) {
+                delete this._manifest[key];
+            }
+            Object.assign(this._manifest, value);
+        } else {
+            this._manifest = value;
+        }
+    },
     // Очищает незадействованные слои в текущей транзакции
     cleanLayers() {
         const result = [];
@@ -62,6 +89,27 @@ const parser = {
     stopLoad() {
         this.rebuildLayers();
         this.onReloaded && this.onReloaded(this);
+    },
+    pushToMergeMap({ path, location, source }) {
+        const structPath = (path || '/').split('/');
+        const storePath = structPath
+          .slice(0, sectionDeepLog[structPath[1] || '$default$'] + 1)
+          .join('/');
+    
+        let locations = this.mergeMap[storePath];
+    
+        !locations && (this.mergeMap[storePath] = locations = []);
+        locations.indexOf(location) < 0 && locations.push(location);
+    
+        if (source && typeof source === 'object') {
+          for (const key in source) {
+            this.pushToMergeMap({
+              path: `${path || ''}/${key}`,
+              location,
+              source: source[key]
+            });
+          }
+        }
     }
 };
 
@@ -79,16 +127,18 @@ parser.cleanLayers = function() {
 
 parser.mergeMap = new Proxy({}, {
     get(target, path) {
-        let node = parser.manifest;
-        if (!node || (typeof path !== 'string') || path.startsWith('__'))
+        if (typeof path !== 'string' || path.startsWith('__')) {
             return target[path];
+        }
+        let node = parser.manifest;
         let uri = null;
         const nodes = path.split('/');
         // if (path.endsWith('summary')) debugger;
         for (const i in nodes) {
+            if (!node) return target[path];
             const nodeId = nodes[i];
             if (!nodeId) continue;
-            if (typeof node === 'object') {
+            if (typeof node === 'object' && !Array.isArray(node)) {
                 uri = node.__uriOf__(nodeId);
             } else break;
             node = node?.[nodeId];
@@ -101,14 +151,16 @@ parser.mergeMap = new Proxy({}, {
 // Создает управляемый объект
 // destination - Объект с которым происходит объединение. Низкий приоритет.
 // source - Объект с которым происходит объединение. Высокий приоритет.
-function ManifestObject(destination, source, owner) {
+function ManifestObject(destination, source, owner, path) {
     // Если объект уже ранее создан другим слоем, встраиваемся в цепочку
     if (destination) {
         this.__proto__ = destination.__self__;
         // destination.__child__ = this;
+    } else {
+        parser.pushToMergeMap({ path, location: owner.uri });
     }
 
-    const makeProp = (propName, value, oldValue) => {
+    const makeProp = (propName, value, oldValue, path) => {
         if (Array.isArray(value)) {
             Object.defineProperty(this, propName, {
                 enumerable: true,
@@ -135,12 +187,13 @@ function ManifestObject(destination, source, owner) {
                     return result;
                 }
             });
+            parser.pushToMergeMap({ path, location: owner.uri, source: value });
         } else if (Boolean(value) && typeof value === 'object') {
             Object.defineProperty(this, propName, {
                 enumerable: true,
                 configurable: true,
                 writable: true,
-                value: createManifestObject(typeof oldValue === 'object' ? oldValue : null, value, owner)
+                value: createManifestObject(typeof oldValue === 'object' ? oldValue : null, value, owner, path)
             });
         } else {
             Object.defineProperty(this, propName, {
@@ -149,20 +202,21 @@ function ManifestObject(destination, source, owner) {
                 writable: true,
                 value
             });
+            parser.pushToMergeMap({ path, location: owner.uri });
         }
     };
 
     // создаем свойства слоя
     for (const propName in source) {
-        makeProp(propName, source[propName], destination?.[propName]);
+        makeProp(propName, source[propName], destination?.[propName], `${path || ''}/${propName}`);
     }
 
     owner.appendObject(this);
 }
 
 // Прокси для объектов манифестов
-const createManifestObject = (destination, source, owner) => {
-    const subject = new ManifestObject(destination, source, owner);
+const createManifestObject = (destination, source, owner, path) => {
+    const subject = new ManifestObject(destination, source, owner, path);
     let $prototype = null;
 
     // Устанавливает прототип по свойству $prototype
@@ -289,6 +343,7 @@ function ManifestLayer(owner) {
     // Монтирует слой в стек
     this.mounted = (parent) => {
         rootObject = createManifestObject(parent?.object, this.manifest, this);
+        parser.pushToMergeMap({ path: '/', location: this.uri });
     };
 
     // Загружает слой 
@@ -341,6 +396,7 @@ parser.registerError = function(e, uri) {
     const errorPath = `$errors/requests/${new Date().getTime()}`;
     // eslint-disable-next-line no-console
     console.error(e, `Ошибка запроса [${errorPath}:${uri}]`, e);
+    parser.pushToMergeMap({path: errorPath, location: uri});
     try {
         if (typeof e === 'string') e = JSON.parse(e);
     } catch (e) { true; }
