@@ -11,6 +11,7 @@ import controllerSmartants from './controllers/smartants.mjs';
 import controllerLogger from './controllers/logger.mjs';
 import controllerProbes from './controllers/probes.mjs';
 import middlewareAccess from './middlewares/access.mjs';
+import manifestMutator from './controllers/manifestMutator.mjs';
 
 const LOG_TAG = 'server';
 
@@ -59,6 +60,11 @@ const mainLoop = async function() {
              // Контроллер логирования
              if (loggerEnabled) {
                  controllerLogger(app);
+             }
+
+             // Мутатор манифеста
+             if (process.env.MANIFEST_MUTATION === 'y') {
+                manifestMutator(app);
              }
 
              // Статические ресурсы
