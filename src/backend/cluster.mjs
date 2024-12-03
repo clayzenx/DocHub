@@ -19,6 +19,9 @@ const LOG_TAG = 'cluster';
 const CHECK_CLUSTER_STATUS_INTERVAL = 5000;
 
 function startWorker(cluster, manifest = null) {
+    // Пришлось переопределить переменную окружения в текущем процессе. Переданные через options env игнорировались.
+    // const workerNodeEnv = Object.assign({}, process.env, { 'NODE_OPTIONS' : process.env.VUE_APP_DOCHUB_CLUSTER_NODE_PARAMS_WORKER });
+    process.env.NODE_OPTIONS = process.env.VUE_APP_DOCHUB_CLUSTER_NODE_PARAMS_WORKER;
     const newWorker = cluster.fork();
     newWorker.once('online',
         () => setTimeout(
@@ -88,11 +91,17 @@ if (cluster.isPrimary) {
 
     const nodeId = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
     logger.log(`Master ${process.pid} with nodeId=${nodeId} is running`, LOG_TAG, 'info');
+    logger.log(`Primary process node params: ${process.execArgv}; and options: ${process.env.NODE_OPTIONS}`, LOG_TAG, 'info');
+
 
     const noRequestsOnLoading = (process.env.VUE_APP_DOCHUB_CLUSTER_NO_REQUESTS_ON_LOADING || 'off') === 'on';
 
     let livenessWorker;
-    let startLivenessWorker = () => livenessWorker = new Worker('./src/backend/cluster/liveness.mjs');
+    const livenessNodeEnv = Object.assign({}, process.env, { 'NODE_OPTIONS' : process.env.VUE_APP_DOCHUB_CLUSTER_NODE_PARAMS_LIVENESS });
+    let startLivenessWorker = () => livenessWorker =
+        new Worker('./src/backend/cluster/liveness.mjs', {
+            env: livenessNodeEnv
+        });
     startLivenessWorker();
     livenessWorker.on('exit', (code) => {
         logger.log(`Liveness worker died with code: ${code}. Restarting...`, LOG_TAG, 'warn');
@@ -138,7 +147,10 @@ if (cluster.isPrimary) {
             return;
         }
 
-        const manifestLoader = new Worker('./src/backend/cluster/manifest-loader.mjs');
+        const manifestLoaderNodeEnv = Object.assign({}, process.env, { 'NODE_OPTIONS' : process.env.VUE_APP_DOCHUB_CLUSTER_NODE_PARAMS_RELOAD });
+        const manifestLoader = new Worker('./src/backend/cluster/manifest-loader.mjs', {
+            env: manifestLoaderNodeEnv
+        });
         isLoading = true;
         cache.updateCommandState('loading manifest');
         spreadReadyz({code: 503, message: {status: 'Loading manifest'}});
@@ -209,6 +221,8 @@ if (cluster.isPrimary) {
     });
 
 } else {
+
+    logger.log(`Worker process node params: ${process.execArgv}; and options: ${process.env.NODE_OPTIONS}`, LOG_TAG, 'info');
 
     const app = express();
     const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;

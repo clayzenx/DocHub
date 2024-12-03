@@ -57,7 +57,8 @@ if (!env.isPlugin()) {
 		{
 			path: '/url=about:blank',
 			redirect() {
-				window.location = new URL('/url=main', window.location);
+        // статический путь для плагина
+				window.location.href = new URL('/url=main', window.location.origin).href;
 			}
 		}
 	);

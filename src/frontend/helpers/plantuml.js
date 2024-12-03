@@ -3,6 +3,7 @@ import axios from 'axios';
 import uri from '@front/helpers/uri';
 import { plantUmlCache } from '@front/helpers/cache';
 import env from '@front/helpers/env';
+import { deflateSync } from 'fflate';
 
 export default {
   prepareRequest(uml) {
@@ -100,9 +101,7 @@ export default {
 		for (var i = 0; i < s.length; i++) {
 			arr.push(s.charCodeAt(i));
 		}
-		// eslint-disable-next-line no-undef
-		let compressor = new Zopfli.RawDeflate(arr);
-		let compressed = compressor.compress();
+		let compressed = deflateSync(arr);
 
 		return toEncode ? this.encode64_(compressed) : compressed;
 	}

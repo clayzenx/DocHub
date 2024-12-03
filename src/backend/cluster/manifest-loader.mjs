@@ -4,6 +4,8 @@ import { parentPort } from 'node:worker_threads';
 
 const LOG_TAG = 'manifest_loader';
 
+logger.log(`Manifest loader process node params: ${process.execArgv}; and options: ${process.env.NODE_OPTIONS}`, LOG_TAG, 'info');
+
 storeManager.reloadManifest(null).then(async(result) => {
     logger.log('Loading manifest finished', LOG_TAG, 'info');
     const app = {};

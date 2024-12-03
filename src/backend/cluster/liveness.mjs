@@ -3,6 +3,7 @@ import { logger } from '../utils/logger/index.mjs';
 
 const LOG_TAG = 'liveness';
 
+logger.log(`Liveness process node params: ${process.execArgv}; and options: ${process.env.NODE_OPTIONS}`, LOG_TAG, 'info');
 
 const livenessPort = process.env.VUE_APP_DOCHUB_LIVENESS_PORT || 8090;
 const app = express();

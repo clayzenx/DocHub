@@ -3,8 +3,8 @@ import '@assets/styles/material_icons.css';
 import '@/node_modules/@mdi/font/css/materialdesignicons.min.css';
 
 // Подсветка синтаксиса
-import '@assets/styles/prism.css';
-import '@assets/libs/prism';
+import '@/node_modules/prismjs/themes/prism.css';
+import '@/node_modules/prismjs/prism';
 
 import Axios from 'axios';
 import Vue from 'vue';
