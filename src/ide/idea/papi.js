@@ -99,7 +99,19 @@ const PAPI = {
   },
   updateCache(key, data) {
     this.request({url: 'plugin:/idea/cache/update', key, data: JSON.stringify(data)});
-  }
+	},
+	// Запрос к IDE: GET - запрос
+	getMetaIntegrationData(url) {
+		return this.request({ url: 'plugin:/idea/meta/data/request', guid: url });
+	},
+	// Запрос к IDE: POST - запрос
+	postDataInMeta(guid, postURL, data) {
+		return this.request({ url: 'plugin:/idea/meta/data/post', guid, postURL, data });
+	},
+	// Запрос к IDE: проверка аутинтификации
+	checkIsAuth(backlink) {
+		return this.request({ url: 'plugin:/idea/meta/auth', backlink });
+	}
 };
 
 // Ищем окружение плагина

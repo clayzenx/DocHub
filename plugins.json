@@ -8,6 +8,7 @@
         "plugins/bpmnjs",
         "plugins/drawio",
         "plugins/editable-table",
-        "plugins/arch-formater"
+        "plugins/arch-formater",
+        "plugins/meta-integration"
     ]
 }
