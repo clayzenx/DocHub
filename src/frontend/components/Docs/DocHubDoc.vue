@@ -14,7 +14,7 @@
         v-bind:profile="profile"
         v-bind:path="currentPath"
         v-bind:get-content="getContentForPlugin"
-        v-bind:put-content="putContentForPlugin"
+        v-bind:put-content="putContent"
         v-bind:to-print="isPrintVersion"
         v-bind:event-bus="eventBus"
         v-bind:pull-data="pullData"
@@ -136,12 +136,31 @@
         return this.$store.state.isPrintVersion;
       },
       putContentForPlugin() {
-        return env.isPlugin() ? (url, content) => {return new Promise((success, reject) => {
-          const fullPath = uriTool.makeURIByBaseURI(url, this.baseURI);
-          window.$PAPI.pushFile(fullPath, content)
-            .then(success)
-            .catch(reject);
-        });} : null;
+        return (url, content) => {
+          return new Promise((success, reject) => {
+            const fullPath = uriTool.makeURIByBaseURI(url, this.baseURI);
+            window.$PAPI.pushFile(fullPath, content)
+              .then(success)
+              .catch(reject);
+          });
+        };
+      },
+      putContentForBackend() {
+        return (url, content) => {
+          const hash = this.baseURI.split('/')[2];
+          return requests.request(`backend://put-content/${hash}`, this.baseURI, {
+            method: 'post',
+            data: {
+              content,
+              url
+            }
+          });
+        };
+      },
+      putContent() {
+        return env.isPlugin()
+          ? this.putContentForPlugin
+          : this.putContentForBackend;
       }
     },
     watch: {
