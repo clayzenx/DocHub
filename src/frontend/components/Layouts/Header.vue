@@ -25,8 +25,8 @@
           <v-icon>refresh</v-icon>
         </v-btn>
       </div>
-      <div v-if="isRolesMode" class="main-layout__header__menu">
-        <v-toolbar-title right offset-y style="cursor: pointer" v-on:click="loginout()">
+      <div class="main-layout__header__menu">
+        <v-toolbar-title v-if="isRolesMode" right offset-y style="cursor: pointer" v-on:click="loginout()">
           {{
             user || 'Login'
           }}
