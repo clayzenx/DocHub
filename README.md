@@ -237,31 +237,6 @@ docker-compose up --build
 
 Теперь вы можете вносить изменения в репозиторий локально и видеть результат изменений в режиме реального времени.
 
-### Для продакшена
-В файле ".env" укажите адрес GitLab в соответствующей переменной:
-```
-VUE_APP_DOCHUB_GITLAB_URL=https://foo.space
-```
-
-Настройте OAuth2 service provider в GitLab. Документацию по настройке можно найти на
-[официальном сайте](https://docs.gitlab.com/ee/integration/oauth_provider.html).
-
-![Пример настройки GitLab](pics/gitoauth.png)
-
-Полученные токены укажите в файле .env в переменных:
-```
-# Идентификатор приложения зарегистрированного в GitLab
-VUE_APP_DOCHUB_APP_ID=5f3...f0
-
-# Секрет приложения
-VUE_APP_DOCHUB_CLIENT_SECRET=1e4...384
-```
-
-Соберите приложение:
-```
-npm run build
-```
-
 # <a name="manifest"></a> Принципы развития продукта
 
 ## Термины

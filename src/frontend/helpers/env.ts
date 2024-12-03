@@ -117,12 +117,6 @@ export default {
   get appendDocHubDocs(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS;
   },
-  get appId(): TEnvValue {
-    return this.dochub.VUE_APP_DOCHUB_APP_ID;
-  },
-  get clientSecret(): TEnvValue {
-    return this.dochub.VUE_APP_DOCHUB_CLIENT_SECRET;
-  },
   // Определяет сервер рендеринга
   get plantUmlServer(): TEnvValue {
     const envValue = this.dochub.VUE_APP_PLANTUML_SERVER || consts.plantuml.DEFAULT_SERVER;

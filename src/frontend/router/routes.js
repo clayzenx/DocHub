@@ -1,9 +1,5 @@
-import cookie from 'vue-cookie';
-
 import Doc from '@front/components/Architecture/Document.vue';
 import Main from '@front/components/Main';
-import config from '@front/config';
-import consts from '@front/consts';
 import Component from '@front/components/Architecture/Component';
 import Aspect from '@front/components/Architecture/Aspect';
 import Context from '@front/components/Architecture/Context';
@@ -17,20 +13,6 @@ import SSOError from '@front/components/sso/SSOError';
 import oidcClient from '@front/auth/oidc-client';
 
 const middleware = (route) => {
-	if (config.oauth !== false && !window.Vuex.state.isOAuthProcess && !window.Vuex.state.access_token) {
-      cookie.set('return-route', JSON.stringify({
-        path: route.path,
-        query: route.query,
-        hash: route.hash
-      }), 1);
-      window.location = new URL(
-			`/oauth/authorize?client_id=${config.oauth.APP_ID}`
-            + '&redirect_uri=' + new URL(consts.pages.OAUTH_CALLBACK_PAGE, window.location)
-            + `&response_type=code&state=none&scope=${config.oauth.REQUESTED_SCOPES}`
-            + '&' + Math.floor(Math.random() * 10000)
-			, config.gitlab_server
-		);
-	}
 
     window.OidcUserManager.getUser().then(user => {
       if (user) {

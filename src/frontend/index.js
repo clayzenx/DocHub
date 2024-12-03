@@ -60,6 +60,7 @@ if (window.DochubVsCodeExt) {
 let store = new Vuex.Store(gitlab);
 
 if (window.DochubVsCodeExt) {
+  //todo: не понятно, почему для vscode используется именно этот store
   VsCode.listener(store);
 }
 

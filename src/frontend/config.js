@@ -3,7 +3,7 @@ import env from '@front/helpers/env';
 // eslint-disable-next-line no-console
 console.info('MAIN ENVIRONMENTS:');
 
-const hiddenEnvs = ['VUE_APP_DOCHUB_CLIENT_SECRET'];
+const hiddenEnvs = [];
 
 for(const key in env.dochub) {
 	// eslint-disable-next-line no-console
@@ -15,24 +15,11 @@ const config = {};
 const reloadConfig = () => {
 	if (env.gitlabUrl) {
 		config.gitlab_server = env.gitlabUrl;
-	
+
 		if (env.personalToken) {
 			// Персональный токен генерируемый пользователем
 			config.personalToken = env.personalToken;
 			config.oauth = false;
-		} else {
-			// Секреты приложения для OAuth авторизации в GitLab
-			if(!env.clientSecret)
-				throw 'Not specified the application secret at GitLab (VUE_APP_DOCHUB_CLIENT_SECRET)';
-	
-			if(!env.appId)
-				throw 'Not specified the application ID at GitLab (VUE_APP_DOCHUB_APP_ID)';
-	
-			config.oauth = {
-				'APP_ID': env.appId,
-				'CLIENT_SECRET': env.clientSecret,
-				'REQUESTED_SCOPES': 'read_repository+api'
-			};
 		}
 	} else if (env.bitbucketUrl) {
 		if (env.personalToken) {
