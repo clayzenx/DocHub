@@ -8,6 +8,7 @@ import path from 'path';
 import fs from 'fs';
 import md5 from 'md5';
 import createRedisClient from '../drivers/redis.mjs';
+import { performance } from 'node:perf_hooks';
 
 const LOG_TAG = 'manifest-cache';
 
@@ -53,11 +54,12 @@ export default Object.assign(prototype, {
     async clearCache(prefix) {
       switch (cacheMode) {
         case 'none': return;
-        case 'memory': memoryCache = {}; break;
+        case 'memory': await this.clearMemoryCache(); break;
         case 'redis':
             // eslint-disable-next-line no-case-declarations
             const keys = await redisClient.keys(`SEAF.cache.${prefix || ''}.*`);
             keys.map((key) => redisClient.del(key));
+            await this.clearMemoryCache();
             break;
         default: {
           const cacheDir = path.resolve(__dirname, '../../../', cacheMode);
@@ -69,6 +71,9 @@ export default Object.assign(prototype, {
           });
         }
       }
+    },
+    async clearMemoryCache() {
+        memoryCache = {};
     },
     // Регистрирует ошибку
     // type         - Секция ошибки (system/syntax/net)
@@ -109,13 +114,20 @@ export default Object.assign(prototype, {
                   || (resolve && (memoryCache[md5Key] = await resolve()));
                 break;
               case 'redis':
-                result = await redisClient.get(md5Key);
-                if (result) {
-                  result = JSON.parse(result);
-                } else {
-                  result = await resolve();
-                  await redisClient.set(md5Key, JSON.stringify(result));
-                }
+                  result = memoryCache[md5Key]?.deref();
+                  if (!result) {
+                      result = await redisClient.get(md5Key);
+                      if (result) {
+                          result = JSON.parse(result);
+                      } else {
+                          const startTime = performance.now();
+                          result = await resolve();
+                          logger.log(`${key} Time: ${performance.now() - startTime}ms`, LOG_TAG, 'debug');
+                          await redisClient.set(md5Key, JSON.stringify(result));
+                      }
+                      // eslint-disable-next-line no-undef
+                      memoryCache[md5Key] = new WeakRef(result);
+                  }
                 break;
               default: {
                 const hash = md5(key);

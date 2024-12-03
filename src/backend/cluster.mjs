@@ -11,6 +11,7 @@ import cluster from 'node:cluster';
 import {Worker} from 'node:worker_threads';
 import storeManager from './storage/manager.mjs';
 import {NodeStatus, ClusterCache} from './cluster/cache.mjs';
+import storageCache from './storage/cache.mjs';
 
 
 const LOG_TAG = 'cluster';
@@ -29,6 +30,8 @@ function startWorker(cluster, manifest = null) {
 async function applyManifest(app, manifest) {
     if (manifest === null)
         return;
+
+    await storageCache.clearMemoryCache();
 
     await storeManager.applyManifest(app, manifest, true, false);
 
@@ -88,7 +91,13 @@ if (cluster.isPrimary) {
 
     const noRequestsOnLoading = (process.env.VUE_APP_DOCHUB_CLUSTER_NO_REQUESTS_ON_LOADING || 'off') === 'on';
 
-    new Worker('./src/backend/cluster/liveness.mjs');
+    let livenessWorker;
+    let startLivenessWorker = () => livenessWorker = new Worker('./src/backend/cluster/liveness.mjs');
+    startLivenessWorker();
+    livenessWorker.on('exit', (code) => {
+        logger.log(`Liveness worker died with code: ${code}. Restarting...`, LOG_TAG, 'warn');
+        startLivenessWorker();
+    });
 
     let manifest = null;
 
@@ -116,7 +125,6 @@ if (cluster.isPrimary) {
     }
 
     // Пробуем перезапустить рабочие воркеры, если они отвалились.
-
     cluster.on('exit', (worker) => {
         logger.log(`Worker ${worker.process.pid} died, restarting`, LOG_TAG, 'warn');
         startWorker(cluster, manifest);
