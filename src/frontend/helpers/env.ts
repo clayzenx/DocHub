@@ -45,6 +45,9 @@ export default {
   backendFileStorageURL(): string {
     return (new URL('/core/storage/', this.backendURL())).toString();
   },
+  smartantsMode() {
+    return (this.isBackendMode() && process.env.VUE_APP_DOCHUB_SMART_ANTS_MODE) ? process.env.VUE_APP_DOCHUB_SMART_ANTS_MODE.toLowerCase() : 'front';
+  },
   isBackendMode() {
     return !this.isPlugin() && (process.env.VUE_APP_DOCHUB_BACKEND_URL || ((process.env.VUE_APP_DOCHUB_MODE || '').toLowerCase() === 'backend'));
   },
@@ -110,7 +113,7 @@ export default {
   get personalToken(): TEnvValue {
     return this.ideSettings?.env?.DOCHUB_IDE_PERSONAL_TOKEN || this.dochub.VUE_APP_DOCHUB_PERSONAL_TOKEN;
   },
-  // 
+  //
   get appendDocHubDocs(): TEnvValue {
     return this.dochub.VUE_APP_DOCHUB_APPEND_DOCHUB_DOCS;
   },

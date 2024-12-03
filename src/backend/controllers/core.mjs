@@ -5,7 +5,7 @@ import queries from '../../global/jsonata/queries.mjs';
 import helpers from './helpers.mjs';
 import compression from '../../global/compress/compress.mjs';
 import {getRoles, getUserName} from '../helpers/jwt.mjs';
-import logger from '../utils/logger.mjs';
+import { logger } from '../utils/logger/index.mjs';
 import {DEFAULT_ROLE, getCurrentRuleId, getCurrentRules, isRolesMode} from '../utils/rules.mjs';
 
 const compressor = compression();
@@ -56,6 +56,11 @@ export default (app) => {
         };
     }
 
+    // Получаем тайтл из переменной окружения
+    app.get('/api/title', (_, res) => {
+      res.json({ title: process.env.VUE_APP_DOCHUB_TITLE || 'SEAF' });
+    });
+
     // Выполняет произвольные запросы 
     app.get('/core/storage/jsonata/:query', async function(req, res) {
         if (!helpers.isServiceReady(app, res)) return;
@@ -81,7 +86,7 @@ export default (app) => {
           time: Date.now() - start,
           originalUrl: req.originalUrl
         });
-        logger.log(jsonLog, LOG_TAG);
+        logger.log(jsonLog, LOG_TAG, 'info');
     });
 
     // Запрос на обновление манифеста
@@ -93,6 +98,9 @@ export default (app) => {
                 error: `Error reload secret is not valid [${reloadSecret}]`
             });
             return;
+        } else if(app.storage?.isCluster) {
+            process.send({type:'manifest_reload'});
+            res.json({ message: 'command sent' });
         } else {
             let userName;
             if(isRolesMode()) {
@@ -110,7 +118,7 @@ export default (app) => {
               time: Date.now() - start,
               originalUrl: req.route.path
             });
-            logger.log(jsonLog, LOG_TAG);
+            logger.log(jsonLog, LOG_TAG, 'info');
         }
     });
 
@@ -179,7 +187,7 @@ export default (app) => {
               time: Date.now() - start,
               originalUrl: req.originalUrl
             });
-            logger.log(jsonLog, LOG_TAG);
+            logger.log(jsonLog, LOG_TAG, 'info');
     });
 
     // Возвращает результат работы валидаторов
@@ -207,7 +215,7 @@ export default (app) => {
           time: Date.now() - start,
           originalUrl: req.originalUrl
         });
-        logger.log(jsonLog, LOG_TAG);
+        logger.log(jsonLog, LOG_TAG, 'info');
     });
 };
 

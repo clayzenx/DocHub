@@ -26,8 +26,8 @@ export default {
         svgImage.style.zIndex = '-999';
         svgImage.onload = () => {
           const canvas = document.createElement('canvas');
-          canvas.width = svgImage.clientWidth;
-          canvas.height = svgImage.clientHeight;
+          canvas.width = svgImage.naturalWidth;
+          canvas.height = svgImage.naturalHeight;
           const canvasCtx = canvas.getContext('2d');
           canvasCtx.drawImage(svgImage, 0, 0);
           const imgData = canvas.toDataURL('image/png');

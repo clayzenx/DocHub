@@ -81,9 +81,24 @@ const PAPI = {
 	pushFile(source, content) {
 		return this.request({ url: 'plugin:/idea/code/push/file', source, content });
 	},
-	// TBD 
+	// TBD
 	pushCode(code, metadata) {
 		return this.request({ url: 'plugin:/idea/code/push/code', code, metadata });
+	},
+  invalidateCache() {
+    this.request({url: 'plugin:/idea/cache/invalidate'});
+  },
+  async pullFromCache(key, resolver, args) {
+    const result = await this.request({url: 'plugin:/idea/cache/pull', key});
+    if (!result) {
+      const dataset = await resolver(args);
+      this.updateCache(key, dataset);
+      return dataset;
+    }
+    return result;
+  },
+  updateCache(key, data) {
+    this.request({url: 'plugin:/idea/cache/update', key, data: JSON.stringify(data)});
 	},
 	// Запрос к IDE: GET - запрос
 	getMetaIntegrationData(url) {

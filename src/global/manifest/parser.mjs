@@ -2,6 +2,8 @@ import * as semver from 'semver';
 import cache from './services/cache.mjs';
 import prototype from './prototype.mjs';
 
+const IMPORT_RETRY_COUNT = process.env.VUE_APP_DOCHUB_IMPORT_RETRY_COUNT || 3;
+const IMPORT_RETRY_TIMEOUT = process.env.VUE_APP_DOCHUB_IMPORT_RETRY_TIMEOUT || 1000;
 
 class PackageError extends Error {
 	constructor(uri, message) {
@@ -212,6 +214,7 @@ const parser = {
 	},
 
 	async parseImports(manifest, baseURI) {
+		const manifestSources = [];
 		for (const key in manifest?.imports || []) {
 			const url = parser.cache.makeURIByBaseURI(manifest.imports[key], baseURI);
 			if (this.loaded[url]) {
@@ -219,9 +222,14 @@ const parser = {
 				console.warn(`Manifest [${url}] already loaded.`);
 			} else {
 				this.loaded[url] = true;
-				await this.import(url, true);
+				manifestSources.push([url, this.loadManifestSource(url)]);
 			}
 		}
+		while (manifestSources.length) {
+			const [url, manifest] = manifestSources.shift();
+			await this.importManifest(url, await manifest);
+		}
+
 	},
 
 	async parseManifest(manifest, uri) {
@@ -344,14 +352,37 @@ const parser = {
 
 	async import(uri) {
 		console.log('import.uri',uri);
-		try {
-			const response = this.onPullSource 
-				? await this.onPullSource(uri, '/', this)
-				: await parser.cache.request(uri, '/');
-			const manifest = response && (typeof response.data === 'object'
-				? response.data
-				: JSON.parse(response.data));
+		const manifest = await this.loadManifestSource(uri);
+		return this.importManifest(uri, manifest);
+	},
 
+	async loadManifestSource(uri) {
+		console.log('load.uri', uri);
+
+		for (let attempt = 0; attempt < IMPORT_RETRY_COUNT; attempt++) {
+			try {
+				const response = this.onPullSource
+					? await this.onPullSource(uri, '/', this)
+					: await parser.cache.request(uri, '/');
+
+				return response && (typeof response.data === 'object'
+					? response.data
+					: JSON.parse(response.data));
+			} catch (e) {
+				console.log(`Failed to load from ${uri}. Attempt ${attempt + 1}/${IMPORT_RETRY_COUNT}`);
+
+				if (attempt + 1 === IMPORT_RETRY_COUNT) {
+					this.registerError(e, e.uri || uri);
+				}
+
+				await new Promise(resolve => setTimeout(resolve, IMPORT_RETRY_TIMEOUT));
+			}
+		}
+	},
+
+	async importManifest(uri, manifest) {
+		console.log('import.manifest',uri);
+		try {
 			// если манифест - пакет
 			if (manifest?.$package) {
 				const $package = manifest.$package;

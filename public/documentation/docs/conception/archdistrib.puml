@@ -2,7 +2,7 @@
 title Управление распределенной архитектурой
 actor "Команда А" as team_a
 actor "Команда B" as team_b
-participant "DocHub" as dochub
+participant "Seaf Archtool" as dochub
 database "Репозиторий\nкода\nкоманды A" as repo_a
 database "Репозиторий\nкода\nкоманды B" as repo_b
 database "Центральный\nрепозиторий\nархитектуры" as repo_main

@@ -315,6 +315,11 @@ export default {
 
             const reloadSourceAll = (data) => {
                 if (data) {
+
+                  if (env.isPlugin()) {
+                    window.$PAPI.invalidateCache();
+                  }
+
                     changes = Object.assign(changes, data);
                     if (refreshTimer) clearTimeout(refreshTimer);
                     refreshTimer = setTimeout(async() => {

@@ -120,7 +120,7 @@
         console.info(route.query);
         this.$router.push({
           params: route.query,
-          query 
+          query
         });
         return false;
       },
@@ -151,7 +151,7 @@
           this.toc = tocHTML;
       },
       prepareMarkdown(content) {
-        // Преобразуем встроенный код в объекты документов 
+        // Преобразуем встроенный код в объекты документов
         return content.replace(/```(\w\w*)(\n|\r)([^`]*)```/gim, (segment, language, br, content) => {
           if (this.availableDocTypes.indexOf(language.toLowerCase()) < 0 ) return segment;
           // eslint-disable-next-line no-debugger
@@ -282,7 +282,7 @@
   color: #fff !important;
 }
 .markdown-document table thead th  {
-  background: rgb(52, 149, 219);
+  background: #00755D;
   color: #fff !important;
   height: 40px;
 }

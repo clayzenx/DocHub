@@ -9,5 +9,5 @@ imports:  # Подключение манифестов
   - rules.yaml
 components:
   dochub: # Корневой компонент (домен)
-    title: DocHub
+    title: Seaf Archtool
     entity: component

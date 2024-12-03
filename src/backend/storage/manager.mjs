@@ -1,5 +1,5 @@
-import logger from '../utils/logger.mjs';
-import manifestParser from '../../global/manifest/parser.mjs';
+import { logger } from '../utils/logger/index.mjs';
+import manifestParser from '../../global/manifest/parser2.mjs';
 import cache from './cache.mjs';
 import md5 from 'md5';
 import events from '../helpers/events.mjs';
@@ -7,27 +7,28 @@ import validators from '../helpers/validators.mjs';
 import entities from '../entities/entities.mjs';
 import objectHash from 'object-hash';
 import '../helpers/env.mjs';
-
-import jsonataDriver from '../../global/jsonata/driver.mjs';
+import jsonataDriver from '../helpers/jsonata.mjs';
 import jsonataFunctions from '../../global/jsonata/functions.mjs';
-import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from "../utils/rules.mjs";
+import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import uriTool from '../helpers/uri.mjs';
+import datasetsWarmup from '../cluster/datasets-warmup.mjs';
+
 const LOG_TAG = 'storage-manager';
 
-manifestParser.cache = cache;
 
+manifestParser.cache = cache;
 manifestParser.onError = (error) => {
 	logger.error(`Error of loading manifest ${error}`, LOG_TAG);
 };
 
 // eslint-disable-next-line no-unused-vars
 manifestParser.onStartReload = (parser) => {
-	logger.log('Manifest start reloading', LOG_TAG);
+	logger.log('Manifest start reloading', LOG_TAG, 'info');
 };
 
 // eslint-disable-next-line no-unused-vars
 manifestParser.onReloaded = (parser) => {
-	logger.log('Manifest is reloaded', LOG_TAG);
+	logger.log('Manifest is reloaded', LOG_TAG, 'info');
 };
 
 export default {
@@ -65,7 +66,7 @@ export default {
 				for(let nRule in manifest?.roles) {
 					if(app.new_rules[rule] === nRule) {
 						mergeRules = mergeRules.concat(manifest?.roles[nRule]);
-						ids.push(nRule)
+						ids.push(nRule);
 					}
 				}
 			}
@@ -78,7 +79,7 @@ export default {
 	},
 	reloadManifest: async function(app) {
 
-		logger.log('Run full reload manifest', LOG_TAG);
+		logger.log('Run full reload manifest', LOG_TAG, 'info');
 		// Загрузку начинаем с виртуального манифеста
 		cache.errorClear();
 		let storageManifest = {};
@@ -91,7 +92,7 @@ export default {
 			await manifestParser.stopLoad();
 		};
 
-		let createRoleManifest = async function () {
+		let createRoleManifest = async function() {
 			try {
 				// загружаю основной файл с ролями
 				const {URI} =  global.$roles;
@@ -110,7 +111,7 @@ export default {
 			} catch (e) {
 				this.registerError(e, e.uri || uri);
 			}
-		}
+		};
 
 		await createManifest();
 
@@ -125,7 +126,7 @@ export default {
 
 		entities(baseManifest);
 
-		logger.log('Full reload is done', LOG_TAG);
+		logger.log('Full reload is done', LOG_TAG, 'info');
 		const result = {
 			manifest: baseManifest, // Сформированный манифест
 			hash: objectHash(baseManifest), // HASH состояния для контроля в кластере
@@ -139,7 +140,7 @@ export default {
 		};
 
 		// Выводим информацию о текущем hash состояния
-		logger.log(`Hash of manifest is ${result.hash}`, LOG_TAG);
+		logger.log(`Hash of manifest is ${result.hash}`, LOG_TAG, 'info');
 
 		// Если есть ошибки загрузки, то дергаем callback 
 		result.problems.length && events.onFoundLoadingError();
@@ -153,13 +154,21 @@ export default {
 		}
 		return result;
 	},
-	applyManifest: async function(app, storage) {
+	applyManifest: async function(app, storage, isCluster = false, isPrimary = false) {
 		app.storage = storage;  // Инициализируем данные хранилища
 		this.resetCustomFunctions(storage.manifest);
 		app.storage.roles = [];
-		validators(app);        // Выполняет валидаторы
+		if (isCluster && isPrimary) {
+			await datasetsWarmup(app);
+		}
+		if (!isCluster || isPrimary) {
+			await validators(app);        // Выполняет валидаторы
+		}
 		Object.freeze(app.storage);
-		this.onApplyManifest.map((listener) => listener(app));
+
+		if (!isCluster || !isPrimary) {
+			this.onApplyManifest.map((listener) => listener(app));
+		}
 	},
 	cleanStorage(app) {
 		this.cacheFunction = null;

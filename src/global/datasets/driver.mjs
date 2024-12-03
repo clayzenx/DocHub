@@ -21,6 +21,7 @@ export default {
 			throw 'jsonataDriver is not implemented in the dataset module :(';
 		}
 	},
+	traceJsonata: false,
 	// Драйвер запросов
 	// eslint-disable-next-line no-unused-vars
 	request(url, baseURI) {
@@ -40,7 +41,7 @@ export default {
 					resolve(JSON.parse(JSON.stringify(data)));
 					break;
 				case 'jsonata-query': {
-					const exp = this.jsonataDriver.expression(data, subject, params);
+					const exp = this.jsonataDriver.expression(data, subject, params, this.traceJsonata);
 					exp.onError = reject;
 					exp.evaluate(context)
 						.then((result) => resolve(result))
