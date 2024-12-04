@@ -3,8 +3,11 @@
 // в манифестах
 
 import cache from './services/cache.mjs'; // Сервис управления кэшем
+import logger from './services/logger.mjs'; // Сервис управления логами
 import * as semver from 'semver'; // Управление версиями  
 import prototype from './prototype.mjs';
+
+const LOG_TAG = 'manifest-parser';
 
 // Кладовка
 // https://github.com/douglascrockford/JSON-js
@@ -33,6 +36,7 @@ class PackageError extends Error {
 
 // Парсер манифестов
 const parser = {
+    logger,
     checkLoaded() { return true; },
     checkAwaitedPackages() { return true; },
     // Корневые страницы
@@ -271,6 +275,7 @@ const createManifestObject = (destination, source, owner, path) => {
 
 // Объект файла манифеста
 function ManifestLayer(owner) {
+    parser.logger.log(`manifest layer ${owner?.uri || '/'} created`, LOG_TAG, 'verbose');
     // Текущий идентификатор ресурса слоя
     this.uri = null;
     // Текущий статус слоя
@@ -305,6 +310,7 @@ function ManifestLayer(owner) {
 
     // Подключаем импортируемые манифесты
     const imports = () => {
+        parser.logger.log(`manifest imports: ${this.manifest.imports || []}`, LOG_TAG, 'verbose');
         return new Promise((success, reject) => {
             const imports = this.manifest.imports || [];
             const limit = Math.max(imports.length, this.imported.length);
@@ -323,7 +329,7 @@ function ManifestLayer(owner) {
                 } else if (imported_?.uri === !!uri) { // !!!!!!!!!!!!!!!!!!!!
                     const message = `Манифест [${uri}] уже подключен в [${parser.loaded[uri].parent.uri}].`;
                     // eslint-disable-next-line no-console
-                    console.warn(message);
+                    parser.logger.log(message, LOG_TAG, 'warn');
                 } else if (uri !== imported_?.uri) { // Если слой занят другим манифестом перестраиваем его или создаем новый
                     ++counter;
                     !imported_ && (this.imported[i] = imported_ = new ManifestLayer(this));
@@ -348,6 +354,8 @@ function ManifestLayer(owner) {
 
     // Загружает слой 
     this.reload = (uri) => {
+        parser.logger.log(`manifest layer ${uri || '/'} is reloading...`, LOG_TAG, 'verbose');
+
         return new Promise((success, reject) => {
             // Указываем в рамках какой транзакции преобразование
             this.transaction = parser.transaction;
@@ -395,7 +403,7 @@ function ManifestLayer(owner) {
 parser.registerError = function(e, uri) {
     const errorPath = `$errors/requests/${new Date().getTime()}`;
     // eslint-disable-next-line no-console
-    console.error(e, `Ошибка запроса [${errorPath}:${uri}]`, e);
+    parser.logger.log(`Ошибка запроса [${errorPath}:${uri}] ${e}`, LOG_TAG, 'error');
     parser.pushToMergeMap({path: errorPath, location: uri});
     try {
         if (typeof e === 'string') e = JSON.parse(e);
@@ -463,6 +471,8 @@ parser.findLayers = function(callback) {
 };
 
 parser.pushRequest = function(uri, owner) {
+    parser.logger.log(`manifest layer ${uri || '/'} added in queue`, LOG_TAG, 'verbose');
+
     // Проверяем не загружен ли уже ресурс
     const loadedLayer = this.findLayers((layer) => {
         return (layer !== owner) && (layer.transaction === parser.transaction) && (layer.uri === uri);
@@ -495,6 +505,7 @@ parser.pushRequest = function(uri, owner) {
 
 // Пересобирает слои из графа страниц
 parser.rebuildLayers = function() {
+    parser.logger.log(`rebuilding layers...`, LOG_TAG, 'verbose');
     let level = 0;
 
     // Страницы ожидающие разрешения зависимостей
@@ -527,6 +538,7 @@ parser.rebuildLayers = function() {
 
     // Функция монтирования слоя
     const mountLayer = (layer) => {
+        parser.logger.log(`layer ${layer.uri || '/'} is mounted`, LOG_TAG, 'verbose');
         layer.mounted(this.layers[level - 1]);
         this.layers[level] = layer;
         ++level;
@@ -534,6 +546,8 @@ parser.rebuildLayers = function() {
 
     // Функция разрешения зависимостей
     const resolveDeps = (layer) => {
+        parser.logger.log(`resolveDeps in ${layer.uri || '/'}`, LOG_TAG, 'verbose');
+
         // Если все зависимости разрешены
         if (getUnresolvedDeps(layer)) {
             captives.indexOf(layer) < 0 && captives.push(layer); // Если не вышло, записываемся в ждуны
@@ -627,7 +641,7 @@ parser.onChange = async function(sources) {
         this.onReloaded && this.onReloaded(this);
     } else {
         // eslint-disable-next-line no-console
-        console.info('>>>>>> No found layer for ', sources);
+        parser.logger.log(`No found layer for ${sources}`, LOG_TAG, 'info');
     }
 };
 
@@ -635,6 +649,7 @@ parser.onChange = async function(sources) {
 // Импорт манифеста по идентификатору ресурса
 //	uri - идентификатор ресурса
 parser.import = async function(uri) {
+    parser.logger.log(`import manifest ${uri}`, LOG_TAG, 'info');
     try {
         // Создаем рутовую страницу
         const rooLayer = new ManifestLayer();

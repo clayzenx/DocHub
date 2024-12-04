@@ -15,7 +15,7 @@ import datasetsWarmup from '../cluster/datasets-warmup.mjs';
 
 const LOG_TAG = 'storage-manager';
 
-
+manifestParser.logger = logger;
 manifestParser.cache = cache;
 manifestParser.onError = (error) => {
 	logger.error(`Error of loading manifest ${error}`, LOG_TAG);
