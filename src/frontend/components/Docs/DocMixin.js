@@ -85,7 +85,7 @@ export default {
                     const sourceBasePath = uriTool.getBaseURIOfPath(`${this.path}/source`) || this.baseURI;
                     this.source.provider.getData(null, this.profile, this.params, sourceBasePath)
                         .then((dataset) => {
-                            this.source.dataset = dataset;
+                            this.source.dataset = typeof dataset === 'string' ? JSON.parse(dataset) : dataset;
                             this.source.status = SOURCE_READY;
                             success(dataset);
                         })
