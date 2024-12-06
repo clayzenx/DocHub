@@ -7,6 +7,10 @@ import compression from '../../global/compress/compress.mjs';
 import {getRoles, getUserName} from '../helpers/jwt.mjs';
 import { logger } from '../utils/logger/index.mjs';
 import {DEFAULT_ROLE, getCurrentRuleId, getCurrentRules, isRolesMode} from '../utils/rules.mjs';
+import { prepareRequestBody } from '../middlewares/prepareRequestBody.mjs';
+import bitbucket from '../helpers/bitbucket.mjs';
+import axios from 'axios';
+import { checkRepositoryAPI } from '../middlewares/checkRepositoryAPI.mjs';
 
 const compressor = compression();
 
@@ -217,5 +221,63 @@ export default (app) => {
         });
         logger.log(jsonLog, LOG_TAG, 'info');
     });
+
+    // Создает коммит в репозитории
+    app.post(
+        '/core/storage/put-content/:hash',
+        checkRepositoryAPI,
+        prepareRequestBody,
+        async function requestBitbucket(req, res) {
+            const hash = req.params.hash || '$unknown$';
+            const startPath = app.storage?.md5Map[hash]
+                .split('@')[1]
+                .split('/')
+                .slice(0, -1)
+                .join('/');
+
+            const userName = getUserName(req.headers);
+            const { url, content } = req.body;
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+            const [protocol, projectID, repositoryID, source] =
+                process.env.VUE_APP_DOCHUB_ROOT_MANIFEST.split(':');
+
+            const [branch] = source.split('@');
+            const requestUri = bitbucket.makeSourceURI(projectID, repositoryID);
+
+            const data = new URLSearchParams();
+            data.append('branch', branch);
+            data.append('author', userName ?? '');
+
+            if (url) {
+                data.append(`/${startPath}/` + url, content);
+            } else {
+                for (let url in content) {
+                    data.append(`/${startPath}/` + url, content[url]);
+                }
+            }
+
+            try {
+                const result = await axios({
+                    method: 'POST',
+                    url: requestUri.toString(),
+                    data
+                });
+
+                const uri = app.storage.md5Map[hash];
+                const layer = app.storage.findLayers((layer) => layer.uri === uri);
+                const layersToUpdate = layer.owner?.imported
+                    .map(({ uri }) => uri)
+                    .filter((uri) => uri !== layer.uri);
+
+                await app.storage.onChange(layersToUpdate);
+
+                res.status(result.status).json({message: result.statusText});
+            } catch (err) {
+                res.status(err.response.status).json(err.response.data);
+            }
+
+        }
+    );
 };
 

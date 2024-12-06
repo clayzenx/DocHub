@@ -1,5 +1,5 @@
-export default function (config) {
-    this.axiosInterceptor = async (params) => {
+export default function(config) {
+    this.axiosInterceptor = async(params) => {
         if (config.bitbucket_server && ((new URL(params.url)).host === (new URL(config.bitbucket_server)).host)) {
             if (!params.headers) params.headers = {};
             // eslint-disable-next-line no-undef
@@ -21,5 +21,13 @@ export default function (config) {
             , config.bitbucket_server);
         const is_bitbacket_v2 = (process.env.VUE_APP_DOCHUB_BITBUCKET_V2 || 'N').toUpperCase() === 'Y';
         return is_bitbacket_v2 ? result_v2 : result_v1;
+    };
+
+    this.makeSourceURI = (projectID, repositoryId) => {
+        const result_v2 = new URL(
+            `/2.0/repositories/${projectID}/${repositoryId}/src`,
+            config.bitbucket_server
+        );
+        return result_v2;
     };
 }

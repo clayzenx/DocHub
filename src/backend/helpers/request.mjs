@@ -65,7 +65,7 @@ function getContentType(url) {
 //  url         - ссылка на ресурс
 //  baseUIR     - базовый URI 
 //  response    - Express response. Если установлен, то запрос будет работать как прокси.
-async function request(url, baseURI, response) {
+async function request(url, baseURI, response, params = {}) {
     // Разбираем URL
     let uri = null;
     if (baseURI) {
@@ -103,7 +103,7 @@ async function request(url, baseURI, response) {
         if (response) {
             let result = null;
             try {
-                result = await axios({ url, responseType: 'stream' });
+                result = await axios({ url, responseType: 'stream', ...params });
                 const contentType = getContentType(url);
                 contentType && response.setHeader('content-type', contentType);
                 return result.data.pipe(response);

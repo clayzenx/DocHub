@@ -18,6 +18,16 @@
       v-bind:page-size="profile.page_size ?? 20"
       v-bind:filtration="profile.filtration ?? true"
       v-on:on-save="saveTableToFiles" />
+
+    <v-dialog v-if="isBackendMode" v-model="isDialogOpen" max-width="400" v-bind:persistent="!commitStatus">
+      <spinner v-if="commitStatus === null" />
+      <v-alert v-else-if="commitStatus === 201" type="success" class="alert">
+        Данные сохранены
+      </v-alert>
+      <v-alert v-else type="error" class="alert">
+        Ошибка при сохранении данных в репозиторий
+      </v-alert>
+    </v-dialog>
   </div>
 </template>
 
@@ -26,10 +36,12 @@
   import env, { Plugins } from '@front/helpers/env';
   import { mergeHeaders, parseSelectOptions, prepareTableData } from '../lib/helpers';
   import Table from './Table/Table.vue';
+  import Spinner from '@/src/frontend/components/Controls/Spinner.vue';
 
   export default {
     components: {
-      'dh-table': Table
+      'dh-table': Table,
+      'spinner': Spinner
     },
     props: {
       profile: {
@@ -53,11 +65,22 @@
 
     data() {
       return {
+        isBackendMode: env.isBackendMode(),
         isDataLoaded: false,
         tableData: {},
         tableHeaders: [],
-        errorMessage: null
+        errorMessage: null,
+        commitStatus: null,
+        isDialogOpen: false
       };
+    },
+
+    watch: {
+      isDialogOpen(cur, prev) {
+        if (cur === false && prev === true) {
+          this.commitStatus = null;
+        }
+      }
     },
 
     mounted() {
@@ -75,13 +98,13 @@
 
         const { body, headers: sourceHeaders } = data;
 
-        if(!this.profile.headers?.length && !sourceHeaders?.length) {
+        if (!this.profile.headers?.length && !sourceHeaders?.length) {
           this.errorMessage = 'Не заполнены заголовки (headers) для таблицы';
           this.isDataLoaded = true;
           return;
         }
 
-        const headers =  mergeHeaders(this.profile.headers, sourceHeaders);
+        const headers = mergeHeaders(this.profile.headers, sourceHeaders);
         const formatedHeaders = await this.formatHeaders(headers);
 
         if (this.errorMessage) {
@@ -137,8 +160,8 @@
             }
           };
 
-          if(editable) {
-            if(!save || !save?.path || !save?.entity) {
+          if (editable) {
+            if (!save || !save?.path || !save?.entity) {
               this.errorMessage = `Не заполнены опции сохранения ("save") для редактируемой колонки ("editable: true"). Проверте значение "save" для "${value}"`;
               return;
             }
@@ -194,10 +217,10 @@
         return this.getContent(path)
           .then((res) => {
             let data;
-            if (env.isPlugin(Plugins.vscode)) {
-              data = yaml.parse(res.data);
-            } else {
+            if (env.isPlugin(Plugins.idea)) {
               data = res.data;
+            } else {
+              data = yaml.parse(res.data);
             }
             return data;
           })
@@ -276,6 +299,8 @@
       },
 
       async saveTableToFiles() {
+        this.isDialogOpen = true;
+
         const pathList = this.getPathList();
 
         Promise.all(pathList.map((path) => this.getDataFromFile(path)))
@@ -285,19 +310,21 @@
           .then((slices) => Object.assign({}, ...slices))
           .then((slicedData) => {
             this.mergeDataTable(slicedData);
+
+            for (let path in slicedData) {
+              slicedData[path] = yaml.stringify(slicedData[path]);
+            }
+
             return slicedData;
           })
           .then((updatedSlicedData) => {
+            if (env.isBackendMode()) {
+              return this.putContent(null, updatedSlicedData)
+                .then(res => this.commitStatus = res.status)
+                .catch(() => this.commitStatus = 400);
+            }
             for (let path in updatedSlicedData) {
-              if (!updatedSlicedData[path]) {
-                continue;
-              }
-              const slice =
-                Object.keys(updatedSlicedData[path]).length === 0
-                  ? ''
-                  : yaml.stringify(updatedSlicedData[path]);
-
-              this.putContent(path, slice);
+              this.putContent(path, updatedSlicedData[path]);
             }
           });
       }
@@ -323,5 +350,9 @@
 .action-block {
   display: flex;
   gap: 8px;
+}
+
+.alert {
+  margin: 0;
 }
 </style>

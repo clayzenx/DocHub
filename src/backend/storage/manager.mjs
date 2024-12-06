@@ -128,7 +128,7 @@ export default {
 
 		logger.log('Full reload is done', LOG_TAG, 'info');
 		const result = {
-			manifest: baseManifest, // Сформированный манифест
+			...manifestParser,
 			hash: objectHash(baseManifest), // HASH состояния для контроля в кластере
 			mergeMap: {},								// Карта склейки объектов
 			md5Map: {}, 								// Карта путей к ресурсам по md5 пути

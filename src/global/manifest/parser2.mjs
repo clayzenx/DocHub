@@ -50,20 +50,7 @@ const parser = {
     // Обработчик события запуска парсинга манифеста
     onStartReload: null,
     // Публичный корневой объект манифеста
-    _manifest: null,
-    get manifest() {
-        return this._manifest;
-    },
-    set manifest(value) {
-        if(this._manifest && typeof value === 'object') {
-            for(let key in this._manifest) {
-                delete this._manifest[key];
-            }
-            Object.assign(this._manifest, value);
-        } else {
-            this._manifest = value;
-        }
-    },
+    manifest: null,
     // Очищает незадействованные слои в текущей транзакции
     cleanLayers() {
         const result = [];
@@ -94,6 +81,48 @@ const parser = {
         this.rebuildLayers();
         this.onReloaded && this.onReloaded(this);
     },
+    
+
+    // ************************************************************************
+    // 				Обработка событий точечных изменений
+    // ************************************************************************
+    // Функция вызывается извне при изменении в источника
+    // sources - массив с URI изменившихся источников
+    isChangeProcessing: false,
+    onChange: async function(sources) {
+        if (!sources && !sources.length) return;
+        // Флаг изменений
+        let isAffected = false;
+        // Увеличиваем индекс транзакции
+        this.transaction++;
+        for (const i in this.layers) {
+            const layer = this.layers[i];
+            // Если слой уже был затронут текущей транзакцией не трогаем его
+            if (layer.transaction === this.transaction) continue;
+            // Если слой входит в список изменений - перезагружаем его
+            // eslint-disable-next-line no-console
+            if (sources.indexOf(layer.uri) >= 0) {
+                // eslint-disable-next-line no-console
+                isAffected = true;
+                try {
+                    await layer.reload(layer.uri);
+                } catch (e) {
+                    this.registerError(e, e?.uri || layer.uri);
+                }
+            }
+        }
+        // Если в данных есть изменения - перестраиваем слои
+        if (isAffected) {
+            // Вызываем слушателя начала обновления данных в манифесте
+            this.onStartReload && this.onStartReload();
+            this.rebuildLayers();
+            // Вызываем слушателя окончания обновления данных в манифесте
+            this.onReloaded && this.onReloaded(this);
+        } else {
+            // eslint-disable-next-line no-console
+            parser.logger.log(`No found layer for ${sources}`, LOG_TAG, 'info');
+        }
+    },
     pushToMergeMap({ path, location, source }) {
         const structPath = (path || '/').split('/');
         const storePath = structPath
@@ -116,18 +145,6 @@ const parser = {
         }
     }
 };
-
-//  
-// Очищает незадействованные слои в текущей транзакции
-parser.cleanLayers = function() {
-    const result = [];
-    this.layers.map((layer) => {
-        if (layer.transaction === this.transaction) {
-            result.push(layer);
-        } else layer.free();
-    });
-};
-
 
 parser.mergeMap = new Proxy({}, {
     get(target, path) {
@@ -602,49 +619,6 @@ parser.rebuildLayers = function() {
     const topObject = this.layers[level - 1]?.object;
     this.manifest = prototype.expandAll(Object.assign({ __uriOf__: topObject.__uriOf__ }, topObject));
 };
-
-
-// ************************************************************************
-// 				Обработка событий точечных изменений
-// ************************************************************************
-// Функция вызывается извне при изменении в источника
-// sources - массив с URI изменившихся источников
-parser.isChangeProcessing = false;
-parser.onChange = async function(sources) {
-    if (!sources && !sources.length) return;
-    // Флаг изменений
-    let isAffected = false;
-    // Увеличиваем индекс транзакции
-    this.transaction++;
-    for (const i in this.layers) {
-        const layer = this.layers[i];
-        // Если слой уже был затронут текущей транзакцией не трогаем его
-        if (layer.transaction === this.transaction) continue;
-        // Если слой входит в список изменений - перезагружаем его
-        // eslint-disable-next-line no-console
-        if (sources.indexOf(layer.uri) >= 0) {
-            // eslint-disable-next-line no-console
-            isAffected = true;
-            try {
-                await layer.reload(layer.uri);
-            } catch (e) {
-                this.registerError(e, e?.uri || layer.uri);
-            }
-        }
-    }
-    // Если в данных есть изменения - перестраиваем слои
-    if (isAffected) {
-        // Вызываем слушателя начала обновления данных в манифесте
-        this.onStartReload && this.onStartReload();
-        parser.rebuildLayers();
-        // Вызываем слушателя окончания обновления данных в манифесте
-        this.onReloaded && this.onReloaded(this);
-    } else {
-        // eslint-disable-next-line no-console
-        parser.logger.log(`No found layer for ${sources}`, LOG_TAG, 'info');
-    }
-};
-
 
 // Импорт манифеста по идентификатору ресурса
 //	uri - идентификатор ресурса
