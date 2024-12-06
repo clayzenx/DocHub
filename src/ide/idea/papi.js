@@ -90,12 +90,12 @@ const PAPI = {
   },
   async pullFromCache(key, resolver, args) {
     const result = await this.request({url: 'plugin:/idea/cache/pull', key});
-    if (!result) {
+    if (!result.data) {
       const dataset = await resolver(args);
       this.updateCache(key, dataset);
       return dataset;
     }
-    return result;
+    return result.data ?? null;
   },
   updateCache(key, data) {
     this.request({url: 'plugin:/idea/cache/update', key, data: JSON.stringify(data)});
