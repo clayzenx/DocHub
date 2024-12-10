@@ -28,9 +28,13 @@ class BackendEntities extends BaseEntities {
 
 
 // Регистрирует кастомные сущности
-export default function(manifest) {
+export default function(manifest, schema) {
   const entities = new BackendEntities();
   entities.registerEntities(entities);
   entities.setManifest(manifest);
-  void entities.reloadSchema();
+  if (schema) {
+    entities.updateSchema(schema);
+  } else {
+    void entities.reloadSchema();
+  }
 }
