@@ -16,36 +16,41 @@
   import DocMixin from './DocMixin';
 
   import {diagram} from '@mermaid-js/mermaid-mindmap/dist/diagram-definition.ae1f7a29.js';
-  import {diagram as architecture_diagram} from 'mermaid/dist/chunks/mermaid.core/architectureDiagram-AYX4OTIS';
-  import {diagram as c4Diagram} from 'mermaid/dist/chunks/mermaid.core/c4Diagram-GPMAACGM';
-  import {diagram as classDiagram} from 'mermaid/dist/chunks/mermaid.core/classDiagram-FEGYTUDG';
-  import {diagram as classDiagram_v2} from 'mermaid/dist/chunks/mermaid.core/classDiagram-v2-R65JCUOM';
-  import {render as dagreDiagram} from 'mermaid/dist/chunks/mermaid.core/dagre-SWNTG5WE';
-  import {diagram as diagramDiagram} from 'mermaid/dist/chunks/mermaid.core/diagram-NZMEDLQF';
-  import {diagram as erDiagram} from 'mermaid/dist/chunks/mermaid.core/erDiagram-WO52GFNT';
-  import {diagram as flowDiagram} from 'mermaid/dist/chunks/mermaid.core/flowDiagram-TSWR6T2D';
-  import {diagram as ganttDiagram} from 'mermaid/dist/chunks/mermaid.core/ganttDiagram-FAOCOTIY';
-  import {diagram as gitGraphDiagram} from 'mermaid/dist/chunks/mermaid.core/gitGraphDiagram-5C7YHVU6';
-  import {diagram as infoDiagram} from 'mermaid/dist/chunks/mermaid.core/infoDiagram-P5D6MX3V';
-  import {diagram as journeyDiagram} from 'mermaid/dist/chunks/mermaid.core/journeyDiagram-UIGPPNLY';
-  import {diagram as kanbanDiagram} from 'mermaid/dist/chunks/mermaid.core/kanban-definition-KMT3NSR2';
-  import {diagram as mindmapDiagram} from 'mermaid/dist/chunks/mermaid.core/mindmap-definition-R7LC4OIY';
-  import {diagram as pieDiagram} from 'mermaid/dist/chunks/mermaid.core/pieDiagram-BLWKPB35';
-  import {diagram as quadrantDiagram} from 'mermaid/dist/chunks/mermaid.core/quadrantDiagram-QXWEEFXS';
-  import {diagram as requirementDiagram} from 'mermaid/dist/chunks/mermaid.core/requirementDiagram-XAUNFCZY';
-  import {diagram as sankeyDiagram} from 'mermaid/dist/chunks/mermaid.core/sankeyDiagram-LVV36NHA';
-  import {diagram as sequenceDiagram} from 'mermaid/dist/chunks/mermaid.core/sequenceDiagram-D25TJ2OB';
-  import {diagram as stateDiagram} from 'mermaid/dist/chunks/mermaid.core/stateDiagram-GNSP7T6Y';
-  import {diagram as stateDiagram_v2} from 'mermaid/dist/chunks/mermaid.core/stateDiagram-v2-HP6YRVRG';
-  import {diagram as timelineDiagram} from 'mermaid/dist/chunks/mermaid.core/timeline-definition-27KQCCZ3';
-  import {diagram as xychartDiagram} from 'mermaid/dist/chunks/mermaid.core/xychartDiagram-MYLB5AYS';
-  import {diagram as blockDiagram} from 'mermaid/dist/chunks/mermaid.core/blockDiagram-XN6IQ5JY';
-
+  import {diagram as architecture_diagram} from 'mermaid/dist/chunks/mermaid.core/architectureDiagram-UYN6MBPD';
+  import {diagram as c4Diagram} from 'mermaid/dist/chunks/mermaid.core/c4Diagram-6F5ED5ID';
+  import {diagram as classDiagram} from 'mermaid/dist/chunks/mermaid.core/classDiagram-LNE6IOMH';
+  import {diagram as classDiagram_v2} from 'mermaid/dist/chunks/mermaid.core/classDiagram-v2-MQ7JQ4JX';
+  import {render as dagreDiagram} from 'mermaid/dist/chunks/mermaid.core/dagre-4EVJKHTY';
+  import {diagram as diagramDiagram} from 'mermaid/dist/chunks/mermaid.core/diagram-QW4FP2JN';
+  import {diagram as erDiagram} from 'mermaid/dist/chunks/mermaid.core/erDiagram-6RL3IURR';
+  import {diagram as flowDiagram} from 'mermaid/dist/chunks/mermaid.core/flowDiagram-7ASYPVHJ';
+  import {diagram as ganttDiagram} from 'mermaid/dist/chunks/mermaid.core/ganttDiagram-NTVNEXSI';
+  import {diagram as gitGraphDiagram} from 'mermaid/dist/chunks/mermaid.core/gitGraphDiagram-NRZ2UAAF';
+  import {diagram as infoDiagram} from 'mermaid/dist/chunks/mermaid.core/infoDiagram-A4XQUW5V';
+  import {diagram as journeyDiagram} from 'mermaid/dist/chunks/mermaid.core/journeyDiagram-G5WM74LC';
+  import {diagram as kanbanDiagram} from 'mermaid/dist/chunks/mermaid.core/kanban-definition-QRCXZQQD';
+  import {diagram as mindmapDiagram} from 'mermaid/dist/chunks/mermaid.core/mindmap-definition-GWI6TPTV';
+  import {diagram as pieDiagram} from 'mermaid/dist/chunks/mermaid.core/pieDiagram-YF2LJOPJ';
+  import {diagram as quadrantDiagram} from 'mermaid/dist/chunks/mermaid.core/quadrantDiagram-OS5C2QUG';
+  import {diagram as requirementDiagram} from 'mermaid/dist/chunks/mermaid.core/requirementDiagram-MIRIMTAZ';
+  import {diagram as sankeyDiagram} from 'mermaid/dist/chunks/mermaid.core/sankeyDiagram-Y46BX6SQ';
+  import {diagram as sequenceDiagram} from 'mermaid/dist/chunks/mermaid.core/sequenceDiagram-G6AWOVSC';
+  import {diagram as stateDiagram} from 'mermaid/dist/chunks/mermaid.core/stateDiagram-MAYHULR4';
+  import {diagram as stateDiagram_v2} from 'mermaid/dist/chunks/mermaid.core/stateDiagram-v2-4JROLMXI';
+  import {diagram as timelineDiagram} from 'mermaid/dist/chunks/mermaid.core/timeline-definition-U7ZMHBDA';
+  import {diagram as xychartDiagram} from 'mermaid/dist/chunks/mermaid.core/xychartDiagram-6QU3TZC5';
+  import {diagram as blockDiagram} from 'mermaid/dist/chunks/mermaid.core/blockDiagram-ZHA2E4KO';
   /*
   mermaid.initialize({
     startOnLoad:true
   });
   */
+
+  mermaid.initialize({
+    flowchart: {
+      htmlLabels: false
+    }
+  });
 
 
   /* костыль, но вебпак я не поборол.
