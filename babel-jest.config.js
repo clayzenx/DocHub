@@ -8,6 +8,11 @@ module.exports = {
     '@babel/plugin-proposal-class-properties',
     '@babel/proposal-object-rest-spread',
     '@babel/transform-runtime',
-    'babel-plugin-transform-import-meta'
+    'babel-plugin-transform-import-meta',
+    ['prismjs', {
+      'languages': 'all',
+      'theme': 'default',
+      'css': true
+    }]
   ]
 };

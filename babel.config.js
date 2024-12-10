@@ -6,6 +6,11 @@ module.exports = {
 	],
   plugins: [
     '@babel/plugin-proposal-class-properties',
-    '@babel/proposal-object-rest-spread'
+    '@babel/proposal-object-rest-spread',
+    ['prismjs', {
+      'languages': 'all',
+      'theme': 'default',
+      'css': true
+    }]
   ]
 };
