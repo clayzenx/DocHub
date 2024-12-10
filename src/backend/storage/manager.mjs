@@ -12,6 +12,7 @@ import jsonataFunctions from '../../global/jsonata/functions.mjs';
 import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import uriTool from '../helpers/uri.mjs';
 import datasetsWarmup from '../cluster/datasets-warmup.mjs';
+import {BaseEntities} from '../../global/entities/entities.mjs';
 
 const LOG_TAG = 'storage-manager';
 
@@ -158,8 +159,13 @@ export default {
 		app.storage = storage;  // Инициализируем данные хранилища
 		this.resetCustomFunctions(storage.manifest);
 		app.storage.roles = [];
-		if (isCluster && isPrimary) {
-			await datasetsWarmup(app);
+		if (isCluster) {
+			if (isPrimary) {
+				app.storage.schema = await BaseEntities.getSchema();
+				await datasetsWarmup(app);
+			} else {
+				entities(storage.manifest, app.storage.schema);
+			}
 		}
 		if (!isCluster || isPrimary) {
 			await validators(app);        // Выполняет валидаторы
