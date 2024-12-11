@@ -40,7 +40,7 @@
         </v-btn>
         <v-menu offset-y>
           <template #activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
+            <v-btn ref="dots-btn" icon v-bind="attrs" v-on="on">
               <v-icon>mdi-dots-vertical</v-icon>
             </v-btn>
           </template>
@@ -119,7 +119,13 @@
     },
     methods: {
       doPrint() {
-        window.print();
+        this.$refs['dots-btn'].$attrs['aria-expanded'] = false;
+
+        setTimeout(() => {
+          if(env.isPlugin(Plugins.vscode)) {
+            window.$PAPI.print(window.document.documentElement.outerHTML)
+          } else window.print();
+        }, 50);
       },
       handleDrawer(value) {
         this.$emit('handleDrawer', value);
