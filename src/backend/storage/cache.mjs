@@ -93,6 +93,14 @@ export default Object.assign(prototype, {
             uid, title, location, correction, description
         });
     },
+    objectToCache(obj) {
+        const res = typeof obj === 'string' ? { SEAF_cache_string: obj } : obj;
+        return JSON.stringify(res);
+    },
+    cacheToObject(cacheString) {
+        const cacheObj = JSON.parse(cacheString);
+        return cacheObj.SEAF_cache_string ? cacheObj.SEAF_cache_string : cacheObj;
+    },
     // Получает данные из кэша
     //  prefix - Префикс, который будет использован перед ключом
     //  key - ключ
@@ -118,22 +126,22 @@ export default Object.assign(prototype, {
                   if (!result) {
                       result = await redisClient.get(md5Key);
                       if (result) {
-                          result = JSON.parse(result);
+                          result = this.cacheToObject(result);
                       } else {
                           const startTime = performance.now();
                           result = await resolve();
                           logger.log(`${key} Time: ${performance.now() - startTime}ms`, LOG_TAG, 'debug');
-                          await redisClient.set(md5Key, JSON.stringify(result));
+                          await redisClient.set(md5Key, this.objectToCache(result));
                       }
                       // eslint-disable-next-line no-undef
-                      memoryCache[md5Key] = new WeakRef(result);
+                      memoryCache[md5Key] = result && typeof result === 'object' ? new WeakRef(result) : null;
                   }
                 break;
               default: {
                 const hash = md5(key);
                 fileName = path.resolve(__dirname, '../../../', cacheMode, `${hash}.cache`);
                 if (!fs.existsSync(fileName)) {
-                  result = JSON.stringify(await resolve() || null);
+                  result = this.objectToCache(await resolve() || null);
                   fs.writeFileSync(fileName, result, { encoding: 'utf8' });
                 }
               }
@@ -143,10 +151,11 @@ export default Object.assign(prototype, {
                 logger.log(`__dirname:_${__dirname}`, LOG_TAG, 'verbose');
                 logger.log(`fileName: ${fileName}`, LOG_TAG, 'verbose');
                 if (fileName) {
-                    res.setHeader('Content-Type', 'application/json').sendFile(fileName);
-                } else res.status(200).json(result);
+                    result = this.cacheToObject(fs.readFileSync(fileName, { encoding: 'utf8' }));
+                }
+                res.status(200).json(result);
             } else if (fileName) {
-                result = JSON.parse(fs.readFileSync(fileName, { encoding: 'utf8' }));
+                result = this.cacheToObject(fs.readFileSync(fileName, { encoding: 'utf8' }));
             }
 
             return res ? true : result;
