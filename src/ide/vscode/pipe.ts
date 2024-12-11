@@ -23,6 +23,9 @@ export default (): void => {
     initProject(mode): void {
       emit('create', mode);
     },
+    print(document: HTMLElement) {
+      emit('print', { document });
+    },
     addLinks(node): void {
       emit('addLinks', node);
     },
