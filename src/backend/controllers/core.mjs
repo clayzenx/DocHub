@@ -29,6 +29,7 @@ export default (app) => {
             let context;
             if(isRolesMode()) {
                 context = ruleId === '' ? app.storage.manifests[DEFAULT_ROLE] : app.storage.manifests[ruleId];
+                storeManager.resetCustomFunctions(context);
             } else {
                 context =  app.storage.manifest;
             }
