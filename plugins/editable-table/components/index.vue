@@ -1,47 +1,102 @@
 <template>
   <div class="plugin">
-    <template v-if="!isDataLoaded">
-      <v-alert> Тружусь... </v-alert>
-      <v-skeleton-loader type="table-row@6" />
-    </template>
-
-    <v-alert v-else-if="errorMessage" class="error" icon="warning">
-      {{ errorMessage }}
-    </v-alert>
-
     <dh-table
-      v-else
+      v-if="!loading && activeDialog?.type !== 'error'"
       v-bind:table-data="tableData"
       v-bind:headers="Object.values(tableHeaders)"
-      v-bind:direction="profile.direction === 'ttb' ? 'ttb' : 'ltr'"
-      v-bind:selection="profile.selection === true"
-      v-bind:page-size="profile.page_size ?? 20"
-      v-bind:filtration="profile.filtration ?? true"
-      v-on:on-save="saveTableToFiles" />
+      v-bind:table-options="tableOptions"
+      v-bind:selected-rows="selectedRows"
+      v-bind:on-select="onSelect">
+      <v-tooltip v-if="tableOptions.editable" bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn icon color="primary" fab class="action-button" v-bind="attrs" v-on:click="saveTableToFiles" v-on="on">
+            <v-icon medium>
+              mdi-content-save-outline
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Сохранить</span>
+      </v-tooltip>
 
-    <v-dialog v-if="isBackendMode" v-model="isDialogOpen" max-width="400" v-bind:persistent="!commitStatus">
-      <spinner v-if="commitStatus === null" />
-      <v-alert v-else-if="commitStatus === 201" type="success" class="alert">
-        Данные сохранены
-      </v-alert>
-      <v-alert v-else type="error" class="alert">
-        Ошибка при сохранении данных в репозиторий
-      </v-alert>
-    </v-dialog>
+      <v-tooltip v-if="tableOptions.editable" bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            icon
+            color="primary"
+            fab
+            class="action-button"
+            v-bind="attrs"
+            v-on="on"
+            v-on:click="activeDialog = { type: 'new-row' }">
+            <v-icon medium>
+              mdi-playlist-plus
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Добавить строку</span>
+      </v-tooltip>
+
+      <v-tooltip v-if="tableOptions.editable && tableOptions.selection" bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn
+            class="action-button"
+            icon
+            color="primary"
+            v-bind:disabled="selectedRows.length === 0"
+            fab
+            v-bind="attrs"
+            v-on:click="activeDialog = { type: 'mass-fill' }"
+            v-on="on">
+            <v-icon medium>
+              mdi-playlist-edit
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>Заполнить выделенное</span>
+      </v-tooltip>
+    </dh-table>
+
+    <template v-if="activeDialog">
+      <v-overlay v-model="activeDialog" />
+      <v-dialog v-model="activeDialog" hide-overlay max-width="600" persistent>
+        <v-alert v-if="activeDialog?.type === 'error'" class="alert" type="error">{{ activeDialog?.message }}</v-alert>
+        <mass-fill
+          v-if="activeDialog?.type === 'mass-fill'"
+          v-bind:headers="Object.values(tableHeaders)"
+          v-on:click-save="massDataFill"
+          v-on:click-cancel="activeDialog = null" />
+        <new-row
+          v-else-if="activeDialog?.type === 'new-row'"
+          v-bind:table-rows="Object.keys(tableData)"
+          v-on:click-save="createNewRow"
+          v-on:click-cancel="activeDialog = null" />
+
+        <spinner v-else-if="activeDialog?.type === 'loading'" />
+      </v-dialog>
+    </template>
   </div>
 </template>
 
 <script>
   import yaml from 'yaml';
   import env, { Plugins } from '@front/helpers/env';
-  import { mergeHeaders, parseSelectOptions, prepareTableData } from '../lib/helpers';
+  import Spinner from '@front/components/Controls/Spinner.vue';
   import Table from './Table/Table.vue';
-  import Spinner from '@/src/frontend/components/Controls/Spinner.vue';
+  import MassDataFillCard from './MassDataFillCard.vue';
+  import NewRowCard from './NewRowCard.vue';
+
+  import {
+    mergeHeaders,
+    parseSelectOptions,
+    prepareTableData
+  } from '../lib/helpers';
 
   export default {
     components: {
+      Spinner,
       'dh-table': Table,
-      'spinner': Spinner
+      'mass-fill': MassDataFillCard,
+      'new-row': NewRowCard
     },
     props: {
       profile: {
@@ -62,25 +117,27 @@
         required: true
       }
     },
-
     data() {
       return {
-        isBackendMode: env.isBackendMode(),
-        isDataLoaded: false,
+        loading: true,
+
         tableData: {},
         tableHeaders: [],
-        errorMessage: null,
-        commitStatus: null,
-        isDialogOpen: false
-      };
-    },
 
-    watch: {
-      isDialogOpen(cur, prev) {
-        if (cur === false && prev === true) {
-          this.commitStatus = null;
+        selectedRows: [],
+
+        activeDialog: null,
+
+        tableOptions: {
+          selection: this.profile.selection === true,
+          filtration: this.profile.filtration ?? true,
+          direction: this.profile.direction ?? 'ltr',
+          editable: null,
+          maxWidth: 'auto',
+          pageSize: this.profile.page_size ?? 20
         }
-      }
+
+      };
     },
 
     mounted() {
@@ -88,41 +145,65 @@
     },
 
     methods: {
-      async initTable() {
-        const data = await this.loadSourceData();
+      createNewRow(rowID) {
+        this.tableData = {...this.tableData, [rowID]: {}};
+        this.activeDialog = null;
+      },
 
-        if (this.errorMessage) {
-          this.isDataLoaded = true;
-          return;
+      massDataFill(updatedColumns, data) {
+        this.selectedRows.forEach(rowID => {
+          updatedColumns.forEach((headerID) => {
+            if (data[headerID] && typeof data[headerID] === 'object') {
+              if (Array.isArray(data[headerID])) {
+                this.tableData[rowID][headerID] = [...data[headerID]];
+              } else {
+                this.tableData[rowID][headerID] = { ...data[headerID] };
+              }
+            } else {
+              this.tableData[rowID][headerID] = data[headerID];
+            }
+          });
+        });
+
+        this.activeDialog = null;
+      },
+
+      onSelect(value) {
+        this.selectedRows = value;
+      },
+
+      async initTable() {
+        this.loading = true;
+
+        // ************************** SOURCE DATA **************************
+        let sourceData = await this.pullData();
+
+        if (!sourceData || !sourceData?.body) {
+          let message = 'Не удалось загрузить данные для таблицы. Пожалуйста, проверте корректность заполнения "source".';
+          if (sourceData && !sourceData?.body) {
+            message += 'Выражение в "source" должно вернуть объект со свойством "body".';
+          }
+          this.activeDialog = { type: 'error', message };
+          return this.loading = false;
         }
 
-        const { body, headers: sourceHeaders } = data;
+        const { body, headers: sourceHeaders } = sourceData;
 
+        // ************************** HEADERS **************************
         if (!this.profile.headers?.length && !sourceHeaders?.length) {
-          this.errorMessage = 'Не заполнены заголовки (headers) для таблицы';
-          this.isDataLoaded = true;
-          return;
+          this.activeDialog = {
+            type: 'error',
+            message: 'Не заполнены заголовки (headers) для таблицы'
+          };
+          return this.loading = false;
         }
 
         const headers = mergeHeaders(this.profile.headers, sourceHeaders);
-        const formatedHeaders = await this.formatHeaders(headers);
-
-        if (this.errorMessage) {
-          this.isDataLoaded = true;
-          return;
-        }
-
-        const tableData = prepareTableData(body, formatedHeaders);
-
-        this.tableData = tableData;
-        this.tableHeaders = formatedHeaders;
-        this.isDataLoaded = true;
-      },
-
-      async formatHeaders(rawHeaders) {
         let formatedHeaders = {};
 
-        for (let i = 0; i < rawHeaders.length; i++) {
+        let marginCount = 0;
+
+        for (let i = 0; i < headers.length; i++) {
           const {
             value,
             text = value,
@@ -135,12 +216,15 @@
             width = 'auto',
             pinned = false,
             style = {},
-            styles
-          } = rawHeaders[i];
+            styles = {}
+          } = headers[i];
 
           if (!value) {
-            this.errorMessage = 'Не задано значение идентификатора (value) для headers';
-            return;
+            this.activeDialog = {
+              type: 'error',
+              message: `Не задано значение идентификатора (value) для headers #${i + 1}`
+            };
+            return this.loading = false;
           }
 
           formatedHeaders[value] = {
@@ -162,55 +246,81 @@
 
           if (editable) {
             if (!save || !save?.path || !save?.entity) {
-              this.errorMessage = `Не заполнены опции сохранения ("save") для редактируемой колонки ("editable: true"). Проверте значение "save" для "${value}"`;
-              return;
+              this.activeDialog = {
+                type: 'error',
+                message: `Не заполнены опции сохранения ("save") для редактируемой колонки ("editable: true"). Проверте значение "save" для "${value}"`
+              };
+              return this.loading = false;
             }
+            this.tableOptions.editable = true;
+          }
+
+          const cellStyles = {};
+          if (width) {
+            cellStyles.minWidth = width;
+          }
+
+          if (pinned) {
+            cellStyles.position = 'sticky';
+            cellStyles.top = 0;
+            cellStyles.left = `${marginCount}px`;
+            cellStyles.zIndex = 5;
+            cellStyles.outline = '1px solid var(--color-border)';
+            marginCount += parseFloat(width);
+          }
+
+          formatedHeaders[value].cellStyles = cellStyles;
+
+          if (formatedHeaders[value].filterable) {
+            this.tableOptions.filtration = true;
+          }
+
+          const parsedWidth = parseFloat(width);
+          if (width && parsedWidth > this.tableOptions.maxWidth) {
+            this.tableOptions.maxWidth = parsedWidth;
           }
 
           if (type === 'select' || type === 'multiple-select') {
             if (!options) {
-              this.errorMessage = `Не указаны опции для селектора ("options"). Проверте значение "options" для ${value}`;
-              return;
+              this.activeDialog = {
+                type: 'error',
+                message: `Не указаны опции для селектора ("options"). Проверте значение "options" для ${value}`
+              };
+              return this.loading = false;
             }
             if (typeof options === 'string') {
               const jsonata = `
-              (
-                $."${options}"
-              )`;
+                (
+                  $."${options}"
+                )
+              `;
               try {
                 const res = await this.pullData(jsonata);
-                if (res === undefined) {
-                  this.errorMessage = `Не удалось получить "${value}/options" по идентификатору ${jsonata}`;
-                  return;
+                if (!res) {
+                  this.activeDialog = {
+                    type: 'error',
+                    message: `Не удалось получить "${value}/options" по идентификатору ${jsonata}`
+                  };
+                  return this.loading = false;
                 }
                 formatedHeaders[value].options = parseSelectOptions(res);
               } catch (err) {
-                this.errorMessage = `JSONata запрос "${jsonata}" завершился с ошибкой. Проверте значение в "headers/${value}/options"`;
-                // eslint-disable-next-line no-console
-                console.log(err);
+                this.activeDialog = {
+                  type: 'error',
+                  message: `JSONata запрос "${jsonata}" завершился с ошибкой. Проверте значение в "headers/${value}/options"`
+                };
+                return this.loading = false;
               }
             }
           }
         }
 
-        return formatedHeaders;
-      },
+        // ************************** DATA **************************
+        const tableData = prepareTableData(body, formatedHeaders);
 
-      async loadSourceData() {
-        return await this.pullData()
-          .then((data) => {
-            if (!data.body) {
-              throw new Error();
-            }
-            return data;
-          })
-          .catch((err) => {
-            alert(err);
-            this.errorMessage =
-              'Не удалось загрузить данные для таблицы. Пожалуйста, проверте корректность заполнения "source"';
-            // eslint-disable-next-line no-console
-            console.log(err);
-          });
+        this.tableData = tableData;
+        this.tableHeaders = formatedHeaders;
+        this.loading = false;
       },
 
       async getDataFromFile(path) {
@@ -328,8 +438,8 @@
             }
           });
       }
-    }
 
+    }
   };
 </script>
 
@@ -343,13 +453,17 @@
   --color-primary: #3495db;
   --color-select: #d1ecff;
   --color-bg-icon: rgba(134, 134, 134);
-
   --width-size-select: 55px;
 }
 
-.action-block {
-  display: flex;
-  gap: 8px;
+.action-button {
+  width: 36px;
+  height: 36px;
+  transition: .25;
+}
+
+.action-button:hover {
+  transform: scale(1.2);
 }
 
 .alert {

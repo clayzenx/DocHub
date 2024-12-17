@@ -1,313 +1,296 @@
 <template>
-  <div class="layout">
-    <div class="wrapper">
-      <div v-if="tableOptions.isEditable" class="action-block">
-        <div class="action-block_edit">
-          <v-btn color="primary" v-on:click="$emit('on-save')"> Сохранить </v-btn>
-          <v-btn
-            v-if="selection"
-            class="button_massFilling"
-            v-bind:disabled="selectedItems.length === 0"
-            v-on:click="isDialogOpen = true">
-            Заполнить выделенные
+  <div class="wrapper">
+    <div class="action-block">
+      <slot />
+      <v-tooltip v-if="!tableOptions.selection && tableOptions.filtration" bottom>
+        <template #activator="{ on, attrs }">
+          <v-btn icon fab class="action-button" v-bind="attrs" color="primary" v-on:click="onResetFilters" v-on="on">
+            <v-icon medium>
+              mdi-filter-off-outline
+            </v-icon>
           </v-btn>
-        </div>
-
-        <v-btn v-if="!selection && tableOptions.isFiltareble" v-on:click="onResetFilters">
-          Очистить фильтр
-        </v-btn>
-      </div>
-
-      <div v-if="direction === 'ltr'" key="ltr" class="scroll-container">
-        <table class="table table_ltr">
-          <!-- ***************************** HEADERS ROW ***************************** -->
-          <tr class="table__row table__row_header">
-            <!-- ************* SELECT ALL ************* -->
-            <td v-if="selection" class="cell cell_header cell_select">
-              <v-checkbox
-                class="select"
-                color="gray"
-                v-bind:indeterminate="selectedItems.length === filteredAndSortedItems.length"
-                v-bind:value="selectedItems.length > 0"
-                v-on:change="onSelectAllRows" />
-            </td>
-            <!-- ************* HEADERS ************* -->
-            <th
-              v-for="{ headerID, text, sortable } in headers"
-              v-bind:key="headerID"
-              class="cell, cell_header"
-              v-bind:style="pinnedRowStyles[headerID]"
-              v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
-              <div class="table__header">
-                {{ text }}
-                <v-badge
-                  v-if="sortMap[headerID]"
-                  class="sort-badge"
-                  color="primary"
-                  v-bind:content="sortMap[headerID].priority + 1"
-                  inline>
-                  <v-icon
-                    medium
-                    v-bind:class="sortMap[headerID].direction === 'inc'
-                      ? 'mdi mdi-arrow-up-bold'
-                      : 'mdi mdi-arrow-down-bold'
-                    "
-                    v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
-                    " />
-                </v-badge>
-              </div>
-            </th>
-          </tr>
-
-          <!-- ***************************** FILTER ROW ***************************** -->
-          <tr v-if="tableOptions.isFiltareble" class="table__row">
-            <!-- ************* RESET ************* -->
-            <td v-if="selection" class="cell cell_filter cell_reset-filter">
-              <v-btn icon v-on:click="onResetFilters">
-                <v-icon medium>cancel</v-icon>
-              </v-btn>
-            </td>
-            <!-- ************* FILTERS ************* -->
-
-            <td
-              v-for="{
-                headerID,
-                type,
-                options,
-                width,
-                filterable,
-              } in headers"
-              v-bind:key="headerID"
-              v-bind:width="width"
-              class="cell cell_filter"
-              v-bind:style="pinnedRowStyles[headerID]">
-              <table-cell
-                v-if="filterable && type === 'checkbox'"
-                v-model="filters[headerID]"
-                v-bind:type="'select'"
-                v-bind:items="selectCheckboxOptions" />
-              <table-cell
-                v-else-if="filterable"
-                v-model.trim="filters[headerID]"
-                v-bind:type="type"
-                v-bind:items="options" />
-            </td>
-          </tr>
-
-          <!-- ***************************** ITEMS ROW ***************************** -->
-          <tr
-            v-for="([rowID, row]) in filteredAndSortedItemsSlice"
-            v-bind:key="rowID"
-            v-bind:class="[
-              'table__row',
-              { table__row_selected: selectedItems.includes(rowID) },
-            ]">
-            <!-- ************* SELECT ITEM ************* -->
-            <td v-if="selection" class="cell cell_body cell_select">
-              <v-checkbox
-                class="select"
-                color="gray"
-                v-bind:input-value="selectedItems.includes(rowID)"
-                v-on:change="() => onSelectRowItem(rowID)" />
-            </td>
-
-            <!-- ************* ITEMS ************* -->
-            <td
-              v-for="{
-                headerID,
-                type,
-                width,
-                disabled,
-                options,
-                styles
-              } in headers"
-              v-bind:key="headerID"
-              class="cell cell_body"
-              v-bind:width="width"
-              v-bind:style="pinnedRowStyles[headerID]">
-              <table-cell
-                v-model.trim="row[headerID]"
-                v-bind:type="type"
-                v-bind:items="options"
-                v-bind:disabled="disabled"
-                v-bind:styles="styles" />
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <div v-if="direction === 'ttb'" key="ttb" class="scroll-container">
-        <table class="table table_ttb">
-          <!-- ***************************** SELECT ROW ***************************** -->
-          <!-- ************* SELECT ALL ************* -->
-          <tr v-if="selection" class="table__row">
-            <td class="cell cell_select cell_header">
-              <v-checkbox
-                class="select"
-                color="gray"
-                v-bind:indeterminate="selectedItems.length === filteredAndSortedItems.length"
-                v-bind:value="selectedItems.length > 0"
-                v-on:change="onSelectAllRows" />
-            </td>
-            <!-- ************* RESET FILTER ************* -->
-            <td v-if="tableOptions.isFiltareble" class="cell cell_reset-filter cell_filter">
-              <v-btn icon v-on:click="onResetFilters">
-                <v-icon medium>cancel</v-icon>
-              </v-btn>
-            </td>
-            <!-- ************* SELECTS ************* -->
-            <td
-              v-for="([rowID]) in filteredAndSortedItemsSlice"
-              v-bind:key="rowID"
-              v-bind:class="[
-                'cell',
-                'cell_select',
-                { cell_selected: selectedItems.includes(rowID) },
-              ]">
-              <v-checkbox
-                class="select"
-                color="gray"
-                v-bind:input-value="selectedItems.includes(rowID)"
-                v-on:change="() => onSelectRowItem(rowID)" />
-            </td>
-          </tr>
-
-          <!-- ***************************** HEADER AND ITEMS ***************************** -->
-          <tr
-            v-for="{
-              headerID,
-              text,
-              type,
-              options,
-              disabled,
-              filterable,
-              sortable,
-              styles
-            } in headers"
-            v-bind:key="headerID"
-            class="table__row">
-            <!-- ************* HEADERS ************* -->
-            <th
-              class="cell cell_header"
-              v-bind:style="tableOptions.maxWidth"
-              v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
-              <div class="table__header">
-                {{ text }}
-
-                <v-badge
-                  v-if="sortMap[headerID]"
-                  class="sort-badge"
-                  color="primary"
-                  v-bind:content="sortMap[headerID].priority + 1"
-                  inline>
-                  <v-icon
-                    medium
-                    v-bind:class="sortMap[headerID].direction === 'inc'
-                      ? 'mdi mdi-arrow-up-bold'
-                      : 'mdi mdi-arrow-down-bold'
-                    "
-                    v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
-                    " />
-                </v-badge>
-              </div>
-            </th>
-            <!-- ************* FILTERS ************* -->
-            <td v-if="tableOptions.isFiltareble" class="cell cell_filter" v-bind:style="tableOptions.maxWidth">
-              <table-cell
-                v-if="filterable && type === 'checkbox'"
-                v-model="filters[headerID]"
-                class="cell_checbox-selector"
-                v-bind:type="'select'"
-                v-bind:items="selectCheckboxOptions" />
-              <table-cell
-                v-else-if="filterable"
-                v-model.trim="filters[headerID]"
-                v-bind:type="type"
-                v-bind:items="options" />
-            </td>
-            <!-- ************* ITEMS ************* -->
-            <td
-              v-for="([rowID, row]) in filteredAndSortedItemsSlice"
-              v-bind:key="rowID"
-              v-bind:class="['cell', 'cell_body', { cell_selected: selectedItems.includes(rowID) }]"
-              v-bind:style="[tableOptions.maxWidth]">
-              <table-cell
-                v-model.trim="row[headerID]"
-                v-bind:type="type"
-                v-bind:items="options"
-                v-bind:disabled="disabled"
-                v-bind:styles="styles" />
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="footer">
-        <v-pagination
-          v-if="filteredAndSortedItems.length > pageSize"
-          v-model="currentPage"
-          v-bind:length="numberOfPages"
-          v-bind:total-visible="7" />
-      </div>
+        </template>
+        <span>Добавить строку</span>
+      </v-tooltip>
     </div>
 
-    <v-alert v-if="isFilterActive && filteredAndSortedItems.length === 0">
-      Ничего не найдено
-    </v-alert>
+    <div v-if="tableOptions.direction === 'ltr'" key="ltr" class="scroll-container">
+      <table v-if="tableOptions.direction === 'ltr'" key="ltr" class="table table_ltr">
+        <!-- ***************************** HEADERS ROW ***************************** -->
+        <tr class="table__row table__row_header">
+          <!-- ************* SELECT ALL ************* -->
+          <td v-if="tableOptions.selection" class="cell cell_header cell_select">
+            <v-checkbox
+              class="select"
+              color="gray"
+              v-bind:indeterminate="selectedRows.length === filteredAndSortedItems.length"
+              v-bind:value="selectedRows.length > 0"
+              v-on:change="onSelectAllRows" />
+          </td>
+          <!-- ************* HEADERS ************* -->
+          <th
+            v-for="{ headerID, text, sortable, cellStyles } in headers"
+            v-bind:key="headerID"
+            class="cell, cell_header"
+            v-bind:style="cellStyles"
+            v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
+            <div class="table__header">
+              {{ text }}
+              <v-badge
+                v-if="sortMap[headerID]"
+                class="sort-badge"
+                color="primary"
+                v-bind:content="sortMap[headerID].priority + 1"
+                inline>
+                <v-icon
+                  medium
+                  v-bind:class="sortMap[headerID].direction === 'inc'
+                    ? 'mdi mdi-arrow-up-bold'
+                    : 'mdi mdi-arrow-down-bold'
+                  "
+                  v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
+                  " />
+              </v-badge>
+            </div>
+          </th>
+        </tr>
 
-    <v-dialog v-model="isDialogOpen" max-width="800">
-      <mass-fill v-bind:headers="headers" v-on:click-save="massDataFill" v-on:click-cancel="isDialogOpen = false" />
-    </v-dialog>
+        <!-- ***************************** FILTER ROW ***************************** -->
+        <tr v-if="tableOptions.filtration" class="table__row">
+          <!-- ************* RESET ************* -->
+          <td v-if="tableOptions.selection" class="cell cell_filter cell_reset-filter">
+            <v-btn icon v-on:click="onResetFilters">
+              <v-icon medium>
+                mdi-filter-off-outline
+              </v-icon>
+            </v-btn>
+          </td>
+          <!-- ************* FILTERS ************* -->
+
+          <td
+            v-for="{
+              headerID,
+              type,
+              options,
+              width,
+              filterable,
+              cellStyles
+            } in headers"
+            v-bind:key="headerID"
+            v-bind:width="width"
+            class="cell cell_filter"
+            v-bind:style="cellStyles">
+            <table-cell
+              v-if="filterable && type === 'checkbox'"
+              v-model="filters[headerID]"
+              v-bind:type="'select'"
+              v-bind:items="selectCheckboxOptions" />
+            <table-cell
+              v-else-if="filterable"
+              v-model.trim="filters[headerID]"
+              v-bind:type="type"
+              v-bind:items="options" />
+          </td>
+        </tr>
+
+        <!-- ***************************** ITEMS ROW ***************************** -->
+        <tr
+          v-for="([rowID, row]) in filteredAndSortedItemsSlice"
+          v-bind:key="rowID"
+          v-bind:class="[
+            'table__row',
+            { table__row_selected: selectedRows.includes(rowID) },
+          ]">
+          <!-- ************* SELECT ITEM ************* -->
+          <td v-if="tableOptions.selection" class="cell cell_body cell_select">
+            <v-checkbox
+              class="select"
+              color="gray"
+              v-bind:input-value="selectedRows.includes(rowID)"
+              v-on:change="() => onSelectRowItem(rowID)" />
+          </td>
+
+          <!-- ************* ITEMS ************* -->
+          <td
+            v-for="{
+              headerID,
+              type,
+              width,
+              disabled,
+              options,
+              styles,
+              cellStyles
+            } in headers"
+            v-bind:key="headerID"
+            class="cell cell_body"
+            v-bind:width="width"
+            v-bind:style="cellStyles">
+            <table-cell
+              v-model.trim="row[headerID]"
+              v-bind:type="type"
+              v-bind:items="options"
+              v-bind:disabled="disabled"
+              v-bind:styles="styles" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div v-if="tableOptions.direction === 'ttb'" key="ttb" class="scroll-container">
+      <table v-if="tableOptions.direction === 'ttb'" key="ttb" class="table table_ttb">
+        <!-- ***************************** SELECT ROW ***************************** -->
+        <!-- ************* SELECT ALL ************* -->
+        <tr v-if="tableOptions.selection" class="table__row">
+          <td class="cell cell_select cell_header">
+            <v-checkbox
+              class="select"
+              color="gray"
+              v-bind:indeterminate="selectedRows.length === filteredAndSortedItems.length"
+              v-bind:value="selectedRows.length > 0"
+              v-on:change="onSelectAllRows" />
+          </td>
+          <!-- ************* RESET FILTER ************* -->
+          <td v-if="tableOptions.isFiltareble" class="cell cell_reset-filter cell_filter">
+            <v-btn icon v-on:click="onResetFilters">
+              <v-icon medium>cancel</v-icon>
+            </v-btn>
+          </td>
+          <!-- ************* SELECTS ************* -->
+          <td
+            v-for="([rowID]) in filteredAndSortedItemsSlice"
+            v-bind:key="rowID"
+            v-bind:class="[
+              'cell',
+              'cell_select',
+              { cell_selected: selectedRows.includes(rowID) },
+            ]">
+            <v-checkbox
+              class="select"
+              color="gray"
+              v-bind:input-value="selectedRows.includes(rowID)"
+              v-on:change="() => onSelectRowItem(rowID)" />
+          </td>
+        </tr>
+
+        <!-- ***************************** HEADER AND ITEMS ***************************** -->
+        <tr
+          v-for="{
+            headerID,
+            text,
+            type,
+            options,
+            disabled,
+            filterable,
+            sortable,
+            styles
+          } in headers"
+          v-bind:key="headerID"
+          class="table__row">
+          <!-- ************* HEADERS ************* -->
+          <th
+            class="cell cell_header"
+            v-bind:style="tableOptions.maxWidth"
+            v-on:click="() => (sortable ? onSetSort(headerID) : undefined)">
+            <div class="table__header">
+              {{ text }}
+
+              <v-badge
+                v-if="sortMap[headerID]"
+                class="sort-badge"
+                color="primary"
+                v-bind:content="sortMap[headerID].priority + 1"
+                inline>
+                <v-icon
+                  medium
+                  v-bind:class="sortMap[headerID].direction === 'inc'
+                    ? 'mdi mdi-arrow-up-bold'
+                    : 'mdi mdi-arrow-down-bold'
+                  "
+                  v-bind:color="sortMap[headerID].direction === 'inc' ? 'green' : 'red'
+                  " />
+              </v-badge>
+            </div>
+          </th>
+          <!-- ************* FILTERS ************* -->
+          <td v-if="tableOptions.isFiltareble" class="cell cell_filter" v-bind:style="tableOptions.maxWidth">
+            <table-cell
+              v-if="filterable && type === 'checkbox'"
+              v-model="filters[headerID]"
+              class="cell_checbox-selector"
+              v-bind:type="'select'"
+              v-bind:items="selectCheckboxOptions" />
+            <table-cell
+              v-else-if="filterable"
+              v-model.trim="filters[headerID]"
+              v-bind:type="type"
+              v-bind:items="options" />
+          </td>
+          <!-- ************* ITEMS ************* -->
+          <td
+            v-for="([rowID, row]) in filteredAndSortedItemsSlice"
+            v-bind:key="rowID"
+            v-bind:class="['cell', 'cell_body', { cell_selected: selectedRows.includes(rowID) }]"
+            v-bind:style="[tableOptions.maxWidth]">
+            <table-cell
+              v-model.trim="row[headerID]"
+              v-bind:type="type"
+              v-bind:items="options"
+              v-bind:disabled="disabled"
+              v-bind:styles="styles" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <v-pagination
+      v-if="filteredAndSortedItems.length > tableOptions.pageSize"
+      v-model="currentPage"
+      class="pagination"
+      v-bind:length="numberOfPages"
+      v-bind:total-visible="8" />
   </div>
 </template>
 
 <script>
   import { checkIsValueEmpty, getMultipleRowSorter } from '../../lib/helpers';
+  import { SELECT_CHECKBOX_OPTIONS } from '../../lib/const';
 
   import TableCell from '../TableCell/index.vue';
-  import MassDataFillCard from '../MassDataFillCard.vue';
-  import { SELECT_CHECKBOX_OPTIONS } from '../../lib/const';
 
   export default {
     components: {
-      'table-cell': TableCell,
-      'mass-fill': MassDataFillCard
+      'table-cell': TableCell
     },
+
     props: {
       tableData: {
         type: Object,
-        required: true
-      },
-      filtration: {
-        type: Boolean,
         required: true
       },
       headers: {
         type: Array,
         required: true
       },
-      direction: {
-        type: String,
+      tableOptions: {
+        type: Object,
         required: true
       },
-      selection: {
-        type: Boolean,
+      onSelect: {
+        type: Function,
         required: true
       },
-      pageSize: {
-        type: Number,
+      selectedRows: {
+        type: Array,
         required: true
       }
     },
 
     data() {
       return {
-        currentPage: 1,
         filters: {},
         selectCheckboxOptions: SELECT_CHECKBOX_OPTIONS,
-        isDialogOpen: false,
-        selectedItems: [],
-        sortList: []
+        sortList: [],
+        currentPage: 1
       };
     },
     computed: {
@@ -325,10 +308,10 @@
           : this.filteredItems;
       },
       filteredAndSortedItemsSlice() {
-        const startIndex = (this.currentPage - 1) * this.pageSize;
+        const startIndex = (this.currentPage - 1) * this.tableOptions.pageSize;
         return this.filteredAndSortedItems.slice(
           startIndex,
-          startIndex + this.pageSize
+          startIndex + this.tableOptions.pageSize
         );
       },
 
@@ -341,7 +324,7 @@
         return false;
       },
       numberOfPages() {
-        return Math.ceil(this.filteredAndSortedItems.length / this.pageSize);
+        return Math.ceil(this.filteredAndSortedItems.length / this.tableOptions.pageSize);
       },
       sortMap() {
         const result = {};
@@ -352,56 +335,6 @@
       },
       isSortActive() {
         return this.sortList.length > 0;
-      },
-      pinnedRowStyles() {
-        const result = {};
-        let marginCount = 0;
-
-        this.headers.forEach(({ headerID, pinned, width }) => {
-          const styles = {};
-
-          if (width) {
-            styles.minWidth = width;
-          }
-
-          if (pinned) {
-            styles.position = 'sticky';
-            styles.top = 0;
-            styles.left = `${marginCount}px`;
-            styles.zIndex = 5;
-            marginCount += parseFloat(width);
-          }
-
-          result[headerID] = styles;
-        });
-
-        return result;
-      },
-      tableOptions() {
-        let hasFiltarebleColumn = false;
-        let hasEditableColumn = false;
-        let maxWidth = 0;
-
-        this.headers.forEach(({ disabled, filterable, width }) => {
-          if (filterable) {
-            hasFiltarebleColumn = true;
-          }
-          if (!disabled) {
-            hasEditableColumn = true;
-          }
-
-          const parsedWidth = parseFloat(width);
-
-          if (width && parsedWidth > maxWidth) {
-            maxWidth = parsedWidth;
-          }
-        });
-
-        return {
-          isEditable: hasEditableColumn,
-          isFiltareble: this.filtration && hasFiltarebleColumn,
-          maxWidth: maxWidth
-        };
       }
     },
 
@@ -417,27 +350,6 @@
     methods: {
       onResetFilters() {
         this.filters = {};
-      },
-
-      massDataFill(updatedColumns, data) {
-        this.isDialogOpen = false;
-        this.changeSelectedRows(this.selectedItems, updatedColumns, data);
-      },
-
-      changeSelectedRows(selectedItems, updatedColumns, data) {
-        selectedItems.forEach(rowID => {
-          updatedColumns.forEach((headerID) => {
-            if(data[headerID] && typeof data[headerID] === 'object') {
-              if(Array.isArray(data[headerID])) {
-                this.tableData[rowID][headerID] = [...data[headerID]];
-              } else {
-                this.tableData[rowID][headerID] = {...data[headerID]};
-              }
-            } else {
-              this.tableData[rowID][headerID] = data[headerID];
-            }
-          });
-        });
       },
 
       // eslint-disable-next-line no-unused-vars
@@ -485,16 +397,18 @@
       },
 
       onSelectRowItem(rowID) {
-        this.selectedItems = this.selectedItems.includes(rowID)
-          ? this.selectedItems.filter((selected) => selected !== rowID)
-          : [...this.selectedItems, rowID];
+        const newValue = this.selectedRows.includes(rowID)
+          ? this.selectedRows.filter((selected) => selected !== rowID)
+          : [...this.selectedRows, rowID];
+        this.onSelect(newValue);
       },
 
       onSelectAllRows() {
-        this.selectedItems =
-          this.selectedItems.length === this.filteredAndSortedItems.length
+        const newValue =
+          this.selectedRows.length === this.filteredAndSortedItems.length
             ? []
             : this.filteredAndSortedItems.map(([rowID]) => rowID);
+        this.onSelect(newValue);
       },
 
       onSetSort(headerID) {
@@ -522,51 +436,55 @@
 </script>
 
 <style scoped>
-.layout {
-  padding: 6px 12px;
+.wrapper {
+  max-height: calc(100vh - 64px);
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  align-items: start;
-
-  max-height: calc(100vh - 64px);
+  gap: 6px;
 }
 
-.wrapper {
-  max-width: 100%;
-  max-width: 100%;
-
+.action-block {
   display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  gap: 12px;
 }
 
 .scroll-container {
+  flex-grow: 1;
   overflow: auto;
-  border-radius: 6px;
-  position: relative;
-  padding-left: 1px;
+  border-radius: 4px;
+  padding: 0 8px 8px 0;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  background-color: #F5F5F5;
+}
+
+.scroll-container::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+  background-color: #F5F5F5;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+  background-color: #555;
 }
 
 .table {
   width: auto;
   border-collapse: collapse;
-  margin: 4px;
+}
+
+.pagination {
+  height: 45px;
 }
 
 .select {
   margin-left: 7px;
-}
-
-.action-block {
-  padding: 8px 0;
-  display: flex;
-  justify-content: space-between;
-}
-
-.action-block_edit {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
 }
 
 .button_massFilling {
@@ -593,7 +511,7 @@
 
 .cell {
   height: 1em;
-  outline: 1px solid var(--color-border);
+  border: 1px solid var(--color-border);
   background-color: var(--color-bg-cell);
 }
 
@@ -605,6 +523,7 @@
   position: relative;
   background-color: var(--color-bg-header);
   color: var(--color-bg-cell);
+  border: 1px solid var(--color-border);
 }
 
 .table__header {
@@ -623,7 +542,9 @@
   text-align: center;
 }
 
-.footer {
-  align-self: center;
+.action-button {
+  width: 36px;
+  height: 36px;
+  transition: .25;
 }
 </style>

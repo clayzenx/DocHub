@@ -32,6 +32,16 @@
         <spinner v-else />
       </template>
     </template>
+
+    <v-dialog v-if="!isPlugin" v-model="isDialogActive" max-width="400" v-bind:persistent="commitStatus === 'loading'">
+      <spinner v-if="commitStatus === 'loading'" />
+      <v-alert v-else-if="commitStatus === 201" type="success" class="alert">
+        Данные сохранены
+      </v-alert>
+      <v-alert v-else type="error" class="alert">
+        Ошибка при сохранении данных в репозиторий
+      </v-alert>
+    </v-dialog>
   </div>
 </template>
 
@@ -108,7 +118,10 @@
         error: null,
         currentPath : this.resolvePath(),
         currentParams: this.resolveParams(),
-        dataProvider: datasets()
+        dataProvider: datasets(),
+        commitStatus: null,
+        isDialogActive: false,
+        isPlugin: env.isPlugin()
       };
     },
     computed: {
@@ -148,17 +161,21 @@
       putContentForBackend() {
         return (url, content) => {
           const hash = this.baseURI.split('/')[2];
+          this.commitStatus = 'loading';
+          this.isDialogActive = true;
           return requests.request(`backend://put-content/${hash}`, this.baseURI, {
             method: 'post',
             data: {
               content,
               url
             }
-          });
+          }) 
+            .then(res => this.commitStatus = res.status)
+            .catch(() => this.commitStatus = 400);
         };
       },
       putContent() {
-        return env.isPlugin()
+        return this.isPlugin
           ? this.putContentForPlugin
           : this.putContentForBackend;
       }
@@ -256,3 +273,9 @@
     }
   };
 </script>
+
+<style scoped>
+.alert {
+  margin: 0;
+}
+</style>

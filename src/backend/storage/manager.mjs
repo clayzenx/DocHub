@@ -132,6 +132,9 @@ export default {
 			manifest: baseManifest,
 			onChange: manifestParser?.onChange,
 			findLayers: manifestParser?.findLayers,
+			rebuildLayers: manifestParser?.rebuildLayers,
+			rootLayers: manifestParser?.rootLayers,
+			layers: manifestParser?.layers,
 			hash: objectHash(baseManifest), // HASH состояния для контроля в кластере
 			mergeMap: {},								// Карта склейки объектов
 			md5Map: {}, 								// Карта путей к ресурсам по md5 пути
