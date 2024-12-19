@@ -34,3 +34,29 @@ export default {
     return result;
   }
 };
+
+export function PrepareHTMLForPrint() {
+  const printDoc = document;
+  // Собираем все <script> теги из <head> и удаляем
+  printDoc.head.querySelectorAll('script')
+    .forEach((script) => script.remove());
+
+  // Собираем шаблон для печати
+  const content = printDoc.querySelector('.v-main__wrap');
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Print Content</title>
+        ${printDoc.head.innerHTML}
+    </head>
+    <body>
+        ${content ? content.outerHTML : 'No content available'}
+    </body>
+    </html>
+  `;
+
+  return html;
+}
+

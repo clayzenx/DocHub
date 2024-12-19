@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import md5 from 'md5';
 
 import plantuml from '@front/helpers/plantuml';
+import { PrepareHTMLForPrint } from '@front/helpers/html';
 
 const emit = (command: string, content: any): Promise<any> | void =>
   vscode.postMessage({ command, content });
@@ -23,8 +24,8 @@ export default (): void => {
     initProject(mode): void {
       emit('create', mode);
     },
-    print(document: HTMLElement) {
-      emit('print', { document });
+    print() {
+      emit('print', { document: PrepareHTMLForPrint() });
     },
     addLinks(node): void {
       emit('addLinks', node);

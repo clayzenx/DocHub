@@ -123,7 +123,7 @@
 
         setTimeout(() => {
           if(env.isPlugin(Plugins.vscode)) {
-            window.$PAPI.print(window.document.documentElement.outerHTML);
+            window.$PAPI.print();
           } else window.print();
         }, 50);
       },
