@@ -3,6 +3,9 @@
 ### Новые фичи:
 - **seaf-archtool-ideplugin-vscode**: добавлена функция печати
 
+### Исправлены ошибки:
+- **seaf-archtool-ideplugin-vscode**: некорректно обрабатывались datasets
+
 
 ## v3.15.0
 
