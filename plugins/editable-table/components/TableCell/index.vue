@@ -26,6 +26,11 @@
       v-bind:disabled="disabled"
       v-bind:styles="styles"
       v-on:input="updateInput" />
+
+    <dh-link
+      v-if="type === 'link'" 
+      v-bind:value="value"
+      v-bind:styles="styles" />
   </div>
 </template>
 
@@ -34,13 +39,15 @@
   import Select from './Select.vue';
   import Checkbox from './Checkbox.vue';
   import Text from './Text.vue';
+  import Link from './Link.vue';
 
   export default {
     components: {
       'dh-textarea': Textarea,
       'dh-select': Select,
       'dh-checkbox': Checkbox,
-      'dh-text': Text
+      'dh-text': Text,
+      'dh-link': Link
     },
     props: {
       value: {
