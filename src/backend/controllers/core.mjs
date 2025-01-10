@@ -1,4 +1,5 @@
 import datasets from '../helpers/datasets.mjs';
+import jsonata from '../helpers/jsonata.mjs';
 import storeManager from '../storage/manager.mjs';
 import cache from '../storage/cache.mjs';
 import queries from '../../global/jsonata/queries.mjs';
@@ -16,31 +17,6 @@ const compressor = compression();
 
 const LOG_TAG = 'controller-core';
 export default (app) => {
-
-    // Создает ответ на JSONata запрос и при необходимости кэширует ответ
-    async function makeJSONataQueryResponse(res, query, params, subject, ruleId) {
-        let key;
-        if(isRolesMode()) {
-            key = { query, params, subject, ruleId };
-        } else {
-            key = { query, params, subject};
-        }
-        cache.pullFromCache(app.storage.hash, JSON.stringify(key), async() => {
-            let context;
-            if(isRolesMode()) {
-                context = ruleId === '' ? app.storage.manifests[DEFAULT_ROLE] : app.storage.manifests[ruleId];
-                storeManager.resetCustomFunctions(context);
-            } else {
-                context =  app.storage.manifest;
-            }
-            return await datasets(app).parseSource(
-                context,
-                query,
-                subject,
-                params
-            );
-        }, res);
-    }
 
     function checkRulesManifest(ruleName) {
         for(let key in app.storage.manifests) {
@@ -85,7 +61,7 @@ export default (app) => {
             ? `(${queries.makeQuery(queries.QUERIES[request.query], request.params)})`
             : request.query;
 
-        await makeJSONataQueryResponse(res, query, request.params, request.subject, id);
+        await jsonata.makeJSONataQueryResponse(app, query, res, request.params, request.subject, id);
         const jsonLog = JSON.stringify({
           userName,
           time: Date.now() - start,

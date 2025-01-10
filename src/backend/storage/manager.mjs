@@ -12,6 +12,7 @@ import jsonataFunctions from '../../global/jsonata/functions.mjs';
 import {newManifest, loader, isRolesMode, DEFAULT_ROLE} from '../utils/rules.mjs';
 import uriTool from '../helpers/uri.mjs';
 import datasetsWarmup from '../cluster/datasets-warmup.mjs';
+import menuWarmup from '../cluster/menu-warmup.mjs';
 import {BaseEntities} from '../../global/entities/entities.mjs';
 
 const LOG_TAG = 'storage-manager';
@@ -168,6 +169,7 @@ export default {
 			if (isPrimary) {
 				app.storage.schema = await BaseEntities.getSchema();
 				await datasetsWarmup(app);
+        await menuWarmup(app);
 			} else {
 				entities(storage.manifest, app.storage.schema);
 			}

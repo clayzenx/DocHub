@@ -130,7 +130,7 @@ export default Object.assign(prototype, {
                       } else {
                           const startTime = performance.now();
                           result = await resolve();
-                          logger.log(`${key} Time: ${performance.now() - startTime}ms`, LOG_TAG, 'debug');
+                          logger.log(`${key} \n Time: ${performance.now() - startTime}ms`, LOG_TAG, 'debug');
                           await redisClient.set(md5Key, this.objectToCache(result));
                       }
                       // eslint-disable-next-line no-undef
