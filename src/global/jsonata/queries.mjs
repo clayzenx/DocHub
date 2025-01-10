@@ -47,7 +47,7 @@ const queries = {
                     }
                 ][($exists(hiden) and $not(hiden)) or $not($exists(hiden))],
                 entities.*.(
-                    $eval(menu, $MANIFEST).{
+                    $eval($exists(menu.source) ? menu.source : menu, $exists(menu.origin) ? $dh_deep_lookup($MANIFEST, menu.origin) : $MANIFEST).{
                         "route": link,
                         "location": location,
                         "icon": icon,

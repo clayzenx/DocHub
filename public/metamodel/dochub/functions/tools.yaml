@@ -20,3 +20,27 @@ functions:
       (
         $
       )
+  dh_deep_lookup:
+    title: Получение значения вложенного ключа
+    # Схема входящих параметров
+    params:
+      - alias: object
+        type: object
+        title: Объект для извлечения
+        required: true
+      - alias: path
+        type: string
+        title: Ссылка на вложенный ключ
+    # Код функции
+    code: >
+      (
+        $path := path;
+        $object := object;
+
+        $keys := $path ~> $split(".");
+
+        $keys ~> $reduce(function($acc, $key) {
+          $acc ? $lookup($acc, $key) : null
+        }, $object)
+      )
+
