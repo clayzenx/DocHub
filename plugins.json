@@ -9,6 +9,7 @@
         "plugins/drawio",
         "plugins/editable-table",
         "plugins/arch-formater",
-        "plugins/meta-integration"
+        "plugins/meta-integration",
+        "plugins/excel"
     ]
 }

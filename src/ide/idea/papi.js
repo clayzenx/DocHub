@@ -62,6 +62,9 @@ const PAPI = {
 	download(content, title, description, extension) {
 		this.request({ url: 'plugin:/idea/gateway/download', content, title, description, extension });
 	},
+	upload() {
+		this.request({ url: 'plugin:/idea/gateway/upload'});
+	},
 	applyEntitiesSchema(schema) {
 		this.request({ url: 'plugin:/idea/entities/applyschema', schema });
 	},
