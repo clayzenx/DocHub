@@ -16,7 +16,7 @@ export function deepMerge(target, source) {
 }
 
 export function mergeHeaders(targetList, sourceList) {
-  if(!targetList || !sourceList) {
+  if (!targetList || !sourceList) {
     return targetList ?? sourceList;
   }
 
@@ -28,7 +28,7 @@ export function mergeHeaders(targetList, sourceList) {
   sourceList.forEach((header) => {
     let index = HEADER_INDEX_MAP[header.value];
 
-    if(index === undefined) {
+    if (index === undefined) {
       targetList.push(header);
     } else {
       deepMerge(targetList[index], header);
@@ -56,12 +56,23 @@ export function prepareTableData(data, headers) {
     if (dataTable[rowID] === undefined) {
       dataTable[rowID] = {};
     }
-    
+
     for (let headerID in headers) {
       const { type } = headers[headerID];
 
       if (type === 'checkbox') {
         dataTable[rowID][headerID] = !!row[headerID];
+        continue;
+      } else if (type === 'link' && row[headerID]) {
+        let formatedLink;
+        if (typeof row[headerID] === 'string') {
+          formatedLink = [{ href: row[headerID], text: row[headerID] }];
+        } else if (Array.isArray(row[headerID])) {
+          formatedLink = row[headerID];
+        } else if (typeof row[headerID] === 'object') {
+          formatedLink = [row[headerID]];
+        }
+        dataTable[rowID][headerID] = formatedLink;
         continue;
       }
       dataTable[rowID][headerID] = row[headerID] ?? null;

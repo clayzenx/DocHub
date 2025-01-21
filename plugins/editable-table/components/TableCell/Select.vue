@@ -287,7 +287,6 @@
   padding: 4px 0;
   box-shadow: 0px 0px 8px 4px rgba(34, 60, 80, 0.35);
   border-radius: 4px;
-  z-index: 10;
   overflow: hidden;
 }
 

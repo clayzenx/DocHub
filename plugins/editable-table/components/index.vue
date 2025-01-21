@@ -264,7 +264,7 @@
             cellStyles.position = 'sticky';
             cellStyles.top = 0;
             cellStyles.left = `${marginCount}px`;
-            cellStyles.zIndex = 5;
+            cellStyles.zIndex = 6;
             cellStyles.outline = '1px solid var(--color-border)';
             marginCount += parseFloat(width);
           }
