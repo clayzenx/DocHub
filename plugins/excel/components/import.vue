@@ -95,9 +95,15 @@
           });
         });
 
-        this.profile.tables.forEach(async({ name, output, source }) => {
-          const data = await this.pullData(source, this.profile, this.params, this.data[name]);
-          this.putContent(output, yaml.stringify(data));
+        this.profile.tables.forEach(async({ name, output, source }, index) => {
+          let data;
+          try {
+            data = await this.pullData(source, this.profile, this.params, this.data[name]);
+            this.putContent(output, yaml.stringify(data));
+          } catch {
+            // eslint-disable-next-line no-console
+            console.error(`Ошибка при выполнении JSONata выражения в tables c индексом ${index} (name: ${name}). Файл не сохранен`);
+          }
         });
       }
     }
