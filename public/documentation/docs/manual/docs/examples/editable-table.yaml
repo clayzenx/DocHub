@@ -1,0 +1,258 @@
+docs:
+  dochub.editable-table.preset:
+    type: editable-table
+    # type - Тип документа
+    page_size: 5
+    # page_size - Количество строк на странице
+    # Дефолтное значение:  20
+    # Допустимые значения: положительные целый числа
+    selection: false
+    # selection - Отражение чекбоксов для выбора строк
+    # Дефолтное значение:  false
+    # Допустимые значения: false / true
+    filtration: false
+    # filtration - Флаг позволяющий глобально отключить отображение фильтров в каждой колонке
+    # Дефолтное значение:  true
+    # Допустимые значения: true / false
+    direction: ltr
+    # direction - Направление таблицы
+    # Дефолтное значение:  ltr
+    # Допустимые значения: ltr (left to right) / ttb (top to bottom)
+
+    headers:
+      # headers - Массив заголовков
+      # Обязательное
+
+      - value: ID
+        # value - Идентификатор поля для вывода в колонке
+        # Обязательное
+        width: 100px
+        # width - Ширина колонки (px)
+        # Обязательное значение при указании "pinned: true"
+        filterable: false
+        # filterable - Флаг, позволяет отключить фильтрацию в колонке
+        # Дефолтное значение:  true
+        # Допустимые значения: true / false
+        sortable: false
+        # sortable - Флаг позволяет запретить сортировку по колонке
+        # Дефолтное значение:  true
+        # Допустимые значения: true / false
+        type: text
+        # type - Тип вывода ячеек для указанной колонки
+        # Дефолтное значение:  text
+        # Допустимые значения: text / select / multiple-select / checkbox
+
+      - value: name
+        text: Имя
+        # text - Отображаемый заголовок
+        # Дефолтное значение: подставляется из значения value
+        pinned: true
+        # pinned - Позволяет закрепить колонку при горизонтальном скроле
+        # Дефолтное значение:  true
+        # Допустимые значения: true / false
+        # При "pinned: true" необходимо явно установить значение для "width"
+        width: 250px
+        style:
+          # style - Позволяет установить css-inline стили для колонки
+          # Допустимые значения: допустимые css-inline в camelCase нотации
+          fontWeight: 800 # Пример (насыщенность шрифта)
+          fontStyle: italic # Пример (стиль шрифта)
+
+        styles:
+          # styles - Позволяет указать как дефолтные так и css-inline стили применяемые по условию (conditions).
+          # Важно: Перечисляется в порядке увеличения приоритета (при установки одинаковых стилей, первое будет перетерто послудующим)
+          gray-background-for-ivan-and-petr:
+            # Наименование группы css-правил (любой текст в качестве имени)
+            backgroundColor: gray # Пример css-inline (цвет фона)
+            conditions:
+              # conditions - условия для применения стиля (массив)
+              # При отсутсвии условия группа css-правил применяется по дефолту
+              - condition_type: equal
+                # condition_type - Тип условия
+                # Допустимые значения:
+                # equal - сравнение
+                # includes - проверка наличия подстроки
+                # match - регулярное выражения
+                # '>'   - Больше (Обязательно в ковычках)
+                # '>='  - Больше или равно (Обязательно в ковычках)
+                # '<'   - Меньше (Обязательно в ковычках)
+                # '<='  - Меньше или равно (Обязательно в ковычках)
+                value: Петров Петр Петрович
+                # value - Значение условия (текст, число, regExp)
+              - condition_type: includes
+                value: Иванович
+
+      - value: age
+        text: Возраст
+        width: 100px
+        styles:
+          adult:
+            backgroundColor: blue
+            color: white
+          old:
+            backgroundColor: green
+            conditions:
+              - condition_type: ">"
+                value: 70
+          child:
+            backgroundColor: orange
+            conditions:
+              - condition_type: "<"
+                value: 18
+
+      - value: ice_cream
+        text: Любимое мороженное
+        width: 200px
+        type: select
+
+        options:
+          # options - опции для типа "select" и "multiple-select"
+          # Обязательное для "select" и "multiple-select"
+          # Допустимые значения: идентификатор опций в архитектуре или объект вида:
+          - value: vanilla
+            text: ванильное
+          - value: chocolate
+            text: шоколадное
+
+        styles:
+          chocolate:
+            backgroundColor: chocolate
+            conditions:
+              - condition_type: equal
+                value: chocolate
+          vanilla:
+            backgroundColor: pink
+            conditions:
+              - condition_type: equal
+                value: vanilla
+
+      - value: color
+        text: Цвет
+        width: 200px
+        type: multiple-select
+        options: color-options
+        # Пример и формат использования опции - идентификатора
+
+      - value: smile
+        text: Улыбнулся
+        width: 100px
+        type: checkbox
+
+      - value: link
+        width: 150px
+        text: Ссылки
+        type: link
+        # Допустимые значения для ссылок:
+        # 1. Текст:
+        #   https://www.google.ru/
+        # 2. Объект:
+        #   {
+        #     "href": "/architect/components/system.auth",
+        #     "text": "Авторизация"
+        #   }
+        # 3. Массив объектов:
+        #   [
+        #       {
+        #           "href": "https://www.google.ru/",
+        #           "text": "google"
+        #       },
+        #       {
+        #           "href": "/docs/example",
+        #           "text": "Пример документа"
+        #       }
+        #   ]
+
+    source: >
+      (
+        $body := {
+          "row_1": {
+              "ID": 1, 
+              "name": "Иванов Иван Иванович", 
+              "age": 10, 
+              "ice_cream": "vanilla",
+              "smile": true,
+              "color": ["blue", "white"],
+              "link": {
+                "href": "/",
+                "text": "Home"
+              }
+          },
+          "row_2": {
+              "ID": 2, 
+              "name": "Семенов Семен Семенович", 
+              "age": 20,
+              "smile": false,
+              "color": ["red"],
+              "link": [
+                {
+                  "href": "https://www.google.ru/",
+                  "text": "Google"
+                },
+                {
+                  "href": "https://ya.ru/",
+                  "text": "Яндекс"
+                }
+              ]
+          },
+          "row_3": {
+              "ID": 3, 
+              "name": "Петров Петр Петрович", 
+              "age": 80,
+              "ice_cream": "chocolate",
+              "smile": true
+          },
+          "row_4": {
+              "ID": 4, 
+              "name": "Александров Александр Александрович", 
+              "age": 30, 
+              "color": ["green"],
+              "link": "https://www.google.ru/"
+          }
+        };
+
+        {"body": $body}
+      )
+
+  dochub.editable-table.preset-2:
+    type: editable-table
+    filtration: false
+    headers:
+      - value: column_1
+        text: Колонка 1
+        width: 150px
+      - value: column_2
+        text: Колонка 2
+        width: 150px
+        style:
+          color: red
+    source: >
+      ( 
+        $headers := [
+          {
+            "value": "column_2",
+            "style": {
+              "backgroundColor": "gray"
+            }
+          },
+          { "value": "column_3", "width": "250px", "text": "Новая колонка" }
+        ];
+
+        $body := {
+          "row_1": {"column_1": "11", "column_2": "12", "column_3": "13"},
+          "row_2": {"column_1": "21", "column_2": "22", "column_3": "23"}
+        };
+        {
+          "headers": $headers,
+          "body": $body
+        }
+      )
+
+color-options:
+  red:
+    type: Красный
+  green:
+    type: Зеленый
+  blue:
+    type: Синий
+  white:
+    type: Белый

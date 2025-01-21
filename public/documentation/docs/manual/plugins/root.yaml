@@ -55,6 +55,12 @@ docs:
     source: svg_inline.md
     location: DocHub/Руководство/Плагины/Примеры/SVG
 
+  dochub.plugins.editable_table:
+    title: Редактируемая таблица
+    type: markdown
+    source: editable_table.md
+    location: DocHub/Руководство/Плагины/Примеры/Редактируемая таблица
+
   dochub.plugins.drawio:
     location: DocHub/Руководство/Плагины/Примеры/Drawio
     type: markdown

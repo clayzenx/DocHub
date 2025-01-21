@@ -1,6 +1,7 @@
 imports:
   - examples/table.yaml
   - examples/charts.yaml
+  - examples/editable-table.yaml
 docs:
   # *****************************************  
   #        Руководство по документам 
