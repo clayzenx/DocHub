@@ -3,6 +3,7 @@ import ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import source from '../datasets/source.mjs';
 import { BaseEntities } from '../../global/entities/entities.mjs';
+import manifestParser from '../manifest/parser2.mjs';
 
 // import ajv_localize from 'ajv-i18n/localize/ru';
 // const ajv_localize = require('ajv-i18n/localize/ru');
@@ -28,6 +29,10 @@ function wcard(id, template) {
     const isOk = new RegExp(`^${items.join('\\.')}$`);
 
     return isOk.test(id);
+}
+
+async function parseSource(source) {
+  return await this.getDatasetDriver().getData(manifestParser.manifest, source);
 }
 
 function mergeDeep(sources) {
@@ -80,10 +85,15 @@ function log(content, tag) {
     this.logger.log(message, tag, 'verbose');
 }
 
+function getDatasetDriver() {
+  console.log('getDatasetDriver is not implemented');
+}
+
 export default {
     // Функция должна возвращать коллекцию пользовательских функций JSONata
     customFunctions: null,
     logger: console,
+    getDatasetDriver,
     // Создает объект запроса JSONata
     //  expression - JSONata выражение
     //  self    - объект, который вызывает запрос (доступен по $self в запросе)
@@ -99,6 +109,7 @@ export default {
             onError: null,  // Событие ошибки выполнения запроса
             store: {},      // Хранилище вспомогательных переменных для запросов
             logger: this.logger,    // Логгер трассировки запросов
+            getDatasetDriver: this.getDatasetDriver,
             // Исполняет запрос
             //  context - контекст исполнения запроса
             async evaluate(context) {
@@ -109,6 +120,7 @@ export default {
                         this.core.assign('params', params);
                         this.core.registerFunction('wcard', wcard);
                         this.core.registerFunction('mergedeep', mergeDeep);
+                        this.core.registerFunction('parsesource', parseSource.bind(this));
                         this.core.registerFunction('jsonschema', jsonSchema);
                         this.core.registerFunction('manifestschema', manifestSchema);
                         this.core.registerFunction('sourcetype', sourceType);

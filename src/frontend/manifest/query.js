@@ -3,7 +3,9 @@ import queries from '@global/jsonata/queries.mjs';
 import jsonataFunctions from '@global/jsonata/functions.mjs';
 import env from '@front/helpers/env';
 import requests from '@front/helpers/requests';
+import datasets from '@front/helpers/datasets';
 
+jsonataDriver.getDatasetDriver = () => datasets();
 
 // Возвращает тело запроса в зависимости от платформы развертывания
 function resolveJSONataRequest(ID, params) {
@@ -79,7 +81,7 @@ const queryDriver = {
     },
 
     // ********** СУЩНОСТИ ***********
-    
+
     // Документы для сущности
     docsForSubject(entity) {
         return resolveJSONataRequest(queries.IDS.DOCUMENTS_FOR_ENTITY, { ENTITY: entity });
@@ -110,7 +112,7 @@ jsonataDriver.customFunctions = () => {
         return cacheFunction.functions;
 
     const result = (cacheFunction.functions = jsonataFunctions(queryDriver, state?.manifest?.functions || {}));
-    
+
     cacheFunction.moment = state.moment;
     return result;
 };

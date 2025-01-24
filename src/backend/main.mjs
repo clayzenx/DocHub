@@ -16,7 +16,7 @@ import manifestMutator from './controllers/manifestMutator.mjs';
 const LOG_TAG = 'server';
 
 //const express = require('express');
-const app = express();
+export const app = express();
 const serverPort = process.env.VUE_APP_DOCHUB_BACKEND_PORT || 3030;
 const loggerEnabled = process.env.VUE_APP_DOCHUB_LOGGER_ENABLE?.toLowerCase() === 'on';
 
